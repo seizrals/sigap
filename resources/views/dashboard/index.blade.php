@@ -15,7 +15,7 @@
             <div class="bg-gradient-to-br from-red-400 to-red-600 rounded-[24px] p-6 text-white shadow-lg shadow-red-500/20">
                 <p class="text-xs font-bold uppercase tracking-wider opacity-90 mb-2">Kecamatan Zona Merah</p>
                 <p class="text-5xl font-black mb-3">01</p>
-                <p class="text-sm font-medium opacity-90">Kabupaten: Kec. Atinggola (LPG)</p>
+                <p class="text-sm font-medium opacity-90">Kabupaten: Gorontalo Utara (LPG)</p>
             </div>
 
             <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-[24px] p-6 text-white shadow-lg shadow-blue-500/20">

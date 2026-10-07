@@ -308,7 +308,7 @@
             <!-- Badge Pertamax -->
             <div class="bg-red-600 text-white px-4 py-2 rounded-xl text-center shadow-sm">
                 <p class="text-[9px] font-extrabold tracking-wider uppercase opacity-90">Pertamax</p>
-                <p class="text-xs font-black italic">Rp 13.200</p>
+                <p class="text-xs font-black italic">Rp 16.650</p>
             </div>
         </div>
     </div>

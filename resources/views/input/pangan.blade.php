@@ -14,8 +14,89 @@
                 <p class="text-sm opacity-90">Laporkan harga dan ketersediaan pangan per komoditas di pasar wilayah Anda.</p>
             </div>
         </div>
-        <div class="p-8 min-h-[500px] flex items-center justify-center text-slate-400">
-            <p class="text-sm">Form input Pangan Strategis - akan diisi pada tahap selanjutnya</p>
+        
+    <form class="bg-white p-6 rounded-2xl max-w-8xl mx-auto space-y-5 text-slate-700">
+    
+    <!-- Grid 2 Kolom untuk Form Field -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        
+        <!-- Tanggal Input -->
+        <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Input</label>
+            <input type="date" value="2026-12-05" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-500 shadow-sm transition">
         </div>
+
+        <!-- Kecamatan (Otomatis) -->
+        <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Kecamatan (Otomatis)</label>
+            <input type="text" value="Kwandang" readonly class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-500 font-medium outline-none cursor-not-allowed shadow-sm">
+        </div>
+
+        <!-- Nama Pasar / Lokasi Pantau -->
+        <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nama Pasar / Lokasi Pantau</label>
+            <input type="text" placeholder="Cth: Pasar Sentral Kwandang" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 shadow-sm transition">
+        </div>
+
+        <!-- Jenis Komoditas -->
+        <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Jenis Komoditas</label>
+            <select class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-500 shadow-sm transition">
+                <option value="" disabled selected>Pilih Komoditas...</option>
+                <option value="beras">Beras Premium</option>
+                <option value="cabai">Cabai Rawit</option>
+                <option value="bawang">Bawang Merah</option>
+            </select>
+        </div>
+
+        <!-- Harga Hari Ini (Rp) -->
+        <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Harga Hari Ini (Rp)</label>
+            <input type="number" placeholder="Cth: 15000" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 shadow-sm transition">
+        </div>
+
+        <!-- Status Ketersediaan -->
+        <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Status Ketersediaan</label>
+            <select class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-500 shadow-sm transition">
+                <option value="stabil" selected>🟢 Stabil / Aman</option>
+                <option value="kritis">🔴 Kritis / Langka</option>
+            </select>
+        </div>
+
+        <!-- Stok Tersedia (Estimasi) - Input + Satuan Input Group -->
+        <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Stok Tersedia (Estimasi)</label>
+            <div class="flex rounded-xl shadow-sm overflow-hidden border border-slate-200 focus-within:border-blue-500 transition">
+                <input type="text" placeholder="Jumlah" class="w-full bg-white px-3.5 py-2.5 text-sm placeholder:text-slate-300 text-slate-800 outline-none">
+                <input type="text" placeholder="Satuan (Kg/Ton)" class="w-2/5 bg-slate-50 border-l border-slate-200 px-3 py-2.5 text-sm placeholder:text-slate-300 text-slate-600 outline-none text-center">
+            </div>
+        </div>
+
+        <!-- Distribusi Masuk Hari Ini -->
+        <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Distribusi Masuk Hari Ini</label>
+            <input type="text" placeholder="Cth: 2 Ton dari Gorontalo" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 shadow-sm transition">
+        </div>
+
     </div>
+
+    <!-- Keterangan / Kendala Lapangan -->
+    <div class="pt-2">
+        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Keterangan / Kendala Lapangan</label>
+        <textarea rows="3" placeholder="Tambahkan catatan jika ada lonjakan harga atau masalah distribusi..." class="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 shadow-sm transition resize-none"></textarea>
+    </div>
+
+    <!-- Tombol Action (Batal & Simpan) -->
+    <div class="flex justify-end items-center gap-3 pt-4 border-t border-slate-100">
+        <button type="button" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition">
+            Batal
+        </button>
+        <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm shadow-md shadow-amber-500/20 flex items-center gap-2 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+            Simpan Data Komoditas
+        </button>
+    </div>
+
+</form>
 @endsection

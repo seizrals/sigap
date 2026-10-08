@@ -140,6 +140,26 @@
     pemicuList: [] 
 }">
 
+<div class="space-y-6">
+        <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm p-6">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        Tabel Pantauan Status Wilayah (11 Kecamatan)
+                    </h3>
+                    <p class="text-sm text-slate-500">klik baris atau tombol detail untuk melihat rincian indikator pemicu per kecamatan</p>
+
+                <div class="">
+                    <span class="inline-block w-2 h-2 rounded-full bg-status-waspada animate-pulse"></span>
+                    <span class="text-[11px] font-bold text-status-waspada">WASPADA</span>
+                    <span class="inline-block w-2 h-2 rounded-full bg-status-bahaya animate-pulse"></span>
+                    <span class="text-[11px] font-bold text-status-bahaya">BAHAYA</span>
+                    <span class="inline-block w-2 h-2 rounded-full bg-status-aman animate-pulse"></span>
+                    <span class="text-[11px] font-bold text-status-aman">AMAN</span>
+                </div>
+                </div>
+            </div>
+
     <!-- Table Section -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">

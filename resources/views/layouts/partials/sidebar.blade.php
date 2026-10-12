@@ -1,4 +1,4 @@
-<aside class="w-64 bg-sigap-primary text-slate-100 flex flex-col shrink-0 border-r border-slate-800">
+<aside class="w-64 bg-sigap-primary text-slate-100 flex flex-col shrink-0 border-r border-slate-800 h-full overflow-hidden">
     <div class="h-20 flex items-center gap-3 px-5 border-b border-slate-800">
         <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-sigap-accent to-sigap-secondary flex items-center justify-center font-bold text-white shadow-lg">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-1.348c-1.263 0-2.421-.96-2.655-2.236z"/></svg>
@@ -65,24 +65,6 @@
                     <a href="{{ route('ews.monitor-kabupaten') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('ews.monitor-kabupaten') ? 'bg-sigap-accent text-white shadow-lg shadow-blue-900/40' : 'text-slate-300 hover:bg-sigap-primary-light hover:text-white' }}">
                         <svg class="w-5 h-5 shrink-0 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>
                         <span>Monitor Kabupaten</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <div>
-            <p class="px-3 mb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-[0.15em]">Lainnya</p>
-            <ul class="space-y-1">
-                <li>
-                    <a href="{{ route('saran-publik.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('saran-publik.*') ? 'bg-sigap-accent text-white shadow-lg shadow-blue-900/40' : 'text-slate-300 hover:bg-sigap-primary-light hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0 text-teal-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
-                        <span>Beri Saran (Publik)</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('validasi.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('validasi.*') ? 'bg-sigap-accent text-white shadow-lg shadow-blue-900/40' : 'text-slate-300 hover:bg-sigap-primary-light hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0 text-violet-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <span>Validasi OPD</span>
                     </a>
                 </li>
             </ul>

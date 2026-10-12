@@ -2,41 +2,21 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
 use App\Http\Controllers\Controller;
+use App\Models\Kecamatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 class LoginController extends Controller
 {
     public function showLoginForm()
     {
-        if (config('app.env') === 'production') {
-            return view('auth.login');
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
         }
 
-        try {
-            if (Schema::hasTable('users')) {
-                $admin = User::firstOrCreate(
-                    ['username' => 'admin'],
-                    [
-                        'name' => 'Admin Kabupaten',
-                        'email' => 'admin@sigap-gorontaloutara.go.id',
-                        'password' => Hash::make('password'),
-                        'role' => 'admin_kabupaten',
-                        'opd_name' => 'TPID Kabupaten Gorontalo Utara',
-                        'is_active' => true,
-                    ]
-                );
-                Auth::login($admin);
-            }
-        } catch (\Throwable $e) {
-            // Abaikan error (DB belum ready / migration belum jalan)
-        }
-
-        return redirect()->route('dashboard');
+        return view('auth.login');
     }
 
     public function login(Request $request)
@@ -46,8 +26,11 @@ class LoginController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        $loginField = filter_var($request->username, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        if (Auth::attempt([$loginField => $request->username, 'password' => $request->password, 'is_active' => true], $request->boolean('remember'))) {
             $request->session()->regenerate();
+
             return redirect()->intended(route('dashboard'));
         }
 
@@ -61,11 +44,25 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('login');
+
+        return redirect()->route('portal-publik');
     }
 
     public function portalPublik()
     {
-        return view('portal-publik');
+        $kecamatan = collect();
+
+        try {
+            if (Schema::hasTable('kecamatan')) {
+                $kecamatan = Kecamatan::where('is_active', true)
+                    ->select('id', 'nama_kecamatan')
+                    ->orderBy('nama_kecamatan')
+                    ->get();
+            }
+        } catch (\Throwable $e) {
+            // Abaikan error (DB belum ready / migration belum jalan)
+        }
+
+        return view('portal-publik', compact('kecamatan'));
     }
 }

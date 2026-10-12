@@ -6,6 +6,7 @@ use App\Http\Controllers\EwsController;
 use App\Http\Controllers\InputDataController;
 use App\Http\Controllers\SaranPublikController;
 use App\Http\Controllers\ValidasiController;
+use App\Http\Controllers\LaporanController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -34,3 +35,6 @@ Route::prefix('ews')->name('ews.')->group(function () {
 
 Route::resource('saran-publik', SaranPublikController::class)->names('saran-publik');
 Route::resource('validasi', ValidasiController::class)->names('validasi');
+
+Route::get('/pdf/laporan-monitor', [LaporanController::class, 'cetakLaporan'])
+    ->name('pdf.laporan-monitor');

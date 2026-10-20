@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/bbm', [InputDataController::class, 'bbm'])->name('bbm');
         Route::post('/bbm', [InputDataController::class, 'storeBbm'])->name('bbm.store');
         Route::get('/iph-mingguan', [InputDataController::class, 'iph'])->name('iph');
+        Route::get('/iph-bulanan', [InputDataController::class, 'iph_bulanan'])->name('iph_bulanan');
     });
 
     Route::prefix('ews')->name('ews.')->group(function () {

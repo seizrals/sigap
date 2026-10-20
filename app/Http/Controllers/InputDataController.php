@@ -208,6 +208,11 @@ class InputDataController extends Controller
 
     public function iph()
     {
-        return view('input.iph');
+        return view('input.iph-mingguan');
+    }
+
+    public function iph_bulanan()
+    {
+        return view('input.iph-bulanan');
     }
 }

@@ -99,19 +99,22 @@
     {{-- Tab Navigation & Content --}}
     <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
         <div class="flex items-center gap-2 border-b border-slate-100 px-6 overflow-x-auto">
-            <button id="btn-iph" onclick="switchTab('iph')" class="tab-btn whitespace-nowrap px-4 py-4 text-sm font-bold border-b-2 border-blue-600 text-blue-600 transition-all">
+            <button id="btn-iph-mingguan" onclick="switchTab('iph-mingguan')" class="tab-btn whitespace-nowrap px-4 py-4 text-sm font-bold border-b-2 border-blue-600 text-blue-600 transition-all">
                 DATA IPH MINGGUAN
+            </button>
+            <button id="btn-iph-bulanan" onclick="switchTab('iph-bulanan')" class="tab-btn whitespace-nowrap px-4 py-4 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">
+                DATA IPH BULANAN
             </button>
             <button id="btn-pangan" onclick="switchTab('pangan')" class="tab-btn whitespace-nowrap px-4 py-4 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">
                 PANGAN STRATEGIS
             </button>
-            <button id="btn-lpg" onclick="switchTab('lpg')" class="tab-btn whitespace-nowrap px-4 py-4 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">LPG</button>
-            <button id="btn-bbm" onclick="switchTab('bbm')" class="tab-btn whitespace-nowrap px-4 py-4 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">BBM</button>
+            <button id="btn-lpg" onclick="switchTab('lpg')" class="tab-btn whitespace-nowrap px-4 py-4 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">LPG 3 KG</button>
+            <button id="btn-bbm" onclick="switchTab('bbm')" class="tab-btn whitespace-nowrap px-4 py-4 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">BBM SUBSIDI</button>
         </div>
 
         <div class="p-6">
-            {{-- Tab IPH --}}
-            <div id="content-iph" class="tab-content">
+            {{-- Tab IPH Mingguan--}}
+            <div id="content-iph-mingguan" class="tab-content">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     <div class="lg:col-span-4 space-y-4">
                         <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100 space-y-4">
@@ -121,13 +124,18 @@
                                 <select class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm">
                                     <option value="2026" selected>2026</option>
                                     <option value="2025">2025</option>
+                                    <option value="2024">2024</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2022">2022</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Bulan</label>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Minggu</label>
                                 <select class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm">
-                                    <option value="Mei" selected>Mei</option>
-                                    <option value="April">April</option>
+                                    <option value="Minggu I" selected>Minggu I</option>
+                                    <option value="Minggu II">Minggu II</option>
+                                    <option value="Minggu III">Minggu III</option>
+                                    <option value="Minggu IV">Minggu IV</option>
                                 </select>
                             </div>
                         </div>
@@ -140,10 +148,58 @@
                         </div>
                     </div>
                     <div class="lg:col-span-8 relative h-[320px] w-full">
-                        <canvas id="iphChart"></canvas>
-                    </div>
+                    <canvas id="iphChartMingguan"></canvas>
                 </div>
             </div>
+        </div>
+
+        {{-- Tab IPH Bulanan--}}
+            <div id="content-iph-bulanan" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <div class="lg:col-span-4 space-y-4">
+                        <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100 space-y-4">
+                            <p class="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">Filter Pencarian</p>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Tahun</label>
+                                <select class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                    <option value="2026" selected>2026</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2024">2024</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2022">2022</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Bulan</label>
+                                <select class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                    <option value="Januari" selected>Januari</option>
+                                    <option value="Februari">Februari</option>
+                                    <option value="Maret">Maret</option>
+                                    <option value="April">April</option>
+                                    <option value="Mei">Mei</option>
+                                    <option value="Juni">Juni</option>
+                                    <option value="Juli">Juli</option>
+                                    <option value="Agustus">Agustus</option>
+                                    <option value="September">September</option>
+                                    <option value="Oktober">Oktober</option>
+                                    <option value="November">November</option>
+                                    <option value="Desember">Desember</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="bg-blue-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-600/20">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-blue-100 mb-1">{{ $iphTerbaru?->periode_label ?? 'IPH Minggu II Mei' }}</p>
+                            <p class="text-4xl font-extrabold tracking-tight mb-3">{{ $iphTerbaru?->iph_kabupaten ?? '2.33' }}%</p>
+                            <span class="inline-block bg-blue-500/50 backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border border-emerald-400/30">
+                                Status: Terkendali
+                            </span>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-8 relative h-[320px] w-full">
+                    <canvas id="iphChartBulanan"></canvas>
+                </div>
+            </div>
+        </div>
 
             {{-- Tab Pangan --}}
             <div id="content-pangan" class="tab-content hidden">
@@ -385,9 +441,10 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-        const ctx = document.getElementById('iphChart');
-        if (ctx) {
-            const ctx2d = ctx.getContext('2d');
+        // --- 1. GRAFIK IPH MINGGUAN ---
+        const ctxMingguan = document.getElementById('iphChartMingguan');
+        if (ctxMingguan) {
+            const ctx2d = ctxMingguan.getContext('2d');
             const gradient = ctx2d.createLinearGradient(0, 0, 0, 300);
             gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
             gradient.addColorStop(1, 'rgba(16, 185, 129, 0.01)');
@@ -395,7 +452,7 @@
             new Chart(ctx2d, {
                 type: 'line',
                 data: {
-                    labels: ['April Mng III', 'April Mng IV', 'Mei Mng I', 'Mei Mng II'],
+                    labels: ['Minggu III', 'Minggu IV', 'Minggu I', 'Minggu II'],
                     datasets: [{
                         data: [1.85, 2.10, 1.95, 2.33],
                         borderColor: '#10b981',
@@ -435,6 +492,58 @@
             });
         }
 
+        // --- 2. GRAFIK IPH BULANAN (TAMBAHAN) ---
+        const ctxBulanan = document.getElementById('iphChartBulanan');
+        if (ctxBulanan) {
+            const ctxBulanan2d = ctxBulanan.getContext('2d');
+            const gradientBulanan = ctxBulanan2d.createLinearGradient(0, 0, 0, 300);
+            gradientBulanan.addColorStop(0, 'rgba(37, 99, 235, 0.2)');
+            gradientBulanan.addColorStop(1, 'rgba(37, 99, 235, 0.01)');
+
+            new Chart(ctxBulanan2d, {
+                type: 'line',
+                data: {
+                    labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'],
+                    datasets: [{
+                        data: [1.20, 1.45, 1.80, 2.10, 1.85, 1.60],
+                        borderColor: '#2563eb',
+                        borderWidth: 3,
+                        backgroundColor: gradientBulanan,
+                        fill: true,
+                        tension: 0.45,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#2563eb',
+                        pointBorderWidth: 3,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#64748b', font: { size: 11, weight: '500' } }
+                        },
+                        y: {
+                            min: 1.00,
+                            max: 2.50,
+                            ticks: {
+                                stepSize: 0.25,
+                                color: '#64748b',
+                                font: { size: 11 },
+                                callback: function(value) { return value.toFixed(2).replace('.', ','); }
+                            },
+                            grid: { color: '#f1f5f9' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- 3. INISIALISASI LEAFLET GIS ---
         const gisMapEl = document.getElementById('gisMap');
         if (gisMapEl) {
             const map = L.map('gisMap').setView([0.72, 123.05], 10);

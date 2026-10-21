@@ -47,25 +47,7 @@
                     @endforeach
                 </select>
             </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nama Pangkalan</label>
-                <select name="pangkalan_lpg_id" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-orange-500 shadow-sm transition">
-                    <option value="">Pilih Pangkalan...</option>
-                    @foreach($pangkalan as $p)
-                        <option value="{{ $p->id }}" {{ old('pangkalan_lpg_id') == $p->id ? 'selected' : '' }}>{{ $p->nama_pangkalan }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Jenis LPG</label>
-                <select name="jenis_lpg" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-orange-500 shadow-sm transition">
-                    <option value="LPG 3 Kg (Subsidi)" {{ old('jenis_lpg', 'LPG 3 Kg (Subsidi)') == 'LPG 3 Kg (Subsidi)' ? 'selected' : '' }}>LPG 3 Kg (Subsidi)</option>
-                    <option value="LPG 5.5 Kg (Non Subsidi)" {{ old('jenis_lpg') == 'LPG 5.5 Kg (Non Subsidi)' ? 'selected' : '' }}>Bright Gas 5.5 Kg</option>
-                    <option value="LPG 12 Kg" {{ old('jenis_lpg') == 'LPG 12 Kg' ? 'selected' : '' }}>LPG 12 Kg</option>
-                    <option value="LPG 50 Kg" {{ old('jenis_lpg') == 'LPG 50 Kg' ? 'selected' : '' }}>LPG 50 Kg</option>
-                    <option value="Bright Gas" {{ old('jenis_lpg') == 'Bright Gas' ? 'selected' : '' }}>Bright Gas</option>
-                </select>
-            </div>
+
         </div>
 
         <div class="bg-amber-50/50 border border-amber-100 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -116,15 +98,7 @@
                     <option value="kosong" {{ old('status_ketersediaan') == 'kosong' ? 'selected' : '' }}>Kosong</option>
                 </select>
             </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Status Distribusi</label>
-                <select name="status_distribusi" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-orange-500 shadow-sm transition">
-                    <option value="lancar" {{ old('status_distribusi', 'lancar') == 'lancar' ? 'selected' : '' }}>Lancar</option>
-                    <option value="terhambat" {{ old('status_distribusi') == 'terhambat' ? 'selected' : '' }}>Terhambat</option>
-                    <option value="macet" {{ old('status_distribusi') == 'macet' ? 'selected' : '' }}>Macet</option>
-                    <option value="panic_buying" {{ old('status_distribusi') == 'panic_buying' ? 'selected' : '' }}>Panic Buying</option>
-                </select>
-            </div>
+            
         </div>
 
         <div>

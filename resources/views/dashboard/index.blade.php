@@ -7,26 +7,7 @@
 <div class="space-y-6">
 
     {{-- Quick Status Cards --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div class="bg-gradient-to-br from-amber-400 to-orange-500 rounded-[24px] p-6 text-white shadow-lg shadow-orange-500/20">
-            <p class="text-xs font-bold uppercase tracking-wider opacity-90 mb-2">Komoditas Defisit</p>
-            <p class="text-5xl font-black mb-3">{{ $komoditasDefisit ?? '02' }}</p>
-            <p class="text-sm font-medium opacity-90">Item: Cabai Rawit, Bawang Merah</p>
-        </div>
-
-        <div class="bg-gradient-to-br from-red-400 to-red-600 rounded-[24px] p-6 text-white shadow-lg shadow-red-500/20">
-            <p class="text-xs font-bold uppercase tracking-wider opacity-90 mb-2">Kecamatan Zona Merah</p>
-            <p class="text-5xl font-black mb-3">{{ $kecamatanZonaMerah ?? '01' }}</p>
-            <p class="text-sm font-medium opacity-90">Wilayah: KAB. Gorontalo Utara (LPG)</p>
-        </div>
-
-        <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-[24px] p-6 text-white shadow-lg shadow-blue-500/20">
-            <p class="text-xs font-bold uppercase tracking-wider opacity-90 mb-2">Rekomendasi Distribusi</p>
-            <p class="text-4xl font-black mb-3">Aktif</p>
-            <p class="text-sm font-medium opacity-90">Saran: Operasi Pasar Kwadang</p>
-        </div>
-    </div>
-
+    
     {{-- GIS Map Section + Rekomendasi Strategis --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2 bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
@@ -269,12 +250,7 @@
                             <option value="all" selected>Semua Kecamatan</option>
                         </select>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Desa</span>
-                        <select class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
-                            <option value="all" selected>Semua Desa</option>
-                        </select>
-                    </div>
+
                     <div class="flex items-center gap-2 ml-auto">
                         <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Pilih Tanggal</span>
                         <input type="date" value="2026-12-05" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
@@ -286,18 +262,15 @@
                         <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">HET LPG 3KG</p>
                         <p class="text-sm font-extrabold text-orange-500">Rp 18.500</p>
                     </div>
-                    <div>
-                        <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">HET LPG 12KG</p>
-                        <p class="text-sm font-extrabold text-orange-500">Rp 215.000</p>
-                    </div>
+
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
-                                <th class="pb-4 pr-4">Pangkalan / Wilayah</th>
-                                <th class="pb-4 px-4 text-slate-400">Kebutuhan<br><span class="text-[10px] lowercase text-slate-300">(tbg)</span></th>
+                                <th class="pb-4 pr-4">Kecamatan</th>
+                                <th class="pb-4 px-4 text-slate-400">Stok<br><span class="text-[10px] lowercase text-slate-300">(tbg)</span></th>
                                 <th class="pb-4 px-4 text-emerald-600">Dist.<br>Masuk</th>
                                 <th class="pb-4 px-4 text-rose-500">Dist.<br>Keluar</th>
                                 <th class="pb-4 px-4 text-slate-400">Harga<br>Jual</th>
@@ -343,17 +316,13 @@
                 <div class="mb-6 space-y-4">
                     <div class="bg-slate-50/60 p-4 rounded-2xl flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500">
                         <div class="flex items-center gap-2">
-                            <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Kecamatan</span>
+                            <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Jenis BBM</span>
                             <select class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
-                                <option value="all" selected>Semua Kecamatan</option>
+                                <option value="all" selected>Pertalite</option>
+                                <option value="all" selected>Bio Solar</option>
                             </select>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Lokasi SPBU (Desa)</span>
-                            <select class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
-                                <option value="all" selected>Semua Lokasi</option>
-                            </select>
-                        </div>
+                        
                         <div class="flex items-center gap-2">
                             <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Pilih Tanggal</span>
                             <input type="date" value="2026-12-05" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
@@ -364,13 +333,13 @@
                             <p class="text-[9px] font-extrabold tracking-wider uppercase opacity-90">Pertalite</p>
                             <p class="text-xs font-black italic">Rp 10.000</p>
                         </div>
-                        <div class="bg-blue-900 text-white px-4 py-2 rounded-xl text-center shadow-sm">
+                        <div class="bg-orange-500 text-white px-4 py-2 rounded-xl text-center shadow-sm">
                             <p class="text-[9px] font-extrabold tracking-wider uppercase opacity-90">BioSolar</p>
                             <p class="text-xs font-black italic">Rp 6.800</p>
                         </div>
-                        <div class="bg-red-600 text-white px-4 py-2 rounded-xl text-center shadow-sm">
-                            <p class="text-[9px] font-extrabold tracking-wider uppercase opacity-90">Pertamax</p>
-                            <p class="text-xs font-black italic">Rp 16.650</p>
+                        <div class="bg-red-500 text-white px-4 py-2 rounded-xl text-center shadow-sm">
+                            <p class="text-[9px] font-extrabold tracking-wider uppercase opacity-90">Antrean</p>
+                            <p class="text-xs font-black italic">Panjang</p>
                         </div>
                     </div>
                 </div>
@@ -380,8 +349,8 @@
                             <tr class="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
                                 <th class="pb-4 pr-4">Jenis BBM & Lokasi</th>
                                 <th class="pb-4 px-4 text-slate-400">Kebutuhan (KL)</th>
-                                <th class="pb-4 px-4 text-slate-400">Stok Saat Ini (KL)</th>
-                                <th class="pb-4 px-4 text-slate-400">Harga Satuan</th>
+                                <th class="pb-4 px-4 text-slate-400">kuota Saat Ini (KL)</th>
+                                <th class="pb-4 px-4 text-slate-400">Harga eceran</th>
                                 <th class="pb-4 pl-4 text-right">Status</th>
                             </tr>
                         </thead>

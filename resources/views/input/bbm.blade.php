@@ -57,23 +57,18 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Jenis BBM</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Jenis BBM Subsidi</label>
                 <select name="jenis_bbm" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-600 shadow-sm transition">
                     <option value="Pertalite (JBKP)" {{ old('jenis_bbm', 'Pertalite (JBKP)') == 'Pertalite (JBKP)' ? 'selected' : '' }}>Pertalite (JBKP)</option>
                     <option value="Bio Solar" {{ old('jenis_bbm') == 'Bio Solar' ? 'selected' : '' }}>Bio Solar (JBT)</option>
-                    <option value="Pertamax" {{ old('jenis_bbm') == 'Pertamax' ? 'selected' : '' }}>Pertamax</option>
-                    <option value="Pertamax Turbo" {{ old('jenis_bbm') == 'Pertamax Turbo' ? 'selected' : '' }}>Pertamax Turbo</option>
-                    <option value="Solar (JBT)" {{ old('jenis_bbm') == 'Solar (JBT)' ? 'selected' : '' }}>Solar (JBT)</option>
-                    <option value="Dexlite" {{ old('jenis_bbm') == 'Dexlite' ? 'selected' : '' }}>Dexlite</option>
-                    <option value="Pertamina Dex" {{ old('jenis_bbm') == 'Pertamina Dex' ? 'selected' : '' }}>Pertamina Dex</option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Stok Tersedia (Kiloliter)</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Kuota Tersedia (Kiloliter)</label>
                 <input type="number" step="0.001" name="stok_tersedia_kl" value="{{ old('stok_tersedia_kl') }}" placeholder="Jumlah stok" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-600 shadow-sm transition">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Harga Jual per Liter</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Harga Jual Eceran per Liter</label>
                 <input type="number" name="harga_jual_per_liter" value="{{ old('harga_jual_per_liter') }}" placeholder="Cth: 10000" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-600 shadow-sm transition">
             </div>
             <div>
@@ -91,7 +86,7 @@
                     <option value="aman" {{ old('status_ketersediaan', 'aman') == 'aman' ? 'selected' : '' }}>Aman</option>
                     <option value="waspada" {{ old('status_ketersediaan') == 'waspada' ? 'selected' : '' }}>Waspada</option>
                     <option value="menipis" {{ old('status_ketersediaan') == 'menipis' ? 'selected' : '' }}>Menipis</option>
-                    <option value="kosong" {{ old('status_ketersediaan') == 'kosong' ? 'selected' : '' }}>Kosong</option>
+                    <option value="kosong" {{ old('status_ketersediaan') == 'kosong' ? 'selected' : '' }}>Kritis</option>
                 </select>
             </div>
         </div>

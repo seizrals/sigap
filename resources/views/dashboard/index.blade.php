@@ -191,6 +191,27 @@
                             <option value="all" selected>Seluruh Kecamatan</option>
                         </select>
                     </div>
+                    <div class="flex items-center gap-2">
+                        <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Pilih Komoditas</span>
+                        <select class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none shadow-sm">
+                            <option value="all" selected>(All)</option>
+                            <option value="" selected>Bawang Merah</option>
+                            <option value="" selected>Bawang Putih</option>
+                            <option value="" selected>Beras Medium</option>
+                            <option value="" selected>Berah Premium</option>
+                            <option value="" selected>Cabai Merah Keriting</option>
+                            <option value="" selected>Cabai Rawit Merah</option>
+                            <option value="" selected>Daging Ayam</option>
+                            <option value="" selected>Daging Sapi</option>
+                            <option value="" selected>Garam Halus</option>
+                            <option value="" selected>Gula Pasir</option>
+                            <option value="" selected>Ikan</option>
+                            <option value="" selected>Minyak Goreng Sawit Curah</option>
+                            <option value="" selected>Minyak Goreng Kemasan</option>
+                            <option value="" selected>Telur Ayam</option>
+                            <option value="" selected>Tepung Terigu</option>
+                        </select>
+                    </div>
                     <div class="flex items-center gap-2 ml-auto">
                         <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Periode</span>
                         <input type="date" value="2026-05-10" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 font-bold text-xs outline-none shadow-sm">
@@ -202,10 +223,11 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                                <th class="pb-4 pr-4">Kecamatan</th>
                                 <th class="pb-4 pr-4">Nama Komoditas</th>
-                                <th class="pb-4 px-4">Satuan</th>
-                                <th class="pb-4 px-4">10 Mei</th>
-                                <th class="pb-4 px-4">11 Mei</th>
+                                <th class="pb-4 px-4">Stok</th>
+                                <th class="pb-4 px-4">Minggu Lalu</th>
+                                <th class="pb-4 px-4">Minggu Saat Ini</th>
                                 <th class="pb-4 px-4">Perubahan</th>
                                 <th class="pb-4 pl-4 text-right">Status</th>
                             </tr>
@@ -213,13 +235,21 @@
                         <tbody class="divide-y divide-slate-100 text-sm font-semibold">
                             @forelse($dataPangan as $d)
                             <tr class="hover:bg-slate-50/50 transition">
+                            <td class="py-4 pr-4 text-slate-700 font-bold">Tolinggula</td>
+
                                 <td class="py-4 pr-4">
                                     <p class="font-bold text-slate-800">{{ $d->komoditas?->nama_komoditas ?? 'Komoditas' }}</p>
-                                    <p class="text-xs text-slate-400 font-normal">{{ $d->kecamatan?->nama_kecamatan ?? '-' }}</p>
+
                                 </td>
                                 <td class="py-4 px-4 text-slate-400">{{ $d->komoditas?->satuan ?? 'Kg' }}</td>
-                                <td class="py-4 px-4 font-bold text-slate-600">Rp {{ number_format($d->harga_hari_sebelumnya, 0, ',', '.') }}</td>
-                                <td class="py-4 px-4 font-bold text-slate-800">Rp {{ number_format($d->harga_hari_ini, 0, ',', '.') }}</td>
+                                <td> 
+                                    <p class="font-bold text-slate-600">Rp {{ number_format($d->harga_hari_sebelumnya, 0, ',', '.') }}</p>
+                                    <p class="text-xs italic text-slate-400 font-normal">10 Mei</p>
+                                </td>
+                                <td>
+                                    <p class="font-bold text-slate-800">Rp {{ number_format($d->harga_hari_ini, 0, ',', '.') }}</p>
+                                    <p class="text-xs italic text-slate-400 font-normal">20 Mei</p>
+                                </td>
                                 <td class="py-4 px-4 {{ $d->perubahan_harga_persen > 0 ? 'text-rose-500' : ($d->perubahan_harga_persen < 0 ? 'text-emerald-500' : 'text-slate-400') }}">
                                     {{ $d->perubahan_harga_persen > 0 ? '&uarr;' : ($d->perubahan_harga_persen < 0 ? '&darr;' : '-') }} {{ number_format($d->perubahan_harga_persen, 1) }}%
                                 </td>
@@ -233,7 +263,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data pangan.</td>
+                                <td colspan="7" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data pangan.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -319,7 +349,7 @@
                             <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Jenis BBM</span>
                             <select class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
                                 <option value="all" selected>Pertalite</option>
-                                <option value="all" selected>Bio Solar</option>
+                                <option value="" selected>Bio Solar</option>
                             </select>
                         </div>
                         

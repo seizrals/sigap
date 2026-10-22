@@ -182,13 +182,8 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Kecamatan</label>
-                            <select name="kecamatan_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
-                                <option value="">Pilih Kecamatan...</option>
-                                @foreach($kecamatan as $kec)
-                                    <option value="{{ $kec->id }}">{{ $kec->nama_kecamatan }}</option>
-                                @endforeach
-                            </select>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Alamat *</label>
+                            <input type="text" name="judul_laporan" required placeholder="Contoh: Dusun,kecamatan" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                         </div>
 
                         <div>
@@ -218,7 +213,7 @@
                                 <input type="text" name="nama_pelapor" placeholder="Nama Anda" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Kontak (opsional)</label>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Kontak (Wajib)*</label>
                                 <input type="text" name="kontak_pelapor" placeholder="No. HP / Email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                             </div>
                         </div>

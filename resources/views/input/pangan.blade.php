@@ -48,21 +48,27 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nama Pasar / Lokasi Pantau</label>
-                <select name="pasar_lokasi_id" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-700 outline-none focus:border-amber-500 shadow-sm transition">
-                    <option value="">Pilih Lokasi...</option>
-                    @foreach($pasar as $p)
-                        <option value="{{ $p->id }}" {{ old('pasar_lokasi_id') == $p->id ? 'selected' : '' }}>{{ $p->nama_lokasi }}</option>
-                    @endforeach
-                </select>
+                
             </div>
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1.5">Jenis Komoditas</label>
                 <select name="komoditas_id" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-700 outline-none focus:border-amber-500 shadow-sm transition">
                     <option value="">Pilih Komoditas...</option>
-                    @foreach($komoditas as $kom)
-                        <option value="{{ $kom->id }}" {{ old('komoditas_id') == $kom->id ? 'selected' : '' }}>{{ $kom->nama_komoditas }} ({{ $kom->satuan }})</option>
-                    @endforeach
+                    <option value="" selected>Bawang Merah(KG)</option>
+                    <option value="" selected>Bawang Putih(KG)</option>
+                    <option value="" selected>Beras Medium(KG)</option>
+                    <option value="" selected>Berah Premium(KG)</option>
+                    <option value="" selected>Cabai Merah Keriting(KG)</option>
+                    <option value="" selected>Cabai Rawit Merah(KG)</option>
+                    <option value="" selected>Daging Ayam(KG)</option>
+                    <option value="" selected>Daging Sapi(KG)</option>
+                    <option value="" selected>Garam Halus(KG)</option>
+                    <option value="" selected>Gula Pasir(KG)</option>
+                     <option value="" selected>Ikan(KG)</option>
+                    <option value="" selected>Minyak Goreng Sawit Curah(LITER)</option>
+                    <option value="" selected>Minyak Goreng Kemasan(LITER)</option>
+                    <option value="" selected>Telur Ayam(KG)</option>                        
+                    <option value="" selected>Tepung Terigu(KG)</option>
                 </select>
             </div>
             <div>
@@ -79,18 +85,18 @@
                     <option value="aman" {{ old('status_ketersediaan', 'aman') == 'aman' ? 'selected' : '' }}>Aman</option>
                     <option value="waspada" {{ old('status_ketersediaan') == 'waspada' ? 'selected' : '' }}>Waspada</option>
                     <option value="kurang" {{ old('status_ketersediaan') == 'kurang' ? 'selected' : '' }}>Kurang</option>
-                    <option value="kosong" {{ old('status_ketersediaan') == 'kosong' ? 'selected' : '' }}>Kosong</option>
+                    <option value="kosong" {{ old('status_ketersediaan') == 'kosong' ? 'selected' : '' }}>Kritis</option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Stok Tersedia (Estimasi)</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Stok Lokal Tersedia (Estimasi)</label>
                 <div class="flex rounded-xl shadow-sm overflow-hidden border border-slate-200 focus-within:border-amber-500 transition">
                     <input type="number" name="stok_tersedia" value="{{ old('stok_tersedia') }}" placeholder="Jumlah" class="w-full bg-white px-3.5 py-2.5 text-sm placeholder:text-slate-300 text-slate-800 outline-none">
                     <input type="text" name="satuan_stok" value="{{ old('satuan_stok', 'Kg') }}" placeholder="Satuan" class="w-2/5 bg-slate-50 border-l border-slate-200 px-3 py-2.5 text-sm placeholder:text-slate-300 text-slate-600 outline-none text-center">
                 </div>
             </div>
             <div class="md:col-span-2">
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Distribusi Masuk Hari Ini</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Distribusi Dari luar </label>
                 <input type="text" name="sumber_distribusi_masuk" value="{{ old('sumber_distribusi_masuk') }}" placeholder="Cth: 2 Ton dari Gorontalo" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-amber-500 shadow-sm transition">
             </div>
         </div>

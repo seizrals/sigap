@@ -215,4 +215,49 @@ class InputDataController extends Controller
     {
         return view('input.iph-bulanan');
     }
+
+  public function storeIph(Request $request)
+{
+    $request->validate([
+        'bulan' => 'required',
+        'minggu' => 'required',
+        'iph' => 'required|numeric',
+        'ranking' => 'required|integer',
+        'komoditas_andil' => 'required|string',
+    ]);
+
+    // 1. Simpan ke Database Lokal (Website SIGAP+)
+    \App\Models\IphMingguan::create([
+        'kabupaten' => 'Kab. Gorontalo Utara',
+        'bulan' => $request->bulan,
+        'minggu' => $request->minggu,
+        'iph' => $request->iph,
+        'ranking' => $request->ranking,
+        'komoditas_andil' => $request->komoditas_andil,
+    ]);
+
+    // 2. Kirim Data Otomatis ke Google Spreadsheet (via Google Apps Script Webhook)
+    try {
+        $formData = [
+            'bulan' => $request->bulan,
+            'minggu' => $request->minggu,
+            'iph' => $request->iph,
+            'ranking' => $request->ranking,
+            'komoditas_andil' => $request->komoditas_andil,
+        ];
+
+        Http::post('https://script.google.com/macros/s/AKfycbzpVB5sFSzsP76DDLJSx1HTBPMEHQQmx3UkueuBdRL5tJCByJfv67Ao96kilqC0cQET/exec', $formData);
+        
+    } catch (\Exception $e) {
+    }
+
+    return redirect()->back()->with('success', 'Data IPH Mingguan berhasil disimpan dan otomatis masuk ke Google Sheet!');
+}
+
+    public function exportToGoogleSheet()
+{
+    $urlGoogleSheet = 'https://docs.google.com/spreadsheets/d/1fu28DPHDExDi2zKRWkuHAsq-QodvV4WHTi1nHDeEU4U/edit?usp=sharing';
+    
+    return redirect()->away($urlGoogleSheet);
+}
 }

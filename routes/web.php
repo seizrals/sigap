@@ -27,7 +27,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/lpg', [InputDataController::class, 'storeLpg'])->name('lpg.store');
         Route::get('/bbm', [InputDataController::class, 'bbm'])->name('bbm');
         Route::post('/bbm', [InputDataController::class, 'storeBbm'])->name('bbm.store');
-        Route::get('/iph-mingguan', [InputDataController::class, 'iph'])->name('iph');
+        Route::get('/iph-mingguan', [InputDataController::class, 'iph'])->name('iph.index');
+        Route::post('/iph-mingguan', [InputDataController::class, 'storeIph'])->name('iph.store');
+        Route::get('/iph/export-spreadsheet', [InputDataController::class, 'exportToGoogleSheet'])->name('iph.export-spreadsheet');
         Route::get('/iph-bulanan', [InputDataController::class, 'iph_bulanan'])->name('iph_bulanan');
     });
 

@@ -301,7 +301,7 @@
                             <tr class="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
                                 <th class="pb-4 pr-4">Kecamatan</th>
                                 <th class="pb-4 px-4 text-slate-400">Stok<br><span class="text-[10px] lowercase text-slate-300">(tbg)</span></th>
-                                <th class="pb-4 px-4 text-emerald-600">Dist.<br>Masuk</th>
+                                
                                 <th class="pb-4 px-4 text-rose-500">Dist.<br>Keluar</th>
                                 <th class="pb-4 px-4 text-slate-400">Harga<br>Jual</th>
                                 <th class="pb-4 pl-4 text-right">Status<br>Stok</th>
@@ -311,11 +311,10 @@
                             @forelse($dataLpg as $d)
                             <tr class="hover:bg-slate-50/50 transition">
                                 <td class="py-4 pr-4">
-                                    <p class="font-bold italic text-slate-800">{{ $d->pangkalanLpg?->nama_pangkalan ?? 'Pangkalan' }}</p>
-                                    <p class="text-xs italic text-slate-400 font-normal">{{ $d->pangkalanLpg?->kecamatan?->nama_kecamatan ?? '-' }}</p>
+                                    <p class="font-bold italic text-slate-800">{{ $d->pangkalanLpg?->kecamatan?->nama_kecamatan ?? '-' }}</p>
                                 </td>
                                 <td class="py-4 px-4 font-bold text-slate-800">{{ $d->kebutuhan_tabung ?? '-' }}</td>
-                                <td class="py-4 px-4 font-extrabold text-emerald-600">{{ $d->distribusi_masuk_tabung }}</td>
+                                
                                 <td class="py-4 px-4 font-bold text-rose-500">{{ $d->distribusi_keluar_tabung }}</td>
                                 <td class="py-4 px-4">
                                     <p class="font-bold {{ $d->harga_eceran_lapangan > $d->harga_pangkalan ? 'text-rose-600' : 'text-slate-800' }}">Rp {{ number_format($d->harga_pangkalan, 0, ',', '.') }}</p>

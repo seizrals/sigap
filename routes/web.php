@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/iph-mingguan', [InputDataController::class, 'storeIph'])->name('iph.store');
         Route::get('/iph/export-spreadsheet', [InputDataController::class, 'exportToGoogleSheet'])->name('iph.export-spreadsheet');
         Route::get('/iph-bulanan', [InputDataController::class, 'iph_bulanan'])->name('iph_bulanan');
+        Route::post('/iph-bulanan', [InputDataController::class, 'storeIphBulanan'])->name('iph_bulanan.store');
     });
 
     Route::prefix('ews')->name('ews.')->group(function () {

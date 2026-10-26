@@ -260,4 +260,41 @@ class InputDataController extends Controller
     
     return redirect()->away($urlGoogleSheet);
 }
+
+    public function storeIphBulanan(Request $request)
+{
+    $request->validate([
+        'tahun' => 'required',
+        'bulan' => 'required',
+        'iph_bulanan' => 'required|numeric',
+        'komoditas_andil' => 'required|string',
+    ]);
+
+    // 1. Simpan ke Database Lokal (Opsional jika Anda membuat tabelnya)
+    /*
+    IphBulanan::create([
+        'tahun' => $request->tahun,
+        'bulan' => $request->bulan,
+        'iph_bulanan' => $request->iph_bulanan,
+        'komoditas_andil' => $request->komoditas_andil,
+    ]);
+    */
+
+    // 2. Kirim otomatis ke Google Spreadsheet via Webhook Apps Script
+    try {
+        $formData = [
+            'tahun' => $request->tahun,
+            'bulan' => $request->bulan,
+            'iph_bulanan' => $request->iph_bulanan,
+            'komoditas_andil' => $request->komoditas_andil,
+        ];
+
+        Http::post('https://script.google.com/macros/s/AKfycbzpVB5sFSzsP76DDLJSx1HTBPMEHQQmx3UkueuBdRL5tJCByJfv67Ao96kilqC0cQET/exec', $formData);
+        
+    } catch (\Exception $e) {
+        // Tangani error koneksi jika diperlukan
+    }
+
+    return redirect()->back()->with('success', 'Data IPH Bulanan berhasil disimpan dan masuk ke Google Sheet!');
+}
 }

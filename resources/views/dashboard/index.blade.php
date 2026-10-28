@@ -38,7 +38,7 @@
                     <h3 class="text-base font-bold text-slate-900">Rekomendasi Strategis</h3>
                 </div>
                 <p class="text-xs text-slate-500 leading-relaxed">
-                    Saran tindakan otomatis berdasarkan data warning per kecamatan.
+                    Rekomendasi pasar yang diterbitkan dan tindakan otomatis berdasarkan data peringatan.
                 </p>
             </div>
             <div class="p-4 space-y-3 max-h-[400px] overflow-y-auto">
@@ -98,127 +98,176 @@
             <div id="content-iph-mingguan" class="tab-content">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     <div class="lg:col-span-4 space-y-4">
-                        <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100 space-y-4">
-                            <p class="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">Filter Pencarian</p>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Tahun</label>
-                                <select class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm">
-                                    <option value="2026" selected>2026</option>
-                                    <option value="2025">2025</option>
-                                    <option value="2024">2024</option>
-                                    <option value="2023">2023</option>
-                                    <option value="2022">2022</option>
-                                </select>
+                        <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100 space-y-4">
+                            <input type="hidden" name="tab" value="iph-mingguan">
+                            <div class="flex items-center justify-between">
+                                <p class="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">Filter Rentang IPH Mingguan</p>
+                                <a href="{{ route('input.iph.index') }}" class="text-[11px] text-emerald-600 font-bold hover:underline flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                    Input Excel
+                                </a>
                             </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Minggu</label>
-                                <select class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm">
-                                    <option value="Minggu I" selected>Minggu I</option>
-                                    <option value="Minggu II">Minggu II</option>
-                                    <option value="Minggu III">Minggu III</option>
-                                    <option value="Minggu IV">Minggu IV</option>
-                                </select>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Tahun</label>
+                                    <select name="iph_mingguan_tahun" class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                        @foreach($daftarTahunMingguan as $thn)
+                                            <option value="{{ $thn }}" @selected((string) ($filterTahunMingguan ?? date('Y')) === (string) $thn)>{{ $thn }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Dari Minggu</label>
+                                        <select name="iph_mingguan_dari_minggu" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                            <option value="I" @selected(($filterDariMinggu ?? 'I') === 'I' || ($filterDariMinggu ?? '') === '1')>Minggu I</option>
+                                            <option value="II" @selected(($filterDariMinggu ?? '') === 'II' || ($filterDariMinggu ?? '') === '2')>Minggu II</option>
+                                            <option value="III" @selected(($filterDariMinggu ?? '') === 'III' || ($filterDariMinggu ?? '') === '3')>Minggu III</option>
+                                            <option value="IV" @selected(($filterDariMinggu ?? '') === 'IV' || ($filterDariMinggu ?? '') === '4')>Minggu IV</option>
+                                            <option value="V" @selected(($filterDariMinggu ?? '') === 'V' || ($filterDariMinggu ?? '') === '5')>Minggu V</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ke Minggu</label>
+                                        <select name="iph_mingguan_sampai_minggu" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                            <option value="I" @selected(($filterSampaiMinggu ?? '') === 'I' || ($filterSampaiMinggu ?? '') === '1')>Minggu I</option>
+                                            <option value="II" @selected(($filterSampaiMinggu ?? '') === 'II' || ($filterSampaiMinggu ?? '') === '2')>Minggu II</option>
+                                            <option value="III" @selected(($filterSampaiMinggu ?? '') === 'III' || ($filterSampaiMinggu ?? '') === '3')>Minggu III</option>
+                                            <option value="IV" @selected(($filterSampaiMinggu ?? 'IV') === 'IV' || ($filterSampaiMinggu ?? '') === '4' || empty($filterSampaiMinggu))>Minggu IV</option>
+                                            <option value="V" @selected(($filterSampaiMinggu ?? '') === 'V' || ($filterSampaiMinggu ?? '') === '5')>Minggu V</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition">
+                                    Terapkan Filter Minggu
+                                </button>
                             </div>
-                        </div>
-                        <div class="bg-emerald-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-600/20">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-100 mb-1">{{ $iphTerbaru?->periode_label ?? 'IPH Minggu II Mei' }}</p>
-                            <p class="text-4xl font-extrabold tracking-tight mb-3">{{ $iphTerbaru?->iph_kabupaten ?? '2.33' }}%</p>
-                            <span class="inline-block bg-emerald-500/50 backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border border-emerald-400/30">
-                                Status: Terkendali
+                        </form>
+                        @php
+                            $valMingguan = $iphMingguanTerbaru ? (float) $iphMingguanTerbaru->iph_kabupaten : 2.33;
+                            $statusMingguan = $valMingguan > 3.5 || $valMingguan < -2.5 ? 'Tinggi' : ($valMingguan >= 2.5 ? 'Waspada' : 'Terkendali');
+                            $bgMingguan = $statusMingguan === 'Tinggi' ? 'bg-rose-600 shadow-rose-600/20' : ($statusMingguan === 'Waspada' ? 'bg-amber-600 shadow-amber-600/20' : 'bg-emerald-600 shadow-emerald-600/20');
+                            $badgeMingguan = $statusMingguan === 'Tinggi' ? 'bg-rose-500/50 border-rose-400/30' : ($statusMingguan === 'Waspada' ? 'bg-amber-500/50 border-amber-400/30' : 'bg-emerald-500/50 border-emerald-400/30');
+                        @endphp
+                        <div class="{{ $bgMingguan }} rounded-2xl p-5 text-white shadow-lg transition">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-100 mb-1">{{ $iphMingguanTerbaru?->periode_label ?? 'IPH Minggu II Mei' }}</p>
+                            <p class="text-4xl font-extrabold tracking-tight mb-3">{{ number_format($valMingguan, 2, ',', '.') }}%</p>
+                            <span class="inline-block {{ $badgeMingguan }} backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border">
+                                Status: {{ $statusMingguan }}
                             </span>
                         </div>
                     </div>
                     <div class="lg:col-span-8 relative h-[320px] w-full">
-                    <canvas id="iphChartMingguan"></canvas>
+                        <canvas id="iphChartMingguan"></canvas>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        {{-- Tab IPH Bulanan--}}
+            {{-- Tab IPH Bulanan--}}
             <div id="content-iph-bulanan" class="tab-content hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     <div class="lg:col-span-4 space-y-4">
-                        <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100 space-y-4">
-                            <p class="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">Filter Pencarian</p>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Tahun</label>
-                                <select class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm">
-                                    <option value="2026" selected>2026</option>
-                                    <option value="2025">2025</option>
-                                    <option value="2024">2024</option>
-                                    <option value="2023">2023</option>
-                                    <option value="2022">2022</option>
-                                </select>
+                        <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100 space-y-4">
+                            <input type="hidden" name="tab" value="iph-bulanan">
+                            <div class="flex items-center justify-between">
+                                <p class="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">Filter Rentang IPH Bulanan</p>
+                                <a href="{{ route('input.iph_bulanan') }}" class="text-[11px] text-blue-600 font-bold hover:underline flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                    Input Excel
+                                </a>
                             </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Bulan</label>
-                                <select class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm">
-                                    <option value="Januari" selected>Januari</option>
-                                    <option value="Februari">Februari</option>
-                                    <option value="Maret">Maret</option>
-                                    <option value="April">April</option>
-                                    <option value="Mei">Mei</option>
-                                    <option value="Juni">Juni</option>
-                                    <option value="Juli">Juli</option>
-                                    <option value="Agustus">Agustus</option>
-                                    <option value="September">September</option>
-                                    <option value="Oktober">Oktober</option>
-                                    <option value="November">November</option>
-                                    <option value="Desember">Desember</option>
-                                </select>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Tahun</label>
+                                    <select name="iph_bulanan_tahun" class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                        @foreach($daftarTahunBulanan as $thn)
+                                            <option value="{{ $thn }}" @selected((string) ($filterTahunBulanan ?? date('Y')) === (string) $thn)>{{ $thn }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Dari Bulan</label>
+                                        <select name="iph_bulanan_dari_bulan" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                            @foreach([
+                                                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                                            ] as $num => $nama)
+                                                <option value="{{ $num }}" @selected((string) ($filterDariBulan ?? '1') === (string) $num)>{{ $nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ke Bulan</label>
+                                        <select name="iph_bulanan_sampai_bulan" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                            @foreach([
+                                                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                                            ] as $num => $nama)
+                                                <option value="{{ $num }}" @selected((string) ($filterSampaiBulan ?? '12') === (string) $num)>{{ $nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition">
+                                    Terapkan Filter Bulan
+                                </button>
                             </div>
-                        </div>
-                        <div class="bg-blue-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-600/20">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-blue-100 mb-1">{{ $iphTerbaru?->periode_label ?? 'IPH Minggu II Mei' }}</p>
-                            <p class="text-4xl font-extrabold tracking-tight mb-3">{{ $iphTerbaru?->iph_kabupaten ?? '2.33' }}%</p>
-                            <span class="inline-block bg-blue-500/50 backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border border-emerald-400/30">
-                                Status: Terkendali
+                        </form>
+                        @php
+                            $valBulanan = $iphBulananTerbaru ? (float) $iphBulananTerbaru->iph_bulanan : 1.85;
+                            $statusBulanan = $valBulanan > 3.5 || $valBulanan < -2.5 ? 'Tinggi' : ($valBulanan >= 2.5 ? 'Waspada' : 'Terkendali');
+                            $bgBulanan = $statusBulanan === 'Tinggi' ? 'bg-rose-600 shadow-rose-600/20' : ($statusBulanan === 'Waspada' ? 'bg-amber-600 shadow-amber-600/20' : 'bg-blue-600 shadow-blue-600/20');
+                            $badgeBulanan = $statusBulanan === 'Tinggi' ? 'bg-rose-500/50 border-rose-400/30' : ($statusBulanan === 'Waspada' ? 'bg-amber-500/50 border-amber-400/30' : 'bg-blue-500/50 border-blue-400/30');
+                        @endphp
+                        <div class="{{ $bgBulanan }} rounded-2xl p-5 text-white shadow-lg transition">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-blue-100 mb-1">{{ $iphBulananTerbaru ? ($iphBulananTerbaru->nama_bulan . ' ' . $iphBulananTerbaru->tahun) : 'Mei 2026' }}</p>
+                            <p class="text-4xl font-extrabold tracking-tight mb-3">{{ number_format($valBulanan, 2, ',', '.') }}%</p>
+                            <span class="inline-block {{ $badgeBulanan }} backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border">
+                                Status: {{ $statusBulanan }}
                             </span>
                         </div>
                     </div>
                     <div class="lg:col-span-8 relative h-[320px] w-full">
-                    <canvas id="iphChartBulanan"></canvas>
+                        <canvas id="iphChartBulanan"></canvas>
+                    </div>
                 </div>
             </div>
-        </div>
 
             {{-- Tab Pangan --}}
             <div id="content-pangan" class="tab-content hidden">
-                <div class="bg-slate-50/60 p-4 rounded-2xl mb-6 flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500">
-                    <div class="flex items-center gap-2">
-                        <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Pilih Kecamatan</span>
-                        <select class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none shadow-sm">
-                            <option value="all" selected>Seluruh Kecamatan</option>
+                <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-4 rounded-2xl mb-6 flex flex-wrap items-end gap-4 text-xs font-semibold text-slate-500">
+                    <input type="hidden" name="tab" value="pangan">
+                    <label class="flex flex-col gap-1.5">
+                        <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Pilih Kecamatan</span>
+                        <select name="pangan_kecamatan_id" class="min-w-44 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
+                            <option value="">Seluruh Kecamatan</option>
+                            @foreach($kecamatan as $kec)
+                                <option value="{{ $kec->id }}" @selected((string) ($filters['pangan_kecamatan_id'] ?? '') === (string) $kec->id)>{{ $kec->nama_kecamatan }}</option>
+                            @endforeach
                         </select>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Pilih Komoditas</span>
-                        <select class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none shadow-sm">
-                            <option value="all" selected>(All)</option>
-                            <option value="" selected>Bawang Merah</option>
-                            <option value="" selected>Bawang Putih</option>
-                            <option value="" selected>Beras Medium</option>
-                            <option value="" selected>Berah Premium</option>
-                            <option value="" selected>Cabai Merah Keriting</option>
-                            <option value="" selected>Cabai Rawit Merah</option>
-                            <option value="" selected>Daging Ayam</option>
-                            <option value="" selected>Daging Sapi</option>
-                            <option value="" selected>Garam Halus</option>
-                            <option value="" selected>Gula Pasir</option>
-                            <option value="" selected>Ikan</option>
-                            <option value="" selected>Minyak Goreng Sawit Curah</option>
-                            <option value="" selected>Minyak Goreng Kemasan</option>
-                            <option value="" selected>Telur Ayam</option>
-                            <option value="" selected>Tepung Terigu</option>
+                    </label>
+                    <label class="flex flex-col gap-1.5">
+                        <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Pilih Komoditas</span>
+                        <select name="pangan_komoditas_id" class="min-w-48 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
+                            <option value="">Semua Komoditas</option>
+                            @foreach($komoditasPangan as $item)
+                                <option value="{{ $item->id }}" @selected((string) ($filters['pangan_komoditas_id'] ?? '') === (string) $item->id)>{{ $item->nama_komoditas }}</option>
+                            @endforeach
                         </select>
-                    </div>
-                    <div class="flex items-center gap-2 ml-auto">
-                        <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Periode</span>
-                        <input type="date" value="2026-05-10" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 font-bold text-xs outline-none shadow-sm">
-                        <span class="text-slate-400 font-bold">vs</span>
-                        <input type="date" value="2026-05-11" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 font-bold text-xs outline-none shadow-sm">
-                    </div>
-                </div>
+                    </label>
+                    <label class="flex flex-col gap-1.5">
+                        <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Periode Lalu</span>
+                        <input type="date" name="periode_sebelumnya" value="{{ $periodeSebelumnya }}" class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
+                    </label>
+                    <label class="flex flex-col gap-1.5">
+                        <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Periode Saat Ini</span>
+                        <input type="date" name="periode_saat_ini" value="{{ $periodeSaatIni }}" class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
+                    </label>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition-colors">Terapkan</button>
+                </form>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -226,44 +275,37 @@
                                 <th class="pb-4 pr-4">Kecamatan</th>
                                 <th class="pb-4 pr-4">Nama Komoditas</th>
                                 <th class="pb-4 px-4">Stok</th>
-                                <th class="pb-4 px-4">Minggu Lalu</th>
-                                <th class="pb-4 px-4">Minggu Saat Ini</th>
+                                <th class="pb-4 px-4">Periode Lalu<br><span class="text-[10px] font-medium normal-case">{{ \Carbon\Carbon::parse($periodeSebelumnya)->format('d/m/Y') }}</span></th>
+                                <th class="pb-4 px-4">Periode Saat Ini<br><span class="text-[10px] font-medium normal-case">{{ \Carbon\Carbon::parse($periodeSaatIni)->format('d/m/Y') }}</span></th>
                                 <th class="pb-4 px-4">Perubahan</th>
-                                <th class="pb-4 pl-4 text-right">Status</th>
+                                <th class="pb-4 px-4">Ketersediaan</th>
+                                <th class="pb-4 pl-4 text-right">Verifikasi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm font-semibold">
                             @forelse($dataPangan as $d)
                             <tr class="hover:bg-slate-50/50 transition">
-                            <td class="py-4 pr-4 text-slate-700 font-bold">Tolinggula</td>
-
+                                <td class="py-4 pr-4 text-slate-700 font-bold">{{ $d['kecamatan'] }}</td>
                                 <td class="py-4 pr-4">
-                                    <p class="font-bold text-slate-800">{{ $d->komoditas?->nama_komoditas ?? 'Komoditas' }}</p>
-
+                                    <p class="font-bold text-slate-800">{{ $d['komoditas'] }}</p>
+                                    <p class="text-[10px] text-slate-400">{{ $d['satuan'] }}</p>
                                 </td>
-                                <td class="py-4 px-4 text-slate-400">{{ $d->komoditas?->satuan ?? 'Kg' }}</td>
-                                <td> 
-                                    <p class="font-bold text-slate-600">Rp {{ number_format($d->harga_hari_sebelumnya, 0, ',', '.') }}</p>
-                                    <p class="text-xs italic text-slate-400 font-normal">10 Mei</p>
+                                <td class="py-4 px-4 text-slate-600">{{ $d['stok'] !== null ? number_format((float) $d['stok'], 0, ',', '.') : '-' }} {{ $d['satuan'] }}</td>
+                                <td class="py-4 px-4 text-slate-600">{{ $d['harga_lalu'] !== null ? 'Rp '.number_format((float) $d['harga_lalu'], 0, ',', '.') : '-' }}</td>
+                                <td class="py-4 px-4 font-bold text-slate-800">{{ $d['harga_saat_ini'] !== null ? 'Rp '.number_format((float) $d['harga_saat_ini'], 0, ',', '.') : '-' }}</td>
+                                <td class="py-4 px-4 {{ ($d['perubahan_persen'] ?? 0) > 0 ? 'text-rose-500' : (($d['perubahan_persen'] ?? 0) < 0 ? 'text-emerald-500' : 'text-slate-400') }}">
+                                    {{ $d['perubahan_persen'] === null ? '-' : (($d['perubahan_persen'] > 0 ? '+' : '').number_format((float) $d['perubahan_persen'], 1, ',', '.').'%') }}
                                 </td>
-                                <td>
-                                    <p class="font-bold text-slate-800">Rp {{ number_format($d->harga_hari_ini, 0, ',', '.') }}</p>
-                                    <p class="text-xs italic text-slate-400 font-normal">20 Mei</p>
-                                </td>
-                                <td class="py-4 px-4 {{ $d->perubahan_harga_persen > 0 ? 'text-rose-500' : ($d->perubahan_harga_persen < 0 ? 'text-emerald-500' : 'text-slate-400') }}">
-                                    {{ $d->perubahan_harga_persen > 0 ? '&uarr;' : ($d->perubahan_harga_persen < 0 ? '&darr;' : '-') }} {{ number_format($d->perubahan_harga_persen, 1) }}%
+                                <td class="py-4 px-4">
+                                    <span class="inline-block text-[11px] font-bold px-3 py-1 rounded-full uppercase {{ $d['status_ketersediaan'] === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($d['status_ketersediaan'] === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-600') }}">{{ $d['status_ketersediaan'] ? ($d['status_ketersediaan'] === 'kosong' ? 'Kritis' : $d['status_ketersediaan']) : '-' }}</span>
                                 </td>
                                 <td class="py-4 pl-4 text-right">
-                                    <span class="inline-block
-                                        @if($d->status_harga == 'stabil') bg-emerald-100 text-emerald-700
-                                        @elseif($d->status_harga == 'naik_wajar') bg-amber-100 text-amber-700
-                                        @else bg-rose-100 text-rose-600 @endif
-                                        text-[11px] font-bold px-3 py-1 rounded-full uppercase">{{ $d->status_harga }}</span>
+                                    <span class="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full {{ $d['status_verifikasi'] === 'disetujui' ? 'bg-emerald-100 text-emerald-700' : ($d['status_verifikasi'] === 'ditolak' ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-700') }}">{{ ucfirst($d['status_verifikasi'] ?? 'pending') }}</span>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="7" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data pangan.</td>
+                                <td colspan="8" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data untuk filter dan periode ini.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -273,66 +315,59 @@
 
             {{-- Tab LPG --}}
             <div id="content-lpg" class="tab-content hidden">
-                <div class="bg-slate-50/60 p-4 rounded-2xl mb-6 flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500">
-                    <div class="flex items-center gap-2">
-                        <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Kecamatan</span>
-                        <select class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
-                            <option value="all" selected>Semua Kecamatan</option>
+                <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-4 rounded-2xl mb-6 flex flex-wrap items-end gap-4 text-xs font-semibold text-slate-500">
+                    <input type="hidden" name="tab" value="lpg">
+                    <label class="flex flex-col gap-1.5">
+                        <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Kecamatan</span>
+                        <select name="lpg_kecamatan_id" class="min-w-44 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-orange-500 shadow-sm">
+                            <option value="">Semua Kecamatan</option>
+                            @foreach($kecamatan as $kec)
+                                <option value="{{ $kec->id }}" @selected((string) ($filters['lpg_kecamatan_id'] ?? request('lpg_kecamatan_id')) === (string) $kec->id)>{{ $kec->nama_kecamatan }}</option>
+                            @endforeach
                         </select>
-                    </div>
-
-                    <div class="flex items-center gap-2 ml-auto">
-                        <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Pilih Tanggal</span>
-                        <input type="date" value="2026-12-05" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
-                    </div>
-                </div>
-
-                <div class="flex justify-end items-center gap-6 mb-4 text-right">
-                    <div>
-                        <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">HET LPG 3KG</p>
-                        <p class="text-sm font-extrabold text-orange-500">Rp 18.500</p>
-                    </div>
-
-                </div>
+                    </label>
+                    <label class="flex flex-col gap-1.5">
+                        <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Tanggal</span>
+                        <input type="date" name="lpg_tanggal" value="{{ $lpgTanggal ?? '' }}" class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-orange-500 shadow-sm">
+                    </label>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs transition-colors">Terapkan</button>
+                </form>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table class="min-w-[1250px] w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                                <th class="pb-4 pr-4">Tanggal</th>
                                 <th class="pb-4 pr-4">Kecamatan</th>
-                                <th class="pb-4 px-4 text-slate-400">Stok<br><span class="text-[10px] lowercase text-slate-300">(tbg)</span></th>
-                                
-                                <th class="pb-4 px-4 text-rose-500">Dist.<br>Keluar</th>
-                                <th class="pb-4 px-4 text-slate-400">Harga<br>Jual</th>
-                                <th class="pb-4 pl-4 text-right">Status<br>Stok</th>
+                                <th class="pb-4 pr-4">Jenis LPG</th>
+                                <th class="pb-4 px-3 text-right">Stok</th>
+                                <th class="pb-4 px-3 text-right">Masuk</th>
+                                <th class="pb-4 px-3 text-right">Keluar</th>
+                                <th class="pb-4 px-3 text-right">Harga HET</th>
+                                <th class="pb-4 px-3 text-right">Harga Eceran</th>
+                                <th class="pb-4 px-3">Ketersediaan</th>
+                                <th class="pb-4 px-3">Distribusi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm font-semibold">
                             @forelse($dataLpg as $d)
                             <tr class="hover:bg-slate-50/50 transition">
-                                <td class="py-4 pr-4">
-                                    <p class="font-bold italic text-slate-800">{{ $d->pangkalanLpg?->kecamatan?->nama_kecamatan ?? '-' }}</p>
+                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->tanggal_input?->format('d/m/Y') }}</td>
+                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->kecamatan?->nama_kecamatan ?? '-' }}</td>
+                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->jenis_lpg }}</td>
+                                <td class="py-4 px-3 text-right">{{ number_format($d->stok_tersedia_tabung, 0, ',', '.') }}</td>
+                                <td class="py-4 px-3 text-right">{{ number_format($d->distribusi_masuk_tabung, 0, ',', '.') }}</td>
+                                <td class="py-4 px-3 text-right text-rose-600">{{ number_format($d->distribusi_keluar_tabung, 0, ',', '.') }}</td>
+                                <td class="py-4 px-3 text-right whitespace-nowrap">{{ $d->harga_pangkalan !== null ? 'Rp '.number_format((float) $d->harga_pangkalan, 0, ',', '.') : '-' }}</td>
+                                <td class="py-4 px-3 text-right whitespace-nowrap">{{ $d->harga_eceran_lapangan !== null ? 'Rp '.number_format((float) $d->harga_eceran_lapangan, 0, ',', '.') : '-' }}</td>
+                                <td class="py-4 px-3 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 rounded-md text-[10px] font-bold uppercase {{ $d->status_ketersediaan === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($d->status_ketersediaan === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700') }}">{{ $d->status_ketersediaan }}</span>
                                 </td>
-                                <td class="py-4 px-4 font-bold text-slate-800">{{ $d->kebutuhan_tabung ?? '-' }}</td>
-                                
-                                <td class="py-4 px-4 font-bold text-rose-500">{{ $d->distribusi_keluar_tabung }}</td>
-                                <td class="py-4 px-4">
-                                    <p class="font-bold {{ $d->harga_eceran_lapangan > $d->harga_pangkalan ? 'text-rose-600' : 'text-slate-800' }}">Rp {{ number_format($d->harga_pangkalan, 0, ',', '.') }}</p>
-                                    <p class="text-[10px] font-bold italic {{ $d->harga_eceran_lapangan > $d->harga_pangkalan ? 'text-rose-500' : 'text-emerald-600' }}">
-                                        {{ $d->harga_eceran_lapangan > $d->harga_pangkalan ? 'DIATAS HET' : 'SESUAI HET' }}
-                                    </p>
-                                </td>
-                                <td class="py-4 pl-4 text-right">
-                                    <span class="inline-block
-                                        @if($d->status_ketersediaan == 'aman') bg-emerald-100 text-emerald-700
-                                        @elseif($d->status_ketersediaan == 'waspada') bg-amber-100 text-amber-700
-                                        @else bg-rose-100 text-rose-600 @endif
-                                        text-[11px] font-bold px-3 py-1 rounded-full uppercase">{{ $d->status_ketersediaan }}</span>
-                                </td>
+                                <td class="py-4 px-3 whitespace-nowrap">{{ str_replace('_', ' ', $d->status_distribusi) }}</td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data LPG.</td>
+                                <td colspan="10" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data LPG untuk filter ini.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -342,22 +377,27 @@
 
             {{-- Tab BBM --}}
             <div id="content-bbm" class="tab-content hidden">
-                <div class="mb-6 space-y-4">
-                    <div class="bg-slate-50/60 p-4 rounded-2xl flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500">
-                        <div class="flex items-center gap-2">
-                            <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Jenis BBM</span>
-                            <select class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
-                                <option value="all" selected>Pertalite</option>
-                                <option value="" selected>Bio Solar</option>
+                <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+                    <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-4 rounded-2xl flex flex-wrap items-end gap-4 text-xs font-semibold text-slate-500">
+                        <input type="hidden" name="tab" value="bbm">
+                        <label class="flex flex-col gap-1.5">
+                            <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Jenis BBM</span>
+                            <select name="bbm_jenis" class="min-w-48 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
+                                <option value="">Semua Jenis BBM</option>
+                                <option value="Pertalite (JBKP)" @selected(in_array($bbmJenis, ['Pertalite (JBKP)', 'Pertalite'], true))>Pertalite</option>
+                                <option value="Bio Solar" @selected($bbmJenis === 'Bio Solar')>Bio Solar</option>
                             </select>
-                        </div>
+                        </label>
                         
-                        <div class="flex items-center gap-2">
-                            <span class="uppercase font-bold text-[11px] tracking-wider text-slate-400">Pilih Tanggal</span>
-                            <input type="date" value="2026-12-05" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
-                        </div>
-                    </div>
-                    <div class="flex justify-end items-center gap-3">
+                        <label class="flex flex-col gap-1.5">
+                            <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Pilih Tanggal</span>
+                            <input type="date" name="bbm_tanggal" value="{{ $bbmTanggal ?? '' }}" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
+                        </label>
+
+                        <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors">Terapkan</button>
+                    </form>
+
+                    <div class="flex items-center gap-3">
                         <div class="bg-blue-600 text-white px-4 py-2 rounded-xl text-center shadow-sm">
                             <p class="text-[9px] font-extrabold tracking-wider uppercase opacity-90">Pertalite</p>
                             <p class="text-xs font-black italic">Rp 10.000</p>
@@ -366,44 +406,53 @@
                             <p class="text-[9px] font-extrabold tracking-wider uppercase opacity-90">BioSolar</p>
                             <p class="text-xs font-black italic">Rp 6.800</p>
                         </div>
-                        <div class="bg-red-500 text-white px-4 py-2 rounded-xl text-center shadow-sm">
-                            <p class="text-[9px] font-extrabold tracking-wider uppercase opacity-90">Antrean</p>
-                            <p class="text-xs font-black italic">Panjang</p>
-                        </div>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table class="min-w-[1250px] w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
-                                <th class="pb-4 pr-4">Jenis BBM & Lokasi</th>
-                                <th class="pb-4 px-4 text-slate-400">Kebutuhan (KL)</th>
-                                <th class="pb-4 px-4 text-slate-400">kuota Saat Ini (KL)</th>
-                                <th class="pb-4 px-4 text-slate-400">Harga eceran</th>
-                                <th class="pb-4 pl-4 text-right">Status</th>
+                                <th class="pb-4 pr-4">Tanggal</th>
+                                <th class="pb-4 pr-4">Kecamatan</th>
+                                <th class="pb-4 pr-4">SPBU</th>
+                                <th class="pb-4 pr-4">Jenis BBM</th>
+                                <th class="pb-4 px-3 text-right">Stok (KL)</th>
+                                <th class="pb-4 px-3">Nelayan</th>
+                                <th class="pb-4 px-3">Pertanian</th>
+                                <th class="pb-4 px-3">Antrean</th>
+                                <th class="pb-4 px-3">Ketersediaan</th>
+                                <th class="pb-4 px-3 text-right">Harga Eceran</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm font-semibold">
                             @forelse($dataBbm as $d)
                             <tr class="hover:bg-slate-50/50 transition">
-                                <td class="py-4 pr-4">
-                                    <p class="font-bold text-slate-800">{{ $d->jenis_bbm }} ({{ $d->spbu?->nama_spbu ?? 'SPBU' }})</p>
-                                    <p class="text-xs italic text-slate-400 font-normal">{{ $d->spbu?->kecamatan?->nama_kecamatan ?? '-' }}</p>
+                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->tanggal_input?->format('d/m/Y') }}</td>
+                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->kecamatan?->nama_kecamatan ?? $d->spbu?->kecamatan?->nama_kecamatan ?? '-' }}</td>
+                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->spbu?->nama_spbu ?? '-' }}</td>
+                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->jenis_bbm }}</td>
+                                <td class="py-4 px-3 text-right">{{ $d->stok_tersedia_kl !== null ? number_format((float) $d->stok_tersedia_kl, 3, ',', '.') : '-' }}</td>
+                                <td class="py-4 px-3">
+                                    <label class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                                        <input type="checkbox" disabled @checked($d->distribusi_nelayan) class="w-3.5 h-3.5 rounded border-slate-300 text-emerald-600">
+                                        {{ $d->distribusi_nelayan ? 'Ya' : 'Tidak' }}
+                                    </label>
                                 </td>
-                                <td class="py-4 px-4 font-bold text-slate-800">{{ $d->stok_tersedia_kl }} KL</td>
-                                <td class="py-4 px-4 font-bold text-slate-800">{{ $d->stok_tersedia_kl }} KL</td>
-                                <td class="py-4 px-4 font-extrabold italic text-blue-600">Rp {{ number_format($d->harga_jual_per_liter, 0, ',', '.') }}</td>
-                                <td class="py-4 pl-4 text-right">
-                                    <span class="inline-block
-                                        @if($d->status_antrean == 'tidak_ada') bg-emerald-100 text-emerald-700
-                                        @elseif($d->status_antrean == 'pendek') bg-amber-100 text-amber-700
-                                        @else bg-rose-100 text-rose-600 @endif
-                                        text-[11px] font-bold px-3 py-1 rounded-full uppercase">{{ str_replace('_', ' ', $d->status_antrean) }}</span>
+                                <td class="py-4 px-3">
+                                    <label class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                                        <input type="checkbox" disabled @checked($d->distribusi_pertanian) class="w-3.5 h-3.5 rounded border-slate-300 text-emerald-600">
+                                        {{ $d->distribusi_pertanian ? 'Ya' : 'Tidak' }}
+                                    </label>
                                 </td>
+                                <td class="py-4 px-3 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 rounded-md text-[10px] font-bold uppercase {{ in_array($d->status_antrean, ['panjang', 'sangat_panjang'], true) ? 'bg-rose-100 text-rose-700' : ($d->status_antrean === 'pendek' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700') }}">{{ str_replace('_', ' ', $d->status_antrean) }}</span>
+                                </td>
+                                <td class="py-4 px-3 whitespace-nowrap">{{ ucfirst($d->status_ketersediaan) }}</td>
+                                <td class="py-4 px-3 text-right whitespace-nowrap">{{ $d->harga_jual_per_liter !== null ? 'Rp '.number_format((float) $d->harga_jual_per_liter, 0, ',', '.') : '-' }}</td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="5" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data BBM.</td>
+                                <td colspan="10" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data untuk BBM dan tanggal ini.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -439,20 +488,25 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
+        const requestedTab = new URLSearchParams(window.location.search).get('tab');
+        if (requestedTab && document.getElementById(`content-${requestedTab}`)) {
+            switchTab(requestedTab);
+        }
+
         // --- 1. GRAFIK IPH MINGGUAN ---
         const ctxMingguan = document.getElementById('iphChartMingguan');
         if (ctxMingguan) {
             const ctx2d = ctxMingguan.getContext('2d');
             const gradient = ctx2d.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
             gradient.addColorStop(1, 'rgba(16, 185, 129, 0.01)');
 
             new Chart(ctx2d, {
                 type: 'line',
                 data: {
-                    labels: ['Minggu III', 'Minggu IV', 'Minggu I', 'Minggu II'],
+                    labels: @json($chartMingguanLabels),
                     datasets: [{
-                        data: [1.85, 2.10, 1.95, 2.33],
+                        data: @json($chartMingguanValues),
                         borderColor: '#10b981',
                         borderWidth: 3,
                         backgroundColor: gradient,
@@ -468,20 +522,26 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'IPH: ' + context.parsed.y.toFixed(2).replace('.', ',') + '%';
+                                }
+                            }
+                        }
+                    },
                     scales: {
                         x: {
                             grid: { display: false },
                             ticks: { color: '#64748b', font: { size: 11, weight: '500' } }
                         },
                         y: {
-                            min: 1.80,
-                            max: 2.35,
                             ticks: {
-                                stepSize: 0.05,
                                 color: '#64748b',
                                 font: { size: 11 },
-                                callback: function(value) { return value.toFixed(2).replace('.', ','); }
+                                callback: function(value) { return value.toFixed(2).replace('.', ',') + '%'; }
                             },
                             grid: { color: '#f1f5f9' }
                         }
@@ -490,20 +550,20 @@
             });
         }
 
-        // --- 2. GRAFIK IPH BULANAN (TAMBAHAN) ---
+        // --- 2. GRAFIK IPH BULANAN ---
         const ctxBulanan = document.getElementById('iphChartBulanan');
         if (ctxBulanan) {
             const ctxBulanan2d = ctxBulanan.getContext('2d');
             const gradientBulanan = ctxBulanan2d.createLinearGradient(0, 0, 0, 300);
-            gradientBulanan.addColorStop(0, 'rgba(37, 99, 235, 0.2)');
+            gradientBulanan.addColorStop(0, 'rgba(37, 99, 235, 0.25)');
             gradientBulanan.addColorStop(1, 'rgba(37, 99, 235, 0.01)');
 
             new Chart(ctxBulanan2d, {
                 type: 'line',
                 data: {
-                    labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'],
+                    labels: @json($chartBulananLabels),
                     datasets: [{
-                        data: [1.20, 1.45, 1.80, 2.10, 1.85, 1.60],
+                        data: @json($chartBulananValues),
                         borderColor: '#2563eb',
                         borderWidth: 3,
                         backgroundColor: gradientBulanan,
@@ -519,20 +579,26 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'IPH Bulanan: ' + context.parsed.y.toFixed(2).replace('.', ',') + '%';
+                                }
+                            }
+                        }
+                    },
                     scales: {
                         x: {
                             grid: { display: false },
                             ticks: { color: '#64748b', font: { size: 11, weight: '500' } }
                         },
                         y: {
-                            min: 1.00,
-                            max: 2.50,
                             ticks: {
-                                stepSize: 0.25,
                                 color: '#64748b',
                                 font: { size: 11 },
-                                callback: function(value) { return value.toFixed(2).replace('.', ','); }
+                                callback: function(value) { return value.toFixed(2).replace('.', ',') + '%'; }
                             },
                             grid: { color: '#f1f5f9' }
                         }
@@ -551,6 +617,7 @@
             }).addTo(map);
 
             const kecamatanData = @json($kecamatan ?? []);
+            const marketRecommendations = @json($rekomendasiPeta ?? []);
 
             const colorMap = {
                 'hijau': '#10b981',
@@ -594,6 +661,30 @@
                     .bindPopup('<strong>' + kec.nama + '</strong><br>Zona: ' + kec.zona);
                 });
             }
+
+            marketRecommendations.forEach(function(rekomendasi) {
+                const color = colorMap[rekomendasi.zona] || '#ef4444';
+                const popup = document.createElement('div');
+                const title = document.createElement('strong');
+                const alertTitle = document.createElement('p');
+                const location = document.createElement('p');
+                const detail = document.createElement('p');
+
+                title.textContent = rekomendasi.judul;
+                alertTitle.textContent = 'Peringatan: ' + rekomendasi.alert;
+                location.textContent = 'Kec. ' + rekomendasi.kecamatan + ' | Zona: ' + rekomendasi.zona;
+                detail.textContent = rekomendasi.detail;
+                popup.append(title, alertTitle, location, detail);
+
+                L.circleMarker([rekomendasi.latitude, rekomendasi.longitude], {
+                    radius: 9,
+                    fillColor: color,
+                    color: '#ffffff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.95
+                }).addTo(map).bindPopup(popup);
+            });
         }
     });
 </script>

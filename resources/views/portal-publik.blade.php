@@ -12,8 +12,8 @@
     <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-sigap-accent to-sigap-secondary flex items-center justify-center shadow-lg">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-1.348c-1.263 0-2.421-.96-2.655-2.236z"/></svg>
+                <div class="w-11 h-11 rounded-xl overflow-hidden shadow-lg shrink-0">
+                    <img src="{{ asset('images/logo_gorut.png') }}" alt="Logo Gorontalo Utara" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <p class="font-bold text-slate-900">SIGAP+ GORONTALO UTARA</p>
@@ -173,11 +173,11 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">Kategori Laporan *</label>
                             <select name="kategori" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
-                                <option value="lonjakan_harga">Lonjakan Harga</option>
-                                <option value="kelangkaan_stok">Kelangkaan Stok</option>
-                                <option value="saran_kebijakan">Saran Kebijakan</option>
-                                <option value="pelanggaran_het">Pelanggaran HET</option>
-                                <option value="lainnya">Lainnya</option>
+                                <option value="lonjakan_harga" @selected(old('kategori', 'lonjakan_harga') === 'lonjakan_harga')>Lonjakan Harga</option>
+                                <option value="kelangkaan_stok" @selected(old('kategori') === 'kelangkaan_stok')>Kelangkaan Stok</option>
+                                <option value="saran_kebijakan" @selected(old('kategori') === 'saran_kebijakan')>Saran Kebijakan</option>
+                                <option value="pelanggaran_het" @selected(old('kategori') === 'pelanggaran_het')>Pelanggaran HET</option>
+                                <option value="lainnya" @selected(old('kategori') === 'lainnya')>Lainnya</option>
                             </select>
                         </div>
 
@@ -191,14 +191,14 @@
                             <input type="text" name="judul_laporan" required placeholder="Contoh: Harga cabai naik tajam" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
+                        <div id="commodity-fields" class="grid grid-cols-2 gap-3 @if(!in_array(old('kategori', 'lonjakan_harga'), ['lonjakan_harga', 'kelangkaan_stok', 'pelanggaran_het'], true)) hidden @endif">
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Komoditas</label>
-                                <input type="text" name="nama_komoditas_dilaporkan" placeholder="Contoh: Cabai Rawit" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Komoditas *</label>
+                                <input type="text" name="nama_komoditas_dilaporkan" value="{{ old('nama_komoditas_dilaporkan') }}" required placeholder="Contoh: Cabai Rawit" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Harga (Rp)</label>
-                                <input type="number" name="harga_dilaporkan" placeholder="Contoh: 85000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Harga (Rp) *</label>
+                                <input type="number" name="harga_dilaporkan" value="{{ old('harga_dilaporkan') }}" min="0" required placeholder="Contoh: 85000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                             </div>
                         </div>
 
@@ -214,7 +214,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Kontak (Wajib)*</label>
-                                <input type="text" name="kontak_pelapor" placeholder="No. HP / Email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                                <input type="text" name="kontak_pelapor" value="{{ old('kontak_pelapor') }}" required placeholder="No. HP / Email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                             </div>
                         </div>
 
@@ -240,8 +240,8 @@
         <div class="max-w-7xl mx-auto px-6 py-10">
             <div class="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sigap-accent to-sigap-secondary flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-1.348c-1.263 0-2.421-.96-2.655-2.236z"/></svg>
+                    <div class="w-11 h-11 rounded-xl overflow-hidden shadow-lg shrink-0">
+                        <img src="{{ asset('images/logo_gorut.png') }}" alt="Logo Gorontalo Utara" class="w-full h-full object-contain">
                     </div>
                     <div>
                         <p class="font-bold text-white text-sm">SIGAP+ Gorontalo Utara</p>
@@ -252,6 +252,28 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const categorySelect = document.querySelector('select[name="kategori"]');
+            const commodityFields = document.querySelector('#commodity-fields');
+            const commodityInputs = commodityFields.querySelectorAll('input');
+            const requiredCategories = ['lonjakan_harga', 'kelangkaan_stok', 'pelanggaran_het'];
+
+            const updateCommodityFields = () => {
+                const required = requiredCategories.includes(categorySelect.value);
+                commodityFields.classList.toggle('hidden', !required);
+                commodityInputs.forEach((input) => {
+                    input.required = required;
+                    input.disabled = !required;
+                    if (!required) input.value = '';
+                });
+            };
+
+            categorySelect.addEventListener('change', updateCommodityFields);
+            updateCommodityFields();
+        });
+    </script>
 
 </body>
 </html>

@@ -21,6 +21,8 @@ class EwsAlert extends Model
         'tingkat_risiko',
         'status',
         'kecamatan_id',
+        'latitude',
+        'longitude',
         'desa_id',
         'komoditas_id',
         'pangkalan_lpg_id',
@@ -41,6 +43,7 @@ class EwsAlert extends Model
         'tindak_lanjut',
         'catatan_penanganan',
         'bukti_penanganan_path',
+        'foto_laporan_path',
     ];
 
     protected function casts(): array
@@ -50,6 +53,9 @@ class EwsAlert extends Model
             'nilai_terukur' => 'array',
             'nilai_indikasi_harga_persen' => 'decimal:2',
             'nilai_indikasi_stok_persen' => 'decimal:2',
+            'latitude' => 'decimal:7',
+            'longitude' => 'decimal:7',
+            'foto_laporan_path' => 'array',
             'waktu_terdeteksi' => 'datetime',
             'waktu_terakhir_update' => 'datetime',
             'waktu_penanganan' => 'datetime',

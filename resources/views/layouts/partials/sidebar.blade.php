@@ -4,9 +4,7 @@
             <img src="{{ asset('images/logo_gorut.png') }}" alt="Logo Gorontalo Utara" class="w-full h-full object-contain">
         </div>
         
-        {{-- <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-sigap-accent to-sigap-secondary flex items-center justify-center font-bold text-white shadow-lg">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-1.348c-1.263 0-2.421-.96-2.655-2.236z"/></svg>
-        </div> --}}
+
         <div>
             <p class="font-bold tracking-tight">SIAGA PANGAN</p>
             <p class="text-[11px] text-slate-400 font-medium uppercase tracking-wider">Gorontalo Utara</p>

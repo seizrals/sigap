@@ -89,10 +89,10 @@
             <table class="w-full text-left text-sm">
                 <thead class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                     <tr>
-                        <th class="px-5 py-3">Pangkalan</th>
                         <th class="px-5 py-3">Kecamatan</th>
+                        <th class="px-5 py-3">Jenis LPG</th>
                         <th class="px-5 py-3">Stok Tersedia</th>
-                        <th class="px-5 py-3">Harga Jual</th>
+                        <th class="px-5 py-3">Harga HET</th>
                         <th class="px-5 py-3">Status</th>
                         <th class="px-5 py-3 text-right">Aksi</th>
                     </tr>
@@ -100,8 +100,8 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($dataLpgPending as $d)
                     <tr>
-                        <td class="px-5 py-3.5 font-semibold text-slate-800">{{ $d->pangkalanLpg?->nama_pangkalan ?? '-' }}</td>
-                        <td class="px-5 py-3.5 text-slate-600">{{ $d->pangkalanLpg?->kecamatan?->nama_kecamatan ?? '-' }}</td>
+                        <td class="px-5 py-3.5 font-semibold text-slate-800">{{ $d->kecamatan?->nama_kecamatan ?? $d->pangkalanLpg?->kecamatan?->nama_kecamatan ?? '-' }}</td>
+                        <td class="px-5 py-3.5 text-slate-600">{{ $d->jenis_lpg ?? 'LPG 3 Kg (Subsidi)' }}</td>
                         <td class="px-5 py-3.5 font-semibold">{{ $d->stok_tersedia_tabung }} tabung</td>
                         <td class="px-5 py-3.5 font-semibold">Rp {{ number_format($d->harga_pangkalan, 0, ',', '.') }}</td>
                         <td class="px-5 py-3.5">
@@ -149,7 +149,7 @@
                         <th class="px-5 py-3">Jenis BBM</th>
                         <th class="px-5 py-3">SPBU</th>
                         <th class="px-5 py-3">Stok (KL)</th>
-                        <th class="px-5 py-3">Harga/Liter</th>
+                        <th class="px-5 py-3">Harga Eceran</th>
                         <th class="px-5 py-3">Antrean</th>
                         <th class="px-5 py-3 text-right">Aksi</th>
                     </tr>

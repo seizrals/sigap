@@ -40,7 +40,7 @@
             </div>
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1.5">Kecamatan</label>
-                <select name="kecamatan_id" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-600 shadow-sm transition">
+                <select id="bbm-kecamatan" name="kecamatan_id" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-600 shadow-sm transition">
                     <option value="">Pilih Kecamatan...</option>
                     @foreach($kecamatan as $kec)
                         <option value="{{ $kec->id }}" {{ old('kecamatan_id') == $kec->id ? 'selected' : '' }}>{{ $kec->nama_kecamatan }}</option>
@@ -49,10 +49,10 @@
             </div>
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nama SPBU / Penyalur</label>
-                <select name="spbu_id" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-600 shadow-sm transition">
+                <select id="bbm-spbu" name="spbu_id" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-600 shadow-sm transition">
                     <option value="">Pilih SPBU...</option>
                     @foreach($spbu as $s)
-                        <option value="{{ $s->id }}" {{ old('spbu_id') == $s->id ? 'selected' : '' }}>{{ $s->nama_spbu }}</option>
+                        <option value="{{ $s->id }}" data-kecamatan-id="{{ $s->kecamatan_id }}" {{ old('spbu_id') == $s->id ? 'selected' : '' }}>{{ $s->nama_spbu }}</option>
                     @endforeach
                 </select>
             </div>
@@ -105,11 +105,6 @@
             </div>
         </div>
 
-        <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Keterangan / Kendala</label>
-            <textarea name="keterangan_kendala" rows="3" placeholder="Tambahkan catatan kendala stok atau antrean..." class="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-600 shadow-sm transition resize-none">{{ old('keterangan_kendala') }}</textarea>
-        </div>
-
         <div class="flex justify-end pt-2">
             <button type="submit" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-600/20 flex items-center gap-2 transition">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
@@ -119,3 +114,25 @@
     </form>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const districtSelect = document.getElementById('bbm-kecamatan');
+        const spbuSelect = document.getElementById('bbm-spbu');
+
+        const filterSpbu = () => {
+            const districtId = districtSelect.value;
+            [...spbuSelect.options].forEach((option, index) => {
+                if (index === 0) return;
+                option.hidden = districtId !== '' && option.dataset.kecamatanId !== districtId;
+                option.disabled = option.hidden;
+            });
+            if (spbuSelect.selectedOptions[0]?.disabled) spbuSelect.value = '';
+        };
+
+        districtSelect.addEventListener('change', filterSpbu);
+        filterSpbu();
+    });
+</script>
+@endpush

@@ -15,6 +15,7 @@ class DataPangan extends Model
 
     protected $fillable = [
         'tanggal_input',
+        'tanggal_input_sebelumnya',
         'kecamatan_id',
         'desa_id',
         'pasar_lokasi_id',
@@ -43,6 +44,7 @@ class DataPangan extends Model
     {
         return [
             'tanggal_input' => 'date',
+            'tanggal_input_sebelumnya' => 'date',
             'harga_hari_ini' => 'decimal:2',
             'harga_hari_sebelumnya' => 'decimal:2',
             'perubahan_harga_nominal' => 'decimal:2',

@@ -7,6 +7,7 @@ use App\Models\DataLpg;
 use App\Models\DataPangan;
 use App\Models\Desa;
 use App\Models\EwsAlert;
+use App\Models\IphBulanan;
 use App\Models\IphMingguan;
 use App\Models\Kecamatan;
 use App\Models\Komoditas;
@@ -65,8 +66,10 @@ class DatabaseSeeder extends Seeder
         $desaData = [
             ['Kwandang', 'Molingkapoto', 0.7210, 123.0510],
             ['Kwandang', 'Titidu', 0.7250, 123.0550],
+            ['Kwandang', 'Pontolo', 0.7230, 123.0530],
             ['Atinggola', 'Kota Jin', 0.7450, 123.1200],
             ['Anggrek', 'Ilangata', 0.6200, 123.1000],
+            ['Tolinggula', 'Tolite Jaya', 0.5500, 123.2000],
         ];
 
         $desaIds = [];
@@ -163,37 +166,65 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $spbu1 = Spbu::firstOrCreate(
-            ['kode_spbu' => 'SPBU-001'],
-            [
-                'kecamatan_id' => $kecamatanIds['Kwandang'],
-                'desa_id' => $desaIds['Titidu'],
-                'nama_spbu' => 'SPBU Kwandang 74.123',
-                'tipe_spbu' => 'SPBU Umum',
-                'alamat' => 'Desa Titidu, Kwandang',
-                'latitude' => 0.7250,
-                'longitude' => 123.0550,
-                'melayani_nelayan' => true,
-                'melayani_pertanian' => false,
-                'is_active' => true,
-            ]
-        );
+        $upsertSpbu = function ($kode, $attributes) {
+            $spbu = Spbu::withTrashed()->firstOrNew(['kode_spbu' => $kode]);
+            $spbu->fill($attributes);
+            $spbu->deleted_at = null;
+            $spbu->save();
+            return $spbu;
+        };
 
-        $spbu2 = Spbu::firstOrCreate(
-            ['kode_spbu' => 'SPBU-002'],
-            [
-                'kecamatan_id' => $kecamatanIds['Anggrek'],
-                'desa_id' => $desaIds['Ilangata'],
-                'nama_spbu' => 'SPBU Anggrek 74.456',
-                'tipe_spbu' => 'SPBU Umum',
-                'alamat' => 'Desa Ilangata, Anggrek',
-                'latitude' => 0.6200,
-                'longitude' => 123.1000,
-                'melayani_nelayan' => true,
-                'melayani_pertanian' => true,
-                'is_active' => true,
-            ]
-        );
+        $spbu1 = $upsertSpbu('SPBU-001', [
+            'kecamatan_id' => $kecamatanIds['Kwandang'],
+            'desa_id' => $desaIds['Pontolo'] ?? ($desaIds['Titidu'] ?? null),
+            'nama_spbu' => 'SPBU 74.962.01 Pontolo Kwandang',
+            'tipe_spbu' => 'SPBU Umum',
+            'alamat' => 'Jl. Trans Sulawesi, Desa Pontolo, Kec. Kwandang',
+            'latitude' => 0.7250,
+            'longitude' => 123.0550,
+            'melayani_nelayan' => true,
+            'melayani_pertanian' => true,
+            'is_active' => true,
+        ]);
+
+        $spbu2 = $upsertSpbu('SPBU-002', [
+            'kecamatan_id' => $kecamatanIds['Anggrek'],
+            'desa_id' => $desaIds['Ilangata'] ?? null,
+            'nama_spbu' => 'SPBU 74.962.02 Ilangata Anggrek',
+            'tipe_spbu' => 'SPBU Umum',
+            'alamat' => 'Jl. Trans Sulawesi, Desa Ilangata, Kec. Anggrek',
+            'latitude' => 0.6200,
+            'longitude' => 123.1000,
+            'melayani_nelayan' => true,
+            'melayani_pertanian' => true,
+            'is_active' => true,
+        ]);
+
+        $spbu3 = $upsertSpbu('SPBU-003', [
+            'kecamatan_id' => $kecamatanIds['Atinggola'],
+            'desa_id' => $desaIds['Kota Jin'] ?? null,
+            'nama_spbu' => 'SPBU 74.962.04 Kota Jin Atinggola',
+            'tipe_spbu' => 'SPBU Umum',
+            'alamat' => 'Jl. Trans Sulawesi, Desa Kota Jin, Kec. Atinggola',
+            'latitude' => 0.7450,
+            'longitude' => 123.1200,
+            'melayani_nelayan' => true,
+            'melayani_pertanian' => true,
+            'is_active' => true,
+        ]);
+
+        $spbu4 = $upsertSpbu('SPBU-004', [
+            'kecamatan_id' => $kecamatanIds['Tolinggula'],
+            'desa_id' => $desaIds['Tolite Jaya'] ?? null,
+            'nama_spbu' => 'SPBU 76.965.01 Tolite Jaya Tolinggula',
+            'tipe_spbu' => 'SPBU Kompak',
+            'alamat' => 'Jl. Trans Sulawesi Gorontalo-Buol, Desa Tolite Jaya, Kec. Tolinggula',
+            'latitude' => 0.5500,
+            'longitude' => 123.2000,
+            'melayani_nelayan' => true,
+            'melayani_pertanian' => true,
+            'is_active' => true,
+        ]);
 
         $tanggal = now()->toDateString();
 
@@ -276,94 +307,225 @@ class DatabaseSeeder extends Seeder
             'keterangan_kendala' => 'Stok menipis, harga eceran melonjak',
         ]);
 
-        DataBbm::create([
+        $upsertDataBbm = function ($attributes) {
+            $record = DataBbm::withTrashed()
+                ->where('tanggal_input', $attributes['tanggal_input'])
+                ->where('spbu_id', $attributes['spbu_id'])
+                ->where('jenis_bbm', $attributes['jenis_bbm'])
+                ->first() ?? new DataBbm();
+            $record->fill($attributes);
+            $record->deleted_at = null;
+            $record->save();
+            return $record;
+        };
+
+        // 1. SPBU Kwandang (Pertalite & Bio Solar)
+        $upsertDataBbm([
             'tanggal_input' => $tanggal,
             'kecamatan_id' => $kecamatanIds['Kwandang'],
             'spbu_id' => $spbu1->id,
             'user_id' => $admin->id,
             'jenis_bbm' => 'Pertalite (JBKP)',
             'stok_tersedia_kl' => 12.0,
-            'penjualan_harian_rata_kl' => 5.0,
-            'estimasi_hari_ketersediaan' => 2.4,
             'distribusi_nelayan' => true,
-            'kuota_nelayan_harian_kl' => 2.0,
-            'realisasi_nelayan_kl' => 1.8,
+            'distribusi_pertanian' => true,
             'status_antrean' => 'pendek',
-            'estimasi_waktu_tunggu_menit' => 10,
             'status_ketersediaan' => 'aman',
             'harga_jual_per_liter' => 10000,
             'status_verifikasi' => 'disetujui',
         ]);
 
-        DataBbm::create([
+        $upsertDataBbm([
+            'tanggal_input' => $tanggal,
+            'kecamatan_id' => $kecamatanIds['Kwandang'],
+            'spbu_id' => $spbu1->id,
+            'user_id' => $admin->id,
+            'jenis_bbm' => 'Bio Solar',
+            'stok_tersedia_kl' => 8.0,
+            'distribusi_nelayan' => true,
+            'distribusi_pertanian' => true,
+            'status_antrean' => 'pendek',
+            'status_ketersediaan' => 'aman',
+            'harga_jual_per_liter' => 6800,
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        // 2. SPBU Anggrek (Pertalite & Bio Solar)
+        $upsertDataBbm([
+            'tanggal_input' => $tanggal,
+            'kecamatan_id' => $kecamatanIds['Anggrek'],
+            'spbu_id' => $spbu2->id,
+            'user_id' => $admin->id,
+            'jenis_bbm' => 'Pertalite (JBKP)',
+            'stok_tersedia_kl' => 10.5,
+            'distribusi_nelayan' => true,
+            'distribusi_pertanian' => true,
+            'status_antrean' => 'pendek',
+            'status_ketersediaan' => 'aman',
+            'harga_jual_per_liter' => 10000,
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        $upsertDataBbm([
             'tanggal_input' => $tanggal,
             'kecamatan_id' => $kecamatanIds['Anggrek'],
             'spbu_id' => $spbu2->id,
             'user_id' => $admin->id,
             'jenis_bbm' => 'Bio Solar',
             'stok_tersedia_kl' => 0.8,
-            'penjualan_harian_rata_kl' => 3.0,
-            'estimasi_hari_ketersediaan' => 0.27,
+            'distribusi_nelayan' => true,
             'distribusi_pertanian' => true,
-            'kuota_pertanian_harian_kl' => 1.5,
-            'realisasi_pertanian_kl' => 1.2,
             'status_antrean' => 'panjang',
-            'estimasi_waktu_tunggu_menit' => 45,
             'status_ketersediaan' => 'menipis',
             'harga_jual_per_liter' => 6800,
             'status_verifikasi' => 'disetujui',
             'keterangan_kendala' => 'Stok menipis, antrean panjang',
         ]);
 
-        IphMingguan::create([
-            'tahun' => 2026,
-            'bulan' => 5,
-            'minggu_ke' => 'II',
-            'periode_label' => 'Mei Minggu II 2026',
-            'tanggal_awal_periode' => '2026-05-05',
-            'tanggal_akhir_periode' => '2026-05-11',
-            'tanggal_publikasi' => '2026-05-12',
+        // 3. SPBU Atinggola (Pertalite & Bio Solar)
+        $upsertDataBbm([
+            'tanggal_input' => $tanggal,
+            'kecamatan_id' => $kecamatanIds['Atinggola'],
+            'spbu_id' => $spbu3->id,
             'user_id' => $admin->id,
-            'sumber_data' => 'BPS Kabupaten Gorontalo Utara',
-            'iph_kabupaten' => 2.33,
-            'iph_sebelumnya' => 1.95,
-            'perubahan_iph_nominal' => 0.38,
-            'perubahan_iph_persen' => 19.49,
-            'inflasi_minggu_ini_persen' => 0.38,
-            'inflasi_ytd_persen' => 2.33,
+            'jenis_bbm' => 'Pertalite (JBKP)',
+            'stok_tersedia_kl' => 14.0,
+            'distribusi_nelayan' => true,
+            'distribusi_pertanian' => false,
+            'status_antrean' => 'tidak_ada',
+            'status_ketersediaan' => 'aman',
+            'harga_jual_per_liter' => 10000,
             'status_verifikasi' => 'disetujui',
-            'analisis_ringkas' => 'IPH minggu ini mengalami kenaikan didorong oleh kenaikan harga cabai rawit dan bawang merah',
         ]);
 
-        EwsAlert::create([
-            'kode_alert' => 'EWS-2026-001',
-            'sumber_deteksi' => 'otomatis_sistem',
-            'kategori' => 'pangan',
-            'tingkat_risiko' => 'kritis',
-            'status' => 'terbuka',
-            'kecamatan_id' => $kecamatanIds['Kwandang'],
-            'komoditas_id' => $komoditasIds['Cabai Rawit'],
-            'judul_alert' => 'Lonjakan Harga Cabai Rawit Merah (+18.5%)',
-            'analisis_sistem' => 'Terjadi penurunan pasokan cabai lokal akibat curah hujan tinggi di sentra produksi. Diproyeksikan stok eceran hanya bertahan hingga 3 hari kedepan jika tidak ada pasokan substitusi.',
-            'nilai_indikasi_harga_persen' => 18.5,
-            'lama_zonasi_berurutan_hari' => 3,
-            'waktu_terdeteksi' => now()->subHours(2),
-            'dibuat_oleh' => $admin->id,
+        $upsertDataBbm([
+            'tanggal_input' => $tanggal,
+            'kecamatan_id' => $kecamatanIds['Atinggola'],
+            'spbu_id' => $spbu3->id,
+            'user_id' => $admin->id,
+            'jenis_bbm' => 'Bio Solar',
+            'stok_tersedia_kl' => 6.0,
+            'distribusi_nelayan' => true,
+            'distribusi_pertanian' => true,
+            'status_antrean' => 'pendek',
+            'status_ketersediaan' => 'aman',
+            'harga_jual_per_liter' => 6800,
+            'status_verifikasi' => 'disetujui',
         ]);
 
-        EwsAlert::create([
-            'kode_alert' => 'EWS-2026-002',
-            'sumber_deteksi' => 'otomatis_sistem',
-            'kategori' => 'lpg',
-            'tingkat_risiko' => 'tinggi',
-            'status' => 'terbuka',
-            'kecamatan_id' => $kecamatanIds['Ponelo Kepulauan'],
-            'judul_alert' => 'Indikasi Penumpukan Pembelian LPG 3Kg',
-            'analisis_sistem' => 'Laporan sisa stok pangkalan menunjukkan tingkat keluar 210% melebihi rata-rata mingguan. Disarankan monitoring lapangan pencegahan panic buying.',
-            'nilai_indikasi_stok_persen' => 210,
-            'lama_zonasi_berurutan_hari' => 2,
-            'waktu_terdeteksi' => now()->subHours(5),
-            'dibuat_oleh' => $admin->id,
+        // 4. SPBU Tolinggula (Pertalite & Bio Solar)
+        $upsertDataBbm([
+            'tanggal_input' => $tanggal,
+            'kecamatan_id' => $kecamatanIds['Tolinggula'],
+            'spbu_id' => $spbu4->id,
+            'user_id' => $admin->id,
+            'jenis_bbm' => 'Pertalite (JBKP)',
+            'stok_tersedia_kl' => 9.0,
+            'distribusi_nelayan' => true,
+            'distribusi_pertanian' => true,
+            'status_antrean' => 'pendek',
+            'status_ketersediaan' => 'aman',
+            'harga_jual_per_liter' => 10000,
+            'status_verifikasi' => 'disetujui',
         ]);
+
+        $upsertDataBbm([
+            'tanggal_input' => $tanggal,
+            'kecamatan_id' => $kecamatanIds['Tolinggula'],
+            'spbu_id' => $spbu4->id,
+            'user_id' => $admin->id,
+            'jenis_bbm' => 'Bio Solar',
+            'stok_tersedia_kl' => 5.5,
+            'distribusi_nelayan' => true,
+            'distribusi_pertanian' => true,
+            'status_antrean' => 'pendek',
+            'status_ketersediaan' => 'aman',
+            'harga_jual_per_liter' => 6800,
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        $mingguanSeeds = [
+            ['tahun' => 2026, 'bulan' => 4, 'minggu_ke' => 'III', 'iph' => 1.85, 'ranking' => 18, 'komoditas' => 'Beras(0.12), Cabai Rawit(0.45)'],
+            ['tahun' => 2026, 'bulan' => 4, 'minggu_ke' => 'IV', 'iph' => 2.10, 'ranking' => 15, 'komoditas' => 'Bawang Merah(0.31), Minyak Goreng(0.14)'],
+            ['tahun' => 2026, 'bulan' => 5, 'minggu_ke' => 'I', 'iph' => 1.95, 'ranking' => 16, 'komoditas' => 'Cabai Rawit(0.22), Daging Ayam(0.18)'],
+            ['tahun' => 2026, 'bulan' => 5, 'minggu_ke' => 'II', 'iph' => 2.33, 'ranking' => 14, 'komoditas' => 'Cabai Rawit(0.38), Bawang Merah(0.25)'],
+        ];
+
+        foreach ($mingguanSeeds as $seed) {
+            IphMingguan::withTrashed()->firstOrNew(
+                ['tahun' => $seed['tahun'], 'bulan' => $seed['bulan'], 'minggu_ke' => $seed['minggu_ke']]
+            )->fill([
+                'periode_label' => 'Minggu ' . $seed['minggu_ke'] . ' Bulan ' . $seed['bulan'] . ' ' . $seed['tahun'],
+                'tanggal_awal_periode' => sprintf('%04d-%02d-01', $seed['tahun'], $seed['bulan']),
+                'tanggal_akhir_periode' => sprintf('%04d-%02d-07', $seed['tahun'], $seed['bulan']),
+                'tanggal_publikasi' => sprintf('%04d-%02d-10', $seed['tahun'], $seed['bulan']),
+                'user_id' => $admin->id,
+                'sumber_data' => 'BPS Kabupaten Gorontalo Utara',
+                'iph_kabupaten' => $seed['iph'],
+                'ranking' => $seed['ranking'],
+                'komoditas_andil' => $seed['komoditas'],
+                'komoditas_penyumbang_inflasi' => $seed['komoditas'],
+                'status_verifikasi' => 'disetujui',
+                'deleted_at' => null,
+            ])->save();
+        }
+
+        $bulananSeeds = [
+            ['tahun' => 2026, 'bulan' => 1, 'nama_bulan' => 'Januari', 'iph' => 1.20, 'ranking' => 22, 'komoditas' => 'Beras(0.25), Ikan(0.15)'],
+            ['tahun' => 2026, 'bulan' => 2, 'nama_bulan' => 'Februari', 'iph' => 1.45, 'ranking' => 20, 'komoditas' => 'Cabai Merah(0.30), Telur(0.12)'],
+            ['tahun' => 2026, 'bulan' => 3, 'nama_bulan' => 'Maret', 'iph' => 1.80, 'ranking' => 17, 'komoditas' => 'Daging Sapi(0.40), Bawang Putih(0.18)'],
+            ['tahun' => 2026, 'bulan' => 4, 'nama_bulan' => 'April', 'iph' => 2.10, 'ranking' => 15, 'komoditas' => 'Minyak Goreng(0.35), Gula Pasir(0.20)'],
+            ['tahun' => 2026, 'bulan' => 5, 'nama_bulan' => 'Mei', 'iph' => 1.85, 'ranking' => 16, 'komoditas' => 'Cabai Rawit(0.28), Beras(0.19)'],
+            ['tahun' => 2026, 'bulan' => 6, 'nama_bulan' => 'Juni', 'iph' => 1.60, 'ranking' => 19, 'komoditas' => 'Bawang Merah(0.22), Cabai Merah(0.15)'],
+        ];
+
+        foreach ($bulananSeeds as $b) {
+            IphBulanan::withTrashed()->firstOrNew(
+                ['tahun' => $b['tahun'], 'bulan' => $b['bulan']]
+            )->fill([
+                'nama_bulan' => $b['nama_bulan'],
+                'iph_bulanan' => $b['iph'],
+                'ranking' => $b['ranking'],
+                'komoditas_andil' => $b['komoditas'],
+                'status_kategori' => 'terkendali',
+                'user_id' => $admin->id,
+                'deleted_at' => null,
+            ])->save();
+        }
+
+        EwsAlert::firstOrCreate(
+            ['kode_alert' => 'EWS-2026-001'],
+            [
+                'sumber_deteksi' => 'otomatis_sistem',
+                'kategori' => 'pangan',
+                'tingkat_risiko' => 'kritis',
+                'status' => 'terbuka',
+                'kecamatan_id' => $kecamatanIds['Kwandang'],
+                'komoditas_id' => $komoditasIds['Cabai Rawit'],
+                'judul_alert' => 'Lonjakan Harga Cabai Rawit Merah (+18.5%)',
+                'analisis_sistem' => 'Terjadi penurunan pasokan cabai lokal akibat curah hujan tinggi di sentra produksi. Diproyeksikan stok eceran hanya bertahan hingga 3 hari kedepan jika tidak ada pasokan substitusi.',
+                'nilai_indikasi_harga_persen' => 18.5,
+                'lama_zonasi_berurutan_hari' => 3,
+                'waktu_terdeteksi' => now()->subHours(2),
+                'dibuat_oleh' => $admin->id,
+            ]
+        );
+
+        EwsAlert::firstOrCreate(
+            ['kode_alert' => 'EWS-2026-002'],
+            [
+                'sumber_deteksi' => 'otomatis_sistem',
+                'kategori' => 'lpg',
+                'tingkat_risiko' => 'tinggi',
+                'status' => 'terbuka',
+                'kecamatan_id' => $kecamatanIds['Ponelo Kepulauan'],
+                'judul_alert' => 'Indikasi Penumpukan Pembelian LPG 3Kg',
+                'analisis_sistem' => 'Laporan sisa stok pangkalan menunjukkan tingkat keluar 210% melebihi rata-rata mingguan. Disarankan monitoring lapangan pencegahan panic buying.',
+                'nilai_indikasi_stok_persen' => 210,
+                'lama_zonasi_berurutan_hari' => 2,
+                'waktu_terdeteksi' => now()->subHours(5),
+                'dibuat_oleh' => $admin->id,
+            ]
+        );
     }
 }

@@ -25,6 +25,8 @@ class IphMingguan extends Model
         'user_id',
         'sumber_data',
         'iph_kabupaten',
+        'ranking',
+        'komoditas_andil',
         'iph_sebelumnya',
         'perubahan_iph_nominal',
         'perubahan_iph_persen',

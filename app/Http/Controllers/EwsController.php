@@ -6,12 +6,13 @@ use App\Models\EwsAlert;
 use App\Models\Kecamatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class EwsController extends Controller
 {
     public function index()
     {
-        $alerts = EwsAlert::with('kecamatan')
+        $alerts = EwsAlert::with(['kecamatan', 'rekomendasi'])
             ->whereIn('status', ['terbuka', 'diproses'])
             ->orderBy('waktu_terdeteksi', 'desc')
             ->get();
@@ -93,7 +94,21 @@ class EwsController extends Controller
             'kecamatan_id' => 'required|exists:kecamatan,id',
             'judul_alert' => 'required|string|max:200',
             'analisis_sistem' => 'required|string',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'fotos' => 'nullable|array|max:3',
+            'fotos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
+
+        if (! $this->isInsideGorontalo((float) $validated['latitude'], (float) $validated['longitude'])) {
+            throw ValidationException::withMessages([
+                'latitude' => 'Titik lokasi harus berada di dalam Provinsi Gorontalo.',
+            ]);
+        }
+
+        $fotoPaths = collect($request->file('fotos', []))
+            ->map(fn ($foto): string => $foto->store('ews-alerts', 'public'))
+            ->all();
 
         EwsAlert::create([
             'kode_alert' => 'EWS-'.date('Ymd').'-'.str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT),
@@ -102,14 +117,84 @@ class EwsController extends Controller
             'tingkat_risiko' => $validated['tingkat_risiko'],
             'status' => 'terbuka',
             'kecamatan_id' => $validated['kecamatan_id'],
+            'latitude' => $validated['latitude'],
+            'longitude' => $validated['longitude'],
             'judul_alert' => $validated['judul_alert'],
             'analisis_sistem' => $validated['analisis_sistem'],
+            'foto_laporan_path' => $fotoPaths,
             'dibuat_oleh' => Auth::id(),
             'waktu_terdeteksi' => now(),
         ]);
 
         return redirect()->route('ews.index')
             ->with('success', 'Peringatan baru berhasil dibuat.');
+    }
+
+    public function storeRekomendasi(EwsAlert $alert)
+    {
+        $alert->rekomendasi()->firstOrCreate(
+            ['tipe_rekomendasi' => 'operasi_pasar'],
+            [
+                'judul_rekomendasi' => 'Operasi Pasar: '.$alert->judul_alert,
+                'detail_rekomendasi' => $alert->analisis_sistem,
+                'target_pelaksana' => 'TPID Kabupaten Gorontalo Utara',
+                'dibuat_oleh' => Auth::id(),
+            ]
+        );
+
+        return redirect()->route('ews.index')
+            ->with('success', 'Rekomendasi strategis berhasil ditambahkan ke dashboard dan peta GIS.');
+    }
+
+    private function isInsideGorontalo(float $latitude, float $longitude): bool
+    {
+        $boundary = json_decode(
+            file_get_contents(public_path('data/gorontalo-boundary.geojson')),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
+
+        foreach ($boundary['geometry']['coordinates'] as $polygon) {
+            if (! $this->isPointInsideRing($longitude, $latitude, $polygon[0])) {
+                continue;
+            }
+
+            foreach (array_slice($polygon, 1) as $hole) {
+                if ($this->isPointInsideRing($longitude, $latitude, $hole)) {
+                    continue 2;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private function isPointInsideRing(float $longitude, float $latitude, array $ring): bool
+    {
+        $isInside = false;
+        $lastIndex = count($ring) - 1;
+
+        for ($index = 0; $index < count($ring); $index++) {
+            [$currentLongitude, $currentLatitude] = $ring[$index];
+            [$previousLongitude, $previousLatitude] = $ring[$lastIndex];
+
+            $crossesLatitude = ($currentLatitude > $latitude) !== ($previousLatitude > $latitude);
+            $crossingLongitude = ($previousLongitude - $currentLongitude)
+                * ($latitude - $currentLatitude)
+                / (($previousLatitude - $currentLatitude) ?: 0.0000000001)
+                + $currentLongitude;
+
+            if ($crossesLatitude && $longitude < $crossingLongitude) {
+                $isInside = ! $isInside;
+            }
+
+            $lastIndex = $index;
+        }
+
+        return $isInside;
     }
 
     public function monitorKabupaten()

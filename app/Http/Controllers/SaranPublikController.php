@@ -25,15 +25,17 @@ class SaranPublikController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'kategori' => 'required|string',
+            'kategori' => 'required|in:lonjakan_harga,kelangkaan_stok,saran_kebijakan,pelanggaran_het,lainnya',
             'nama_pelapor' => 'nullable|string|max:100',
-            'kontak_pelapor' => 'nullable|string|max:50',
+            'kontak_pelapor' => 'required|string|max:50',
             'anonim' => 'nullable|boolean',
             'kecamatan_id' => 'nullable|exists:kecamatan,id',
             'judul_laporan' => 'required|string|max:200',
             'isi_laporan' => 'required|string',
-            'nama_komoditas_dilaporkan' => 'nullable|string|max:100',
-            'harga_dilaporkan' => 'nullable|numeric',
+            'nama_komoditas_dilaporkan' => 'exclude_unless:kategori,lonjakan_harga,kelangkaan_stok,pelanggaran_het|required|string|max:150',
+            'harga_dilaporkan' => 'exclude_unless:kategori,lonjakan_harga,kelangkaan_stok,pelanggaran_het|required|numeric|min:0',
+        ], [
+            'kontak_pelapor.required' => 'Kontak wajib diisi.',
         ]);
 
         $validated['kode_laporan'] = 'SRN-'.date('Ymd').'-'.str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT);

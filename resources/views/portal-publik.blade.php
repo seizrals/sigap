@@ -173,11 +173,11 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">Kategori Laporan *</label>
                             <select name="kategori" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
-                                <option value="lonjakan_harga">Lonjakan Harga</option>
-                                <option value="kelangkaan_stok">Kelangkaan Stok</option>
-                                <option value="saran_kebijakan">Saran Kebijakan</option>
-                                <option value="pelanggaran_het">Pelanggaran HET</option>
-                                <option value="lainnya">Lainnya</option>
+                                <option value="lonjakan_harga" @selected(old('kategori', 'lonjakan_harga') === 'lonjakan_harga')>Lonjakan Harga</option>
+                                <option value="kelangkaan_stok" @selected(old('kategori') === 'kelangkaan_stok')>Kelangkaan Stok</option>
+                                <option value="saran_kebijakan" @selected(old('kategori') === 'saran_kebijakan')>Saran Kebijakan</option>
+                                <option value="pelanggaran_het" @selected(old('kategori') === 'pelanggaran_het')>Pelanggaran HET</option>
+                                <option value="lainnya" @selected(old('kategori') === 'lainnya')>Lainnya</option>
                             </select>
                         </div>
 
@@ -191,14 +191,14 @@
                             <input type="text" name="judul_laporan" required placeholder="Contoh: Harga cabai naik tajam" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
+                        <div id="commodity-fields" class="grid grid-cols-2 gap-3 @if(!in_array(old('kategori', 'lonjakan_harga'), ['lonjakan_harga', 'kelangkaan_stok', 'pelanggaran_het'], true)) hidden @endif">
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Komoditas</label>
-                                <input type="text" name="nama_komoditas_dilaporkan" placeholder="Contoh: Cabai Rawit" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Komoditas *</label>
+                                <input type="text" name="nama_komoditas_dilaporkan" value="{{ old('nama_komoditas_dilaporkan') }}" required placeholder="Contoh: Cabai Rawit" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Harga (Rp)</label>
-                                <input type="number" name="harga_dilaporkan" placeholder="Contoh: 85000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Harga (Rp) *</label>
+                                <input type="number" name="harga_dilaporkan" value="{{ old('harga_dilaporkan') }}" min="0" required placeholder="Contoh: 85000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                             </div>
                         </div>
 
@@ -214,7 +214,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Kontak (Wajib)*</label>
-                                <input type="text" name="kontak_pelapor" placeholder="No. HP / Email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                                <input type="text" name="kontak_pelapor" value="{{ old('kontak_pelapor') }}" required placeholder="No. HP / Email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                             </div>
                         </div>
 
@@ -252,6 +252,28 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const categorySelect = document.querySelector('select[name="kategori"]');
+            const commodityFields = document.querySelector('#commodity-fields');
+            const commodityInputs = commodityFields.querySelectorAll('input');
+            const requiredCategories = ['lonjakan_harga', 'kelangkaan_stok', 'pelanggaran_het'];
+
+            const updateCommodityFields = () => {
+                const required = requiredCategories.includes(categorySelect.value);
+                commodityFields.classList.toggle('hidden', !required);
+                commodityInputs.forEach((input) => {
+                    input.required = required;
+                    input.disabled = !required;
+                    if (!required) input.value = '';
+                });
+            };
+
+            categorySelect.addEventListener('change', updateCommodityFields);
+            updateCommodityFields();
+        });
+    </script>
 
 </body>
 </html>

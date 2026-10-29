@@ -1,14 +1,23 @@
-<aside class="w-64 bg-sigap-primary text-slate-100 flex flex-col shrink-0 border-r border-slate-800 h-full overflow-hidden">
-    <div class="h-20 flex items-center gap-3 px-5 border-b border-slate-800">
-        <div class="w-11 h-11 rounded-xl overflow-hidden shadow-lg shrink-0">
-            <img src="{{ asset('images/logo_gorut.png') }}" alt="Logo Gorontalo Utara" class="w-full h-full object-contain">
+<aside id="app-sidebar" class="w-64 bg-sigap-primary text-slate-100 flex flex-col shrink-0 border-r border-slate-800 h-full overflow-hidden">
+    <div class="h-24 flex items-center justify-between px-5 border-b border-slate-800">
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="w-11 h-11 rounded-xl overflow-hidden shadow-lg shrink-0">
+                <img src="{{ asset('images/logo_gorut.png') }}" alt="Logo Gorontalo Utara" class="w-full h-full object-contain">
+            </div>
+            <div class="min-w-0">
+                <p class="font-bold tracking-tight truncate">SIAGA PANGAN</p>
+                <p class="text-[11px] text-slate-400 font-medium uppercase tracking-wider truncate">Gorontalo Utara</p>
+            </div>
         </div>
-        
-
-        <div>
-            <p class="font-bold tracking-tight">SIAGA PANGAN</p>
-            <p class="text-[11px] text-slate-400 font-medium uppercase tracking-wider">Gorontalo Utara</p>
-        </div>
+        <button id="sidebar-hide-btn" 
+                type="button" 
+                class="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition focus:outline-none focus:ring-2 focus:ring-blue-500/20 shrink-0" 
+                title="Tutup Menu Navigasi"
+                aria-label="Tutup Menu Navigasi">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5"/>
+            </svg>
+        </button>
     </div>
 
     <nav class="flex-1 px-3 py-5 space-y-6 overflow-y-auto">
@@ -69,7 +78,18 @@
                         <span>Lapor Darurat (EWS)</span>
                     </a>
                 </li>
+            </ul>
+        </div>
 
+        <div>
+            <p class="px-3 mb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-[0.15em]">Partisipasi Publik</p>
+            <ul class="space-y-1">
+                <li>
+                    <a href="{{ route('saran-publik.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('saran-publik.*') ? 'bg-sigap-accent text-white shadow-lg shadow-blue-900/40' : 'text-slate-300 hover:bg-sigap-primary-light hover:text-white' }}">
+                        <svg class="w-5 h-5 shrink-0 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+                        <span>Saran Publik</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </nav>

@@ -278,8 +278,7 @@
                                 <th class="pb-4 px-4">Periode Lalu<br><span class="text-[10px] font-medium normal-case">{{ \Carbon\Carbon::parse($periodeSebelumnya)->format('d/m/Y') }}</span></th>
                                 <th class="pb-4 px-4">Periode Saat Ini<br><span class="text-[10px] font-medium normal-case">{{ \Carbon\Carbon::parse($periodeSaatIni)->format('d/m/Y') }}</span></th>
                                 <th class="pb-4 px-4">Perubahan</th>
-                                <th class="pb-4 px-4">Ketersediaan</th>
-                                <th class="pb-4 pl-4 text-right">Verifikasi</th>
+                                <th class="pb-4 pl-4 text-right">Ketersediaan</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm font-semibold">
@@ -296,16 +295,13 @@
                                 <td class="py-4 px-4 {{ ($d['perubahan_persen'] ?? 0) > 0 ? 'text-rose-500' : (($d['perubahan_persen'] ?? 0) < 0 ? 'text-emerald-500' : 'text-slate-400') }}">
                                     {{ $d['perubahan_persen'] === null ? '-' : (($d['perubahan_persen'] > 0 ? '+' : '').number_format((float) $d['perubahan_persen'], 1, ',', '.').'%') }}
                                 </td>
-                                <td class="py-4 px-4">
-                                    <span class="inline-block text-[11px] font-bold px-3 py-1 rounded-full uppercase {{ $d['status_ketersediaan'] === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($d['status_ketersediaan'] === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-600') }}">{{ $d['status_ketersediaan'] ? ($d['status_ketersediaan'] === 'kosong' ? 'Kritis' : $d['status_ketersediaan']) : '-' }}</span>
-                                </td>
                                 <td class="py-4 pl-4 text-right">
-                                    <span class="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full {{ $d['status_verifikasi'] === 'disetujui' ? 'bg-emerald-100 text-emerald-700' : ($d['status_verifikasi'] === 'ditolak' ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-700') }}">{{ ucfirst($d['status_verifikasi'] ?? 'pending') }}</span>
+                                    <span class="inline-block text-[11px] font-bold px-3 py-1 rounded-full uppercase {{ $d['status_ketersediaan'] === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($d['status_ketersediaan'] === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-600') }}">{{ $d['status_ketersediaan'] ? ($d['status_ketersediaan'] === 'kosong' ? 'Kritis' : $d['status_ketersediaan']) : '-' }}</span>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="8" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data untuk filter dan periode ini.</td>
+                                <td colspan="7" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data untuk filter dan periode ini.</td>
                             </tr>
                             @endforelse
                         </tbody>

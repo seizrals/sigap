@@ -23,7 +23,9 @@ class SaranPublikController extends Controller
                         ->orWhere('isi_laporan', 'like', "%{$search}%")
                         ->orWhere('nama_komoditas_dilaporkan', 'like', "%{$search}%")
                         ->orWhere('lokasi_spesifik', 'like', "%{$search}%")
-                        ->orWhere('nama_pelapor', 'like', "%{$search}%");
+                        ->orWhere('nama_pelapor', 'like', "%{$search}%")
+                        ->orWhere('kontak_pelapor', 'like', "%{$search}%")
+                        ->orWhere('kode_laporan', 'like', "%{$search}%");
                 });
             })
             ->orderBy('created_at', 'desc');

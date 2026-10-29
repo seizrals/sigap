@@ -143,6 +143,7 @@ class DashboardControllerTest extends TestCase
         $response->assertSee('name="pangan_komoditas_id"', false);
         $response->assertSee('name="periode_sebelumnya"', false);
         $response->assertSee('name="periode_saat_ini"', false);
+        $response->assertDontSee('Verifikasi');
         $rows = $response->viewData('dataPangan');
         $this->assertCount(1, $rows);
         $this->assertSame('Kwandang', $rows->first()['kecamatan']);
@@ -150,5 +151,25 @@ class DashboardControllerTest extends TestCase
         $this->assertSame(60000.0, (float) $rows->first()['harga_lalu']);
         $this->assertSame(72000.0, (float) $rows->first()['harga_saat_ini']);
         $this->assertSame('waspada', $rows->first()['status_ketersediaan']);
+    }
+
+    public function test_header_displays_leader_photos_and_notification(): void
+    {
+        $user = User::factory()->create([
+            'username' => 'admin-header-test',
+            'role' => 'admin_kabupaten',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('dashboard'));
+
+        $response->assertOk();
+        $response->assertSee('images/bupati.png');
+        $response->assertSee('images/wabup.png');
+        $response->assertSee('Foto Bupati Gorontalo Utara');
+        $response->assertSee('Foto Wakil Bupati Gorontalo Utara');
+        $response->assertSee('id="sidebar-toggle-btn"', false);
+        $response->assertSee('id="app-sidebar"', false);
+        $response->assertSee('id="sidebar-hide-btn"', false);
+        $response->assertDontSee('Cetak Laporan');
     }
 }

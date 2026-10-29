@@ -58,6 +58,7 @@ class InputPanganTest extends TestCase
         $response->assertSee('Cabai Rawit');
         $response->assertSee('Beras Medium');
         $response->assertSee('data-edit-pangan', false);
+        $response->assertDontSee('Verifikasi');
         $response->assertSee('Harga Sebelumnya');
         $response->assertSee('Periode Sebelumnya');
         $response->assertSee('Periode Saat Ini');

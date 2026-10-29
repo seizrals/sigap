@@ -35,7 +35,6 @@
                         <th class="px-3 py-3 font-bold">Ketersediaan</th>
                         <th class="px-3 py-3 font-bold text-right">Stok</th>
                         <th class="px-3 py-3 font-bold">Distribusi</th>
-                        <th class="px-3 py-3 font-bold">Verifikasi</th>
                         <th class="px-3 py-3 font-bold text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -54,9 +53,6 @@
                             </td>
                             <td class="px-3 py-3 text-right whitespace-nowrap">{{ $record->stok_tersedia !== null ? number_format((float) $record->stok_tersedia, 0, ',', '.') : '-' }} {{ $record->satuan_stok }}</td>
                             <td class="px-3 py-3 max-w-48 truncate" title="{{ $record->sumber_distribusi_masuk }}">{{ $record->sumber_distribusi_masuk ?: '-' }}</td>
-                            <td class="px-3 py-3 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 rounded-md font-semibold {{ $record->status_verifikasi === 'disetujui' ? 'bg-emerald-100 text-emerald-700' : ($record->status_verifikasi === 'ditolak' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700') }}">{{ ucfirst($record->status_verifikasi) }}</span>
-                            </td>
                             <td class="px-3 py-2 text-center">
                                 <button type="button" data-edit-pangan
                                     data-record-id="{{ $record->id }}" data-periode-sebelumnya="{{ $record->tanggal_input_sebelumnya?->format('Y-m-d') }}"

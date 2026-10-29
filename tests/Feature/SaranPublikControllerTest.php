@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\SaranPublik;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -62,5 +64,106 @@ class SaranPublikControllerTest extends TestCase
         $this->assertDatabaseMissing('saran_publik', [
             'judul_laporan' => 'Laporan warga',
         ]);
+    }
+
+    public function test_sidebar_contains_saran_publik_navigation_link(): void
+    {
+        $user = User::factory()->create(['username' => 'admin_saran_nav', 'role' => 'admin_kabupaten']);
+
+        $response = $this->actingAs($user)->get(route('dashboard'));
+        $response->assertOk();
+        $response->assertSee(route('saran-publik.index'));
+        $response->assertSee('Saran Publik');
+    }
+
+    public function test_portal_publik_submission_saves_and_is_visible_in_saran_publik(): void
+    {
+        $user = User::factory()->create(['username' => 'admin_saran_view', 'role' => 'admin_kabupaten']);
+
+        // Submit via portal publik
+        $postResponse = $this->post(route('saran-publik.store'), [
+            'kategori' => 'lonjakan_harga',
+            'kontak_pelapor' => '089912345678',
+            'nama_pelapor' => 'Warga Kwandang',
+            'lokasi_spesifik' => 'Pasar Moluo, Kwandang',
+            'judul_laporan' => 'Cabai tembus 100 ribu',
+            'isi_laporan' => 'Harga cabai melonjak tajam sejak kemarin pagi.',
+            'nama_komoditas_dilaporkan' => 'Cabai Rawit',
+            'harga_dilaporkan' => 100000,
+        ]);
+
+        $postResponse->assertRedirect(route('portal-publik'));
+        $this->assertDatabaseHas('saran_publik', [
+            'judul_laporan' => 'Cabai tembus 100 ribu',
+            'nama_komoditas_dilaporkan' => 'Cabai Rawit',
+            'harga_dilaporkan' => 100000,
+            'lokasi_spesifik' => 'Pasar Moluo, Kwandang',
+        ]);
+
+        // Verify visible in saran-publik index
+        $indexResponse = $this->actingAs($user)->get(route('saran-publik.index'));
+        $indexResponse->assertOk();
+        $indexResponse->assertSee('Cabai tembus 100 ribu');
+        $indexResponse->assertSee('Pasar Moluo, Kwandang');
+        $indexResponse->assertSee('100.000');
+    }
+
+    public function test_saran_publik_filters_reports_by_category(): void
+    {
+        $user = User::factory()->create(['username' => 'admin_saran_filter', 'role' => 'admin_kabupaten']);
+
+        SaranPublik::create([
+            'kode_laporan' => 'SRN-20261029-0001',
+            'kategori' => 'lonjakan_harga',
+            'kontak_pelapor' => '08111111111',
+            'judul_laporan' => 'Harga Beras Naik',
+            'isi_laporan' => 'Kenaikan beras di tolitoli',
+            'nama_komoditas_dilaporkan' => 'Beras',
+            'harga_dilaporkan' => 16000,
+            'status' => 'masuk',
+        ]);
+
+        SaranPublik::create([
+            'kode_laporan' => 'SRN-20261029-0002',
+            'kategori' => 'kelangkaan_stok',
+            'kontak_pelapor' => '08222222222',
+            'judul_laporan' => 'LPG 3KG Kosong',
+            'isi_laporan' => 'Sudah 3 hari pangkalan kosong',
+            'nama_komoditas_dilaporkan' => 'LPG 3 KG',
+            'harga_dilaporkan' => 22000,
+            'status' => 'masuk',
+        ]);
+
+        // Filter lonjakan_harga
+        $respHarga = $this->actingAs($user)->get(route('saran-publik.index', ['kategori' => 'lonjakan_harga']));
+        $respHarga->assertOk();
+        $respHarga->assertSee('Harga Beras Naik');
+        $respHarga->assertDontSee('LPG 3KG Kosong');
+
+        // Filter kelangkaan_stok
+        $respStok = $this->actingAs($user)->get(route('saran-publik.index', ['kategori' => 'kelangkaan_stok']));
+        $respStok->assertOk();
+        $respStok->assertSee('LPG 3KG Kosong');
+        $respStok->assertDontSee('Harga Beras Naik');
+    }
+
+    public function test_saran_publik_index_displays_reports_without_input_form(): void
+    {
+        $user = User::factory()->create(['username' => 'admin_saran_page', 'role' => 'admin_kabupaten']);
+
+        $response = $this->actingAs($user)->get(route('saran-publik.index'));
+        $response->assertOk();
+        $response->assertSee('Filter Kategori');
+        $response->assertSee('Daftar Saran & Laporan Masuk', false);
+        $response->assertDontSee('Form Input Saran & Laporan');
+        $response->assertDontSee('Simpan Laporan');
+    }
+
+    public function test_portal_publik_renders_with_landmark_background(): void
+    {
+        $response = $this->get(route('portal-publik'));
+        $response->assertOk();
+        $response->assertSee('KANAL PARTISIPASI PUBLIK');
+        $response->assertSee('background_gorut.jpg');
     }
 }

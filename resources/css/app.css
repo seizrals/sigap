@@ -22,3 +22,28 @@
     --color-status-bahaya: #EF4444;
     --color-status-sangat-aman: #059669;
 }
+
+/* Sidebar Toggle Animation & Responsive State */
+#app-sidebar {
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 1024px) {
+    #app-sidebar.sidebar-collapsed {
+        margin-left: -16rem !important;
+    }
+}
+
+@media (max-width: 1023px) {
+    #app-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 50;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    #app-sidebar.sidebar-collapsed {
+        transform: translateX(-100%);
+    }
+}

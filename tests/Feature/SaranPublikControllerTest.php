@@ -106,6 +106,9 @@ class SaranPublikControllerTest extends TestCase
         $indexResponse->assertSee('Cabai tembus 100 ribu');
         $indexResponse->assertSee('Pasar Moluo, Kwandang');
         $indexResponse->assertSee('100.000');
+        $indexResponse->assertSee('Kontak Pelapor:');
+        $indexResponse->assertSee('089912345678');
+        $indexResponse->assertSee('WhatsApp');
     }
 
     public function test_saran_publik_filters_reports_by_category(): void
@@ -165,5 +168,30 @@ class SaranPublikControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('KANAL PARTISIPASI PUBLIK');
         $response->assertSee('background_gorut.jpg');
+    }
+
+    public function test_saran_publik_displays_contact_even_when_anonymous(): void
+    {
+        $user = User::factory()->create(['username' => 'admin_contact_tester', 'role' => 'admin_kabupaten']);
+
+        SaranPublik::create([
+            'kode_laporan' => 'SRN-20261029-9999',
+            'kategori' => 'kelangkaan_stok',
+            'kontak_pelapor' => '087788990011',
+            'nama_pelapor' => 'Warga Rahasia',
+            'anonim' => true,
+            'judul_laporan' => 'Gas 3kg Langka',
+            'isi_laporan' => 'Pangkalan selalu kosong',
+            'nama_komoditas_dilaporkan' => 'LPG 3 Kg',
+            'harga_dilaporkan' => 22000,
+            'status' => 'masuk',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('saran-publik.index'));
+        $response->assertOk();
+        $response->assertSee('Gas 3kg Langka');
+        $response->assertSee('Anonim di Portal');
+        $response->assertSee('087788990011');
+        $response->assertSee('Kontak Pelapor:');
     }
 }

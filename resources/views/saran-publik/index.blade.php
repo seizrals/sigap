@@ -64,7 +64,7 @@
         {{-- Form Filter Pencarian & Dropdown --}}
         <form method="GET" action="{{ route('saran-publik.index') }}" class="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-12 gap-2 text-xs">
             <div class="sm:col-span-5">
-                <input type="text" name="q" value="{{ $search }}" placeholder="Cari judul laporan, komoditas, nama pelapor, atau alamat..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none focus:border-blue-500 shadow-2xs font-medium">
+                <input type="text" name="q" value="{{ $search }}" placeholder="Cari judul laporan, komoditas, nama pelapor, kontak, kode laporan..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 placeholder:text-slate-400 outline-none focus:border-blue-500 shadow-2xs font-medium">
             </div>
             <div class="sm:col-span-3">
                 <select name="kecamatan_id" onchange="this.form.submit()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-700 font-semibold outline-none focus:border-blue-500 shadow-2xs">
@@ -163,18 +163,51 @@
                             <span>Rp {{ number_format($saran->harga_dilaporkan, 0, ',', '.') }}</span>
                         </div>
                     @endif
+                </div>
 
-                    <div class="ml-auto inline-flex items-center gap-1 text-[11px] font-medium text-slate-500">
-                        <span>Pelapor:</span>
+                {{-- Bar Informasi Pelapor & Kontak (Sangat Jelas & Menonjol) --}}
+                <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs bg-slate-50/70 -mx-5 -mb-5 px-5 py-3 rounded-b-2xl">
+                    <div class="flex items-center gap-2">
+                        <span class="text-slate-400 font-medium">Pelapor:</span>
+                        <span class="font-bold text-slate-800">{{ $saran->nama_pelapor ?: 'Warga' }}</span>
                         @if($saran->anonim)
-                            <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold">Anonim</span>
-                        @else
-                            <span class="font-bold text-slate-700">{{ $saran->nama_pelapor ?: 'Warga' }}</span>
-                            @if($saran->kontak_pelapor)
-                                <span class="text-slate-400">({{ $saran->kontak_pelapor }})</span>
-                            @endif
+                            <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-bold text-[10px] border border-amber-200">Anonim di Portal</span>
                         @endif
                     </div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-slate-400 font-bold">Kontak Pelapor:</span>
+                        @if($saran->kontak_pelapor)
+                            @php
+                                $cleanPhone = preg_replace('/[^0-9]/', '', $saran->kontak_pelapor);
+                                $isPhone = strlen($cleanPhone) >= 9;
+                                $waUrl = $isPhone ? ('https://wa.me/' . (str_starts_with($cleanPhone, '0') ? ('62' . substr($cleanPhone, 1)) : $cleanPhone)) : null;
+                            @endphp
+                            <div class="inline-flex items-center gap-1.5">
+                                <a href="{{ $isPhone ? ('tel:' . $saran->kontak_pelapor) : ('mailto:' . $saran->kontak_pelapor) }}" 
+                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-extrabold text-xs transition shadow-2xs"
+                                   title="Hubungi Pelapor">
+                                    <svg class="w-3.5 h-3.5 text-blue-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/>
+                                    </svg>
+                                    <span>{{ $saran->kontak_pelapor }}</span>
+                                </a>
+                                @if($waUrl)
+                                    <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" 
+                                       class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold text-xs transition shadow-2xs"
+                                       title="Chat WhatsApp Pelapor">
+                                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm5.79 14.12c-.24.68-1.39 1.25-1.92 1.33-.5.08-1.14.12-3.32-.78-2.6-1.07-4.27-3.73-4.4-3.9-.13-.17-1.05-1.4-1.05-2.66 0-1.27.66-1.89.89-2.15.24-.26.52-.33.69-.33.17 0 .35 0 .5.01.16.01.38-.06.59.45.22.53.75 1.83.82 1.97.07.14.11.31.02.49-.09.18-.14.29-.28.45-.14.16-.29.35-.42.47-.14.14-.29.29-.12.57.17.29.74 1.23 1.6 1.99 1.1 1 2.03 1.31 2.32 1.45.29.14.46.12.63-.07.17-.19.74-.86.94-1.15.2-.29.4-.24.67-.14.28.09 1.74.82 2.04.97.3.15.5.22.57.34.07.12.07.71-.17 1.39z"/>
+                                        </svg>
+                                        <span>WhatsApp</span>
+                                    </a>
+                                @endif
+                            </div>
+                        @else
+                            <span class="text-slate-400 italic">Tidak tersedia</span>
+                        @endif
+                    </div>
+                </div>
                 </div>
             </div>
         @empty

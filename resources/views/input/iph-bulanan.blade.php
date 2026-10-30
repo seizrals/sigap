@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Spreadsheet IPH Bulanan')
-@section('page-title', 'Data IPH Bulanan (Format Spreadsheet Excel)')
+@section('page-title', 'Data IPH Bulanan')
 
 @section('content')
 <div class="space-y-6">

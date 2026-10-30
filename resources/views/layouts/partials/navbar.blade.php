@@ -47,31 +47,34 @@
             </div>
 
         @else
-            <!-- Badge Status Pangan, LPG, BBM -->
+            <!-- Badge Status Pangan, LPG, BBM (Sinkron Otomatis dengan Data Real-Time) -->
+            @php
+                $statuses = $headerStatuses ?? \App\Services\SystemStatusService::getHeaderStatuses();
+            @endphp
             <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs">
                 <!-- Status Pangan -->
-                <div class="flex items-center gap-1.5 px-2 py-1">
-                    <span class="inline-block w-2 h-2 rounded-full bg-status-waspada animate-pulse"></span>
+                <div class="flex items-center gap-1.5 px-2 py-1" title="Status Pangan: {{ $statuses['pangan']['status'] }}">
+                    <span class="inline-block w-2 h-2 rounded-full {{ $statuses['pangan']['dot_class'] }} animate-pulse"></span>
                     <span class="text-[11px] font-semibold text-slate-700">STATUS PANGAN</span>
-                    <span class="text-[11px] font-bold text-status-waspada">WASPADA</span>
+                    <span class="text-[11px] font-bold {{ $statuses['pangan']['text_class'] }}">{{ $statuses['pangan']['status'] }}</span>
                 </div>
 
                 <div class="w-px h-4 bg-slate-200"></div>
 
                 <!-- Status LPG -->
-                <div class="flex items-center gap-1.5 px-2 py-1">
-                    <span class="inline-block w-2 h-2 rounded-full bg-status-bahaya animate-pulse"></span>
+                <div class="flex items-center gap-1.5 px-2 py-1" title="Status LPG: {{ $statuses['lpg']['status'] }}">
+                    <span class="inline-block w-2 h-2 rounded-full {{ $statuses['lpg']['dot_class'] }} animate-pulse"></span>
                     <span class="text-[11px] font-semibold text-slate-700">STATUS LPG</span>
-                    <span class="text-[11px] font-bold text-status-bahaya">BAHAYA</span>
+                    <span class="text-[11px] font-bold {{ $statuses['lpg']['text_class'] }}">{{ $statuses['lpg']['status'] }}</span>
                 </div>
 
                 <div class="w-px h-4 bg-slate-200"></div>
 
                 <!-- Status BBM -->
-                <div class="flex items-center gap-1.5 px-2 py-1">
-                    <span class="inline-block w-2 h-2 rounded-full bg-status-aman animate-pulse"></span>
+                <div class="flex items-center gap-1.5 px-2 py-1" title="Status BBM: {{ $statuses['bbm']['status'] }}">
+                    <span class="inline-block w-2 h-2 rounded-full {{ $statuses['bbm']['dot_class'] }} animate-pulse"></span>
                     <span class="text-[11px] font-semibold text-slate-700">STATUS BBM</span>
-                    <span class="text-[11px] font-bold text-status-aman">AMAN</span>
+                    <span class="text-[11px] font-bold {{ $statuses['bbm']['text_class'] }}">{{ $statuses['bbm']['status'] }}</span>
                 </div>
             </div>
 

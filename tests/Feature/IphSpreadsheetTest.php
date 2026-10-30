@@ -63,6 +63,58 @@ class IphSpreadsheetTest extends TestCase
         $dashboardResponse->assertViewHas('chartMingguanValues', fn ($vals) => in_array(2.33, $vals, true));
     }
 
+    public function test_can_reinput_same_iph_mingguan_period_after_deleting_it(): void
+    {
+        $user = User::factory()->create(['username' => 'admin_test_reinput', 'role' => 'admin_kabupaten']);
+        $payload = [
+            'tahun' => 2026,
+            'bulan' => 'Januari',
+            'minggu' => 'II',
+            'iph' => 1.25,
+        ];
+
+        $this->actingAs($user)->post(route('input.iph.store'), $payload)
+            ->assertRedirect(route('input.iph.index'));
+        $record = IphMingguan::where(['tahun' => 2026, 'bulan' => 1, 'minggu_ke' => 'II'])->firstOrFail();
+
+        $this->actingAs($user)->delete(route('input.iph.destroy', $record))
+            ->assertSessionHas('success');
+        $this->assertSoftDeleted('iph_mingguan', ['id' => $record->id]);
+
+        $this->actingAs($user)->post(route('input.iph.store'), [...$payload, 'iph' => 3.10])
+            ->assertRedirect(route('input.iph.index'))
+            ->assertSessionHas('success');
+
+        $this->assertSame(1, IphMingguan::withTrashed()->where(['tahun' => 2026, 'bulan' => 1, 'minggu_ke' => 'II'])->count());
+        $this->assertDatabaseHas('iph_mingguan', [
+            'id' => $record->id,
+            'iph_kabupaten' => 3.10,
+            'deleted_at' => null,
+        ]);
+    }
+
+    public function test_can_reinput_same_iph_bulanan_period_after_deleting_it(): void
+    {
+        $user = User::factory()->create(['username' => 'admin_test_reinput_bln', 'role' => 'admin_kabupaten']);
+        $payload = ['tahun' => 2026, 'bulan' => 'Januari', 'iph_bulanan' => 1.10];
+
+        $this->actingAs($user)->post(route('input.iph_bulanan.store'), $payload);
+        $record = IphBulanan::where(['tahun' => 2026, 'bulan' => 1])->firstOrFail();
+
+        $this->actingAs($user)->delete(route('input.iph_bulanan.destroy', $record));
+        $this->assertSoftDeleted('iph_bulanan', ['id' => $record->id]);
+
+        $this->actingAs($user)->post(route('input.iph_bulanan.store'), [...$payload, 'iph_bulanan' => 2.20])
+            ->assertSessionHas('success');
+
+        $this->assertSame(1, IphBulanan::withTrashed()->where(['tahun' => 2026, 'bulan' => 1])->count());
+        $this->assertDatabaseHas('iph_bulanan', [
+            'id' => $record->id,
+            'iph_bulanan' => 2.20,
+            'deleted_at' => null,
+        ]);
+    }
+
     public function test_can_export_iph_mingguan_as_excel_xlsx(): void
     {
         $user = User::factory()->create(['username' => 'admin_test_3', 'role' => 'admin_kabupaten']);

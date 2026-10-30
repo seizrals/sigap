@@ -9,23 +9,42 @@
 <body class="bg-sigap-bg min-h-screen antialiased">
 
     {{-- Header --}}
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl overflow-hidden shadow-lg shrink-0">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 overflow-hidden w-full">
+        <div class="w-full pl-4 sm:pl-6 lg:pl-8 pr-2 sm:pr-3 lg:pr-4 h-20 sm:h-24 flex items-center justify-between gap-4">
+            {{-- Kiri: Logo & Nama Sistem --}}
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden shadow-lg shrink-0">
                     <img src="{{ asset('images/logo_gorut.png') }}" alt="Logo Gorontalo Utara" class="w-full h-full object-contain">
                 </div>
                 <div>
-                    <p class="font-bold text-slate-900">SIGAP+ GORONTALO UTARA</p>
-                    <p class="text-xs text-slate-500 font-medium">Sistem Informasi Siaga Pangan Plus</p>
+                    <p class="font-bold text-slate-900 text-sm sm:text-base leading-tight">SIGAP+ GORONTALO UTARA</p>
+                    <p class="text-[11px] sm:text-xs text-slate-500 font-medium">Sistem Informasi Siaga Pangan Plus</p>
                 </div>
             </div>
-            <a href="{{ route('login') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sigap-accent text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md shadow-blue-500/20">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
-                </svg>
-                Masuk Sistem
-            </a>
+
+            {{-- Kanan: Tombol Masuk Sistem + Foto Bupati & Wabup Berdampingan Mentok di Kanan --}}
+            <div class="flex items-center gap-3 sm:gap-4 shrink-0 h-full ml-auto">
+                <a href="{{ route('login') }}" class="inline-flex items-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-sigap-accent text-white text-xs sm:text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md shadow-blue-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+                    </svg>
+                    <span>Masuk Sistem</span>
+                </a>
+
+                {{-- Foto Pimpinan (Bupati & Wakil Bupati) Berdampingan Mentok di Kanan --}}
+                <div class="flex items-end gap-1.5 sm:gap-2 h-full shrink-0">
+                    <div class="h-20 sm:h-24 flex items-end shrink-0" title="Bupati Gorontalo Utara - Dr. H. Thariq Modanggu, M.Pd">
+                        <img src="{{ asset('images/bupati.png') }}" 
+                             alt="Foto Bupati Gorontalo Utara" 
+                             class="h-20 sm:h-24 w-auto object-contain object-bottom drop-shadow-sm select-none pointer-events-none">
+                    </div>
+                    <div class="h-20 sm:h-24 flex items-end shrink-0" title="Wakil Bupati Gorontalo Utara - Dra. Hj. Nurjana H. Yusuf, M.Si">
+                        <img src="{{ asset('images/wabup.png') }}" 
+                             alt="Foto Wakil Bupati Gorontalo Utara" 
+                             class="h-20 sm:h-24 w-auto object-contain object-bottom drop-shadow-sm select-none pointer-events-none">
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -93,9 +112,9 @@
                  style="background-image: url('{{ asset('images/background_gorut.jpg') }}');">
             </div>
 
-            {{-- Overlay Gradien Halus agar Foto Tetap Nyata dan Teks Sangat Jelas Dibaca --}}
-            <div class="absolute inset-0 bg-gradient-to-r from-slate-50/90 via-white/80 to-slate-50/85 backdrop-blur-[1px]"></div>
-            <div class="absolute inset-0 bg-gradient-to-b from-white/70 via-transparent to-white/80"></div>
+            {{-- Overlay Gradien Lembut agar Foto Jelas Terlihat dan Teks Tetap Nyaman Dibaca --}}
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-50/75 via-white/60 to-slate-50/70"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-white/60"></div>
         </div>
 
         <div class="max-w-7xl mx-auto px-6 relative z-10">
@@ -196,9 +215,22 @@
                             </select>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Alamat / Lokasi *</label>
-                            <input type="text" name="lokasi_spesifik" value="{{ old('lokasi_spesifik') }}" required placeholder="Contoh: Dusun / Desa, Kecamatan" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Kecamatan</label>
+                                <select name="kecamatan_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                                    <option value="">Pilih Kecamatan...</option>
+                                    @if(isset($kecamatan))
+                                        @foreach($kecamatan as $kec)
+                                            <option value="{{ $kec->id }}" @selected((string) old('kecamatan_id') === (string) $kec->id)>{{ $kec->nama_kecamatan }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Alamat / Lokasi Spesifik *</label>
+                                <input type="text" name="lokasi_spesifik" value="{{ old('lokasi_spesifik') }}" required placeholder="Contoh: Pasar Moluo, Desa Molingkapoto" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                            </div>
                         </div>
 
                         <div>

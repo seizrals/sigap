@@ -138,13 +138,22 @@
 
                 {{-- Metadata Chips --}}
                 <div class="flex flex-wrap items-center gap-2 pt-1 text-xs">
-                    @if($saran->kecamatan || $saran->lokasi_spesifik)
-                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80 text-slate-700 font-semibold">
-                            <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    @if($saran->kecamatan)
+                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 border border-indigo-200/80 text-indigo-700 font-bold" title="Kecamatan">
+                            <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
                             </svg>
-                            <span>{{ $saran->lokasi_spesifik ?: $saran->kecamatan?->nama_kecamatan }}</span>
+                            <span>Kec. {{ $saran->kecamatan->nama_kecamatan }}</span>
+                        </div>
+                    @endif
+
+                    @if($saran->lokasi_spesifik)
+                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80 text-slate-700 font-semibold" title="Lokasi Spesifik">
+                            <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/>
+                            </svg>
+                            <span>{{ $saran->lokasi_spesifik }}</span>
                         </div>
                     @endif
 
@@ -207,7 +216,6 @@
                             <span class="text-slate-400 italic">Tidak tersedia</span>
                         @endif
                     </div>
-                </div>
                 </div>
             </div>
         @empty

@@ -42,9 +42,9 @@ class DatabaseSeeder extends Seeder
             ['kode' => '7505060', 'nama' => 'Ponelo Kepulauan', 'lat' => 0.7000, 'lng' => 123.3000, 'zona' => 'merah'],
             ['kode' => '7505070', 'nama' => 'Biau', 'lat' => 0.5800, 'lng' => 123.1500, 'zona' => 'hijau'],
             ['kode' => '7505080', 'nama' => 'Tolinggula', 'lat' => 0.5500, 'lng' => 123.2000, 'zona' => 'hijau'],
-            ['kode' => '7505090', 'nama' => 'Dengilo', 'lat' => 0.7600, 'lng' => 123.0800, 'zona' => 'kuning'],
-            ['kode' => '7505100', 'nama' => 'Buntulia', 'lat' => 0.8000, 'lng' => 123.1500, 'zona' => 'hijau'],
-            ['kode' => '7505110', 'nama' => 'Jomilito', 'lat' => 0.8300, 'lng' => 123.1000, 'zona' => 'hijau'],
+            ['kode' => '7505090', 'nama' => 'Monano', 'lat' => 0.8500, 'lng' => 122.8200, 'zona' => 'kuning'],
+            ['kode' => '7505100', 'nama' => 'Sumalata Timur', 'lat' => 0.9500, 'lng' => 122.5800, 'zona' => 'hijau'],
+            ['kode' => '7505110', 'nama' => 'Tomilito', 'lat' => 0.8800, 'lng' => 122.9500, 'zona' => 'hijau'],
         ];
 
         $kecamatanIds = [];

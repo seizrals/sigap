@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Kecamatan;
 use App\Models\SaranPublik;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -79,12 +80,18 @@ class SaranPublikControllerTest extends TestCase
     public function test_portal_publik_submission_saves_and_is_visible_in_saran_publik(): void
     {
         $user = User::factory()->create(['username' => 'admin_saran_view', 'role' => 'admin_kabupaten']);
+        $kecamatan = Kecamatan::create([
+            'kode_kecamatan' => '750501',
+            'nama_kecamatan' => 'Kwandang',
+            'is_active' => true,
+        ]);
 
         // Submit via portal publik
         $postResponse = $this->post(route('saran-publik.store'), [
             'kategori' => 'lonjakan_harga',
             'kontak_pelapor' => '089912345678',
             'nama_pelapor' => 'Warga Kwandang',
+            'kecamatan_id' => $kecamatan->id,
             'lokasi_spesifik' => 'Pasar Moluo, Kwandang',
             'judul_laporan' => 'Cabai tembus 100 ribu',
             'isi_laporan' => 'Harga cabai melonjak tajam sejak kemarin pagi.',
@@ -97,6 +104,7 @@ class SaranPublikControllerTest extends TestCase
             'judul_laporan' => 'Cabai tembus 100 ribu',
             'nama_komoditas_dilaporkan' => 'Cabai Rawit',
             'harga_dilaporkan' => 100000,
+            'kecamatan_id' => $kecamatan->id,
             'lokasi_spesifik' => 'Pasar Moluo, Kwandang',
         ]);
 
@@ -104,11 +112,48 @@ class SaranPublikControllerTest extends TestCase
         $indexResponse = $this->actingAs($user)->get(route('saran-publik.index'));
         $indexResponse->assertOk();
         $indexResponse->assertSee('Cabai tembus 100 ribu');
+        $indexResponse->assertSee('Kec. Kwandang');
         $indexResponse->assertSee('Pasar Moluo, Kwandang');
         $indexResponse->assertSee('100.000');
         $indexResponse->assertSee('Kontak Pelapor:');
         $indexResponse->assertSee('089912345678');
         $indexResponse->assertSee('WhatsApp');
+    }
+
+    public function test_more_than_four_reports_render_properly_with_kecamatan_badges(): void
+    {
+        $user = User::factory()->create(['username' => 'admin_multi_reports', 'role' => 'admin_kabupaten']);
+        $kecamatan = Kecamatan::create([
+            'kode_kecamatan' => '750502',
+            'nama_kecamatan' => 'Tomilito',
+            'is_active' => true,
+        ]);
+
+        for ($i = 1; $i <= 6; $i++) {
+            SaranPublik::create([
+                'kode_laporan' => 'SRN-20261030-000' . $i,
+                'kategori' => 'lonjakan_harga',
+                'kontak_pelapor' => '0812345678' . $i,
+                'nama_pelapor' => 'Pelapor ' . $i,
+                'kecamatan_id' => $kecamatan->id,
+                'lokasi_spesifik' => 'Lokasi Spesifik ' . $i,
+                'judul_laporan' => 'Laporan Ke-' . $i,
+                'isi_laporan' => 'Isi laporan ke-' . $i,
+                'nama_komoditas_dilaporkan' => 'Beras',
+                'harga_dilaporkan' => 15000 + ($i * 1000),
+                'status' => 'masuk',
+            ]);
+        }
+
+        $response = $this->actingAs($user)->get(route('saran-publik.index'));
+        $response->assertOk();
+
+        for ($i = 1; $i <= 6; $i++) {
+            $response->assertSee('Laporan Ke-' . $i);
+            $response->assertSee('Lokasi Spesifik ' . $i);
+            $response->assertSee('SRN-20261030-000' . $i);
+        }
+        $response->assertSee('Kec. Tomilito');
     }
 
     public function test_saran_publik_filters_reports_by_category(): void
@@ -162,12 +207,15 @@ class SaranPublikControllerTest extends TestCase
         $response->assertDontSee('Simpan Laporan');
     }
 
-    public function test_portal_publik_renders_with_landmark_background(): void
+    public function test_portal_publik_renders_with_landmark_background_and_header_photos(): void
     {
         $response = $this->get(route('portal-publik'));
         $response->assertOk();
         $response->assertSee('KANAL PARTISIPASI PUBLIK');
         $response->assertSee('background_gorut.jpg');
+        $response->assertSee('images/bupati.png');
+        $response->assertSee('images/wabup.png');
+        $response->assertSee('Masuk Sistem');
     }
 
     public function test_saran_publik_displays_contact_even_when_anonymous(): void

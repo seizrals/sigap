@@ -383,26 +383,29 @@ class InputDataController extends Controller
         $tglAkhir = sprintf('%04d-%02d-07', $tahun, $bulanNum);
         $iphVal = (float) $validated['iph'];
 
-        IphMingguan::updateOrCreate(
-            [
-                'tahun' => $tahun,
-                'bulan' => $bulanNum,
-                'minggu_ke' => $mingguKe,
-            ],
-            [
-                'periode_label' => $periodeLabel,
-                'tanggal_awal_periode' => $tglAwal,
-                'tanggal_akhir_periode' => $tglAkhir,
-                'tanggal_publikasi' => now()->toDateString(),
-                'user_id' => Auth::id() ?? 1,
-                'sumber_data' => 'BPS Kabupaten Gorontalo Utara',
-                'iph_kabupaten' => $iphVal,
-                'ranking' => isset($validated['ranking']) && $validated['ranking'] !== '' ? (int) $validated['ranking'] : null,
-                'komoditas_andil' => $validated['komoditas_andil'] ?? null,
-                'komoditas_penyumbang_inflasi' => $validated['komoditas_andil'] ?? null,
-                'status_verifikasi' => 'disetujui',
-            ]
-        );
+        // Sertakan baris yang sudah di-soft-delete agar periode yang pernah dihapus dapat diisi ulang
+        // tanpa melanggar unique index (tahun, bulan, minggu_ke).
+        $iphMingguan = IphMingguan::withTrashed()->firstOrNew([
+            'tahun' => $tahun,
+            'bulan' => $bulanNum,
+            'minggu_ke' => $mingguKe,
+        ]);
+
+        $iphMingguan->fill([
+            'periode_label' => $periodeLabel,
+            'tanggal_awal_periode' => $tglAwal,
+            'tanggal_akhir_periode' => $tglAkhir,
+            'tanggal_publikasi' => now()->toDateString(),
+            'user_id' => Auth::id() ?? 1,
+            'sumber_data' => 'BPS Kabupaten Gorontalo Utara',
+            'iph_kabupaten' => $iphVal,
+            'ranking' => isset($validated['ranking']) && $validated['ranking'] !== '' ? (int) $validated['ranking'] : null,
+            'komoditas_andil' => $validated['komoditas_andil'] ?? null,
+            'komoditas_penyumbang_inflasi' => $validated['komoditas_andil'] ?? null,
+            'status_verifikasi' => 'disetujui',
+        ]);
+        $iphMingguan->deleted_at = null;
+        $iphMingguan->save();
 
         return redirect()->route('input.iph.index')->with('success', 'Data IPH Mingguan berhasil disimpan ke spreadsheet dan monitoring!');
     }
@@ -502,21 +505,23 @@ class InputDataController extends Controller
             default => 'terkendali',
         };
 
-        IphBulanan::updateOrCreate(
-            [
-                'tahun' => $tahun,
-                'bulan' => $bulanNum,
-            ],
-            [
-                'nama_bulan' => $namaBulan,
-                'iph_bulanan' => $iphVal,
-                'ranking' => isset($validated['ranking']) && $validated['ranking'] !== '' ? (int) $validated['ranking'] : null,
-                'komoditas_andil' => $validated['komoditas_andil'] ?? null,
-                'status_kategori' => $kategori,
-                'catatan' => $validated['catatan'] ?? null,
-                'user_id' => Auth::id() ?? 1,
-            ]
-        );
+        // Pulihkan baris yang pernah dihapus untuk periode yang sama agar tidak terjadi duplikasi.
+        $iphBulanan = IphBulanan::withTrashed()->firstOrNew([
+            'tahun' => $tahun,
+            'bulan' => $bulanNum,
+        ]);
+
+        $iphBulanan->fill([
+            'nama_bulan' => $namaBulan,
+            'iph_bulanan' => $iphVal,
+            'ranking' => isset($validated['ranking']) && $validated['ranking'] !== '' ? (int) $validated['ranking'] : null,
+            'komoditas_andil' => $validated['komoditas_andil'] ?? null,
+            'status_kategori' => $kategori,
+            'catatan' => $validated['catatan'] ?? null,
+            'user_id' => Auth::id() ?? 1,
+        ]);
+        $iphBulanan->deleted_at = null;
+        $iphBulanan->save();
 
         return redirect()->route('input.iph_bulanan')->with('success', 'Data IPH Bulanan berhasil disimpan ke spreadsheet dan monitoring!');
     }

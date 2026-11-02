@@ -5,14 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\DataBbm;
 use App\Models\DataLpg;
 use App\Models\DataPangan;
-use App\Models\EwsAlert;
-use App\Models\EwsRekomendasi;
 use App\Models\IphBulanan;
 use App\Models\IphMingguan;
 use App\Models\Kecamatan;
 use App\Models\Komoditas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
@@ -20,6 +19,8 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $filters = $request->validate([
+            'map_filter_type' => ['nullable', 'string', Rule::in(['pangan', 'lpg', 'bbm'])],
+            'map_komoditas_id' => ['nullable', 'integer', 'exists:komoditas,id'],
             'pangan_kecamatan_id' => ['nullable', 'integer', 'exists:kecamatan,id'],
             'pangan_komoditas_id' => ['nullable', 'integer', 'exists:komoditas,id'],
             'periode_sebelumnya' => ['nullable', 'date'],
@@ -36,19 +37,11 @@ class DashboardController extends Controller
         )->toDateString();
         $legacyPreviousPeriodFallbackAllowed = Carbon::parse($periodeSaatIni)->subDay()->toDateString() === $periodeSebelumnya;
 
-        $kecamatan = Kecamatan::where('is_active', true)
-            ->select('id', 'nama_kecamatan', 'latitude', 'longitude', 'zona_risiko')
+        $kecamatan = Kecamatan::select('id', 'nama_kecamatan', 'latitude', 'longitude', 'zona_risiko')
             ->get();
 
-        $komoditasPangan = Komoditas::where('is_active', true)
-            ->where('is_strategis', true)
-            ->select('id', 'nama_komoditas', 'satuan')
+        $komoditasPangan = Komoditas::select('id', 'nama_komoditas', 'satuan')
             ->orderBy('nama_komoditas')
-            ->get();
-
-        $alerts = EwsAlert::with('kecamatan')
-            ->whereIn('status', ['terbuka', 'diproses'])
-            ->orderBy('waktu_terdeteksi', 'desc')
             ->get();
 
         $komoditasDefisit = DataPangan::where('status_ketersediaan', 'kurang')
@@ -135,6 +128,17 @@ class DashboardController extends Controller
             ->orderBy('tanggal_input', 'desc')
             ->orderByDesc('created_at')
             ->get();
+
+        $mapFilterType = $filters['map_filter_type'] ?? 'pangan';
+        $mapKomoditasId = $mapFilterType === 'pangan' ? ($filters['map_komoditas_id'] ?? null) : null;
+        $mapFilterKomoditas = $mapKomoditasId ? $komoditasPangan->firstWhere('id', $mapKomoditasId) : null;
+        $mapPoints = match ($mapFilterType) {
+            'lpg' => $this->buildLpgMapPoints(),
+            'bbm' => $this->buildBbmMapPoints(),
+            default => $this->buildPanganMapPoints($mapKomoditasId),
+        };
+
+        $activePointsCount = $mapPoints->filter(fn ($p) => $p['status_ketersediaan'] !== 'tidak_ada')->count();
 
         $iphTerbaru = IphMingguan::orderBy('tahun', 'desc')
             ->orderBy('bulan', 'desc')
@@ -270,55 +274,6 @@ class DashboardController extends Controller
             array_unshift($daftarTahunBulanan, (int) date('Y'));
         }
 
-        $rekomendasiPasar = EwsRekomendasi::with(['ewsAlert.kecamatan'])
-            ->where('tipe_rekomendasi', 'operasi_pasar')
-            ->latest()
-            ->get();
-
-        $rekomendasiPeta = $rekomendasiPasar
-            ->filter(fn (EwsRekomendasi $rekomendasi): bool => $rekomendasi->ewsAlert?->latitude !== null
-                && $rekomendasi->ewsAlert?->longitude !== null)
-            ->map(function (EwsRekomendasi $rekomendasi): array {
-                $alert = $rekomendasi->ewsAlert;
-                $zona = match ($alert->tingkat_risiko) {
-                    'rendah' => 'hijau',
-                    'sedang' => 'kuning',
-                    default => 'merah',
-                };
-
-                return [
-                    'latitude' => (float) $alert->latitude,
-                    'longitude' => (float) $alert->longitude,
-                    'zona' => $zona,
-                    'judul' => $rekomendasi->judul_rekomendasi,
-                    'alert' => $alert->judul_alert,
-                    'kecamatan' => $alert->kecamatan?->nama_kecamatan ?? 'Gorontalo Utara',
-                    'detail' => $rekomendasi->detail_rekomendasi,
-                ];
-            })
-            ->values();
-
-        $rekomendasiStrategis = array_merge(
-            $rekomendasiPasar->map(function (EwsRekomendasi $rekomendasi): array {
-                $alert = $rekomendasi->ewsAlert;
-                $zona = match ($alert?->tingkat_risiko) {
-                    'rendah' => 'hijau',
-                    'sedang' => 'kuning',
-                    default => 'merah',
-                };
-
-                return [
-                    'kecamatan' => $alert?->kecamatan?->nama_kecamatan ?? 'Gorontalo Utara',
-                    'zona' => $zona,
-                    'judul' => $rekomendasi->judul_rekomendasi,
-                    'detail' => $rekomendasi->detail_rekomendasi,
-                    'ikon' => 'store',
-                    'warna' => $zona === 'hijau' ? 'emerald' : ($zona === 'kuning' ? 'amber' : 'red'),
-                ];
-            })->all(),
-            $this->generateRekomendasiStrategis($kecamatan, $alerts)
-        );
-
         return view('dashboard.index', compact(
             'kecamatan',
             'komoditasDefisit',
@@ -348,68 +303,217 @@ class DashboardController extends Controller
             'filterBulanBulanan',
             'daftarTahunMingguan',
             'daftarTahunBulanan',
-            'rekomendasiStrategis',
-            'rekomendasiPeta',
+            'mapFilterType',
+            'mapKomoditasId',
+            'mapFilterKomoditas',
+            'mapPoints',
+            'activePointsCount',
             'periodeSebelumnya',
             'periodeSaatIni',
             'filters'
         ));
     }
 
-    private function generateRekomendasiStrategis($kecamatanList, $alerts)
+    private function buildPanganMapPoints(?int $komoditasId = null): Collection
     {
-        $rekomendasi = [];
+        $allKecamatan = Kecamatan::whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get();
 
-        foreach ($kecamatanList as $kec) {
-            if ($kec->zona_risiko == 'merah') {
-                $rekomendasi[] = [
-                    'kecamatan' => $kec->nama_kecamatan,
-                    'zona' => 'merah',
-                    'judul' => 'Operasi Pasar Murah',
-                    'detail' => 'Segera koordinasikan operasi pasar murah di Kec. '.$kec->nama_kecamatan.' karena harga pada zona merah. Libatkan Dinas Perdagangan dan pasokan dari wilayah surplus.',
-                    'ikon' => 'store',
-                    'warna' => 'red',
-                ];
-                $rekomendasi[] = [
-                    'kecamatan' => $kec->nama_kecamatan,
-                    'zona' => 'merah',
-                    'judul' => 'Intervensi Distribusi Stok',
-                    'detail' => 'Alihkan stok dari kecamatan surplus (zona hijau) menuju Kec. '.$kec->nama_kecamatan.' untuk menekan kelangkaan dan harga tinggi.',
-                    'ikon' => 'truck',
-                    'warna' => 'red',
-                ];
-            } elseif ($kec->zona_risiko == 'kuning') {
-                $rekomendasi[] = [
-                    'kecamatan' => $kec->nama_kecamatan,
-                    'zona' => 'kuning',
-                    'judul' => 'Sidak Lapangan',
-                    'detail' => 'Lakukan sidak lapangan di Kec. '.$kec->nama_kecamatan.' untuk memverifikasi kenaikan harga atau penurunan stok yang terindikasi.',
-                    'ikon' => 'clipboard',
-                    'warna' => 'amber',
-                ];
-                $rekomendasi[] = [
-                    'kecamatan' => $kec->nama_kecamatan,
-                    'zona' => 'kuning',
-                    'judul' => 'Pantau Pasar Terarah',
-                    'detail' => 'Fokuskan pemantauan harga harian di pasar utama Kec. '.$kec->nama_kecamatan.' untuk mencegah masuk zona merah.',
-                    'ikon' => 'eye',
-                    'warna' => 'amber',
-                ];
-            }
-        }
+        $records = DataPangan::with(['komoditas:id,nama_komoditas,satuan'])
+            ->when($komoditasId, fn ($query, $id) => $query->where('komoditas_id', $id))
+            ->orderByDesc('tanggal_input')
+            ->orderByDesc('created_at')
+            ->get()
+            ->groupBy('kecamatan_id');
 
-        foreach ($alerts as $alert) {
-            $kec = $alert->kecamatan?->nama_kecamatan ?? 'Gorontalo Utara';
-            $rekomendasi[] = [
-                'kecamatan' => $kec,
-                'zona' => $alert->tingkat_risiko == 'tinggi' ? 'merah' : ($alert->tingkat_risiko == 'sedang' ? 'kuning' : 'hijau'),
-                'judul' => 'Tindak Lanjut Alert: '.$alert->judul_alert,
-                'detail' => 'Berikan respon cepat terhadap alert di '.$kec.'. '.($alert->analisis_sistem ?? 'Verifikasi data dan koordinasikan dengan pihak terkait.'),
-                'ikon' => 'bell',
-                'warna' => $alert->tingkat_risiko == 'tinggi' ? 'red' : ($alert->tingkat_risiko == 'sedang' ? 'amber' : 'emerald'),
+        return $allKecamatan->map(function ($kecamatan) use ($records) {
+            $kecamatanRecords = $records->get($kecamatan->id, collect());
+
+            $latestRecords = $kecamatanRecords
+                ->groupBy('komoditas_id')
+                ->map(fn (Collection $commodityRecords) => $commodityRecords->first())
+                ->values();
+
+            $status = $this->resolveMapStatus($latestRecords->pluck('status_ketersediaan')->filter()->all());
+
+            return [
+                'latitude' => (float) $kecamatan->latitude,
+                'longitude' => (float) $kecamatan->longitude,
+                'kecamatan' => $kecamatan->nama_kecamatan,
+                'kategori' => 'Pangan Strategis',
+                'status_ketersediaan' => $status,
+                'detail_items' => $latestRecords->isEmpty() ? [[
+                    'judul' => 'Informasi',
+                    'baris' => ['Belum ada data pangan terbaru untuk wilayah ini.'],
+                ]] : $latestRecords->map(function (DataPangan $record): array {
+                    $satuan = $record->komoditas?->satuan ?? $record->satuan_stok ?? '';
+                    $stok = $record->stok_tersedia !== null
+                        ? number_format((float) $record->stok_tersedia, 0, ',', '.').' '.trim($satuan)
+                        : '-';
+                    $harga = $record->harga_hari_ini !== null
+                        ? 'Rp '.number_format((float) $record->harga_hari_ini, 0, ',', '.')
+                        : '-';
+
+                    return [
+                        'judul' => $record->komoditas?->nama_komoditas ?? 'Komoditas',
+                        'baris' => [
+                            'Tanggal input: '.($record->tanggal_input?->format('d/m/Y') ?? '-'),
+                            'Stok tersedia: '.$stok,
+                            'Harga hari ini: '.$harga,
+                            'Status ketersediaan: '.$this->formatStatusLabel($record->status_ketersediaan),
+                        ],
+                    ];
+                })->all(),
             ];
+        })->values();
+    }
+
+    private function buildLpgMapPoints(): Collection
+    {
+        $allKecamatan = Kecamatan::whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get();
+
+        $records = DataLpg::orderByDesc('tanggal_input')
+            ->orderByDesc('created_at')
+            ->get()
+            ->groupBy('kecamatan_id');
+
+        return $allKecamatan->map(function ($kecamatan) use ($records) {
+            $kecamatanRecords = $records->get($kecamatan->id, collect());
+
+            $latestRecords = $kecamatanRecords
+                ->groupBy('jenis_lpg')
+                ->map(fn (Collection $lpgRecords) => $lpgRecords->first())
+                ->values();
+
+            $status = $this->resolveMapStatus($latestRecords->pluck('status_ketersediaan')->filter()->all());
+
+            return [
+                'latitude' => (float) $kecamatan->latitude,
+                'longitude' => (float) $kecamatan->longitude,
+                'kecamatan' => $kecamatan->nama_kecamatan,
+                'kategori' => 'LPG 3 KG',
+                'status_ketersediaan' => $status,
+                'detail_items' => $latestRecords->isEmpty() ? [[
+                    'judul' => 'Informasi',
+                    'baris' => ['Belum ada data LPG terbaru untuk wilayah ini.'],
+                ]] : $latestRecords->map(function (DataLpg $record): array {
+                    $stok = $record->stok_tersedia_tabung !== null
+                        ? number_format((float) $record->stok_tersedia_tabung, 0, ',', '.').' tabung'
+                        : '-';
+                    $harga = $record->harga_eceran_lapangan !== null
+                        ? 'Rp '.number_format((float) $record->harga_eceran_lapangan, 0, ',', '.')
+                        : '-';
+
+                    return [
+                        'judul' => $record->jenis_lpg ?? 'LPG',
+                        'baris' => [
+                            'Tanggal input: '.($record->tanggal_input?->format('d/m/Y') ?? '-'),
+                            'Stok tersedia: '.$stok,
+                            'Distribusi masuk: '.number_format((float) ($record->distribusi_masuk_tabung ?? 0), 0, ',', '.').' tabung',
+                            'Distribusi keluar: '.number_format((float) ($record->distribusi_keluar_tabung ?? 0), 0, ',', '.').' tabung',
+                            'Harga eceran: '.$harga,
+                            'Status ketersediaan: '.$this->formatStatusLabel($record->status_ketersediaan),
+                        ],
+                    ];
+                })->all(),
+            ];
+        })->values();
+    }
+
+    private function buildBbmMapPoints(): Collection
+    {
+        $allKecamatan = Kecamatan::whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get();
+
+        $records = DataBbm::with(['spbu:id,nama_spbu'])
+            ->orderByDesc('tanggal_input')
+            ->orderByDesc('created_at')
+            ->get()
+            ->groupBy('kecamatan_id');
+
+        return $allKecamatan->map(function ($kecamatan) use ($records) {
+            $kecamatanRecords = $records->get($kecamatan->id, collect());
+
+            $latestRecords = $kecamatanRecords
+                ->groupBy(fn (DataBbm $record): string => ($record->spbu_id ?? '0').'-'.$record->jenis_bbm)
+                ->map(fn (Collection $bbmRecords) => $bbmRecords->first())
+                ->values();
+
+            $status = $this->resolveMapStatus($latestRecords->pluck('status_ketersediaan')->filter()->all());
+
+            return [
+                'latitude' => (float) $kecamatan->latitude,
+                'longitude' => (float) $kecamatan->longitude,
+                'kecamatan' => $kecamatan->nama_kecamatan,
+                'kategori' => 'BBM Subsidi',
+                'status_ketersediaan' => $status,
+                'detail_items' => $latestRecords->isEmpty() ? [[
+                    'judul' => 'Informasi',
+                    'baris' => ['Belum ada data BBM terbaru untuk wilayah ini.'],
+                ]] : $latestRecords->map(function (DataBbm $record): array {
+                    $stok = $record->stok_tersedia_kl !== null
+                        ? number_format((float) $record->stok_tersedia_kl, 3, ',', '.').' KL'
+                        : '-';
+                    $harga = $record->harga_jual_per_liter !== null
+                        ? 'Rp '.number_format((float) $record->harga_jual_per_liter, 0, ',', '.')
+                        : '-';
+
+                    return [
+                        'judul' => trim(($record->jenis_bbm ?? 'BBM').' - '.($record->spbu?->nama_spbu ?? 'SPBU')),
+                        'baris' => [
+                            'Tanggal input: '.($record->tanggal_input?->format('d/m/Y') ?? '-'),
+                            'Stok tersedia: '.$stok,
+                            'Status antrean: '.$this->formatStatusLabel($record->status_antrean),
+                            'Harga jual: '.$harga,
+                            'Status ketersediaan: '.$this->formatStatusLabel($record->status_ketersediaan),
+                        ],
+                    ];
+                })->all(),
+            ];
+        })->values();
+    }
+
+    private function resolveMapStatus(array $statuses): string
+    {
+        $statuses = array_filter($statuses);
+
+        if ($statuses === []) {
+            return 'tidak_ada';
         }
 
-        return $rekomendasi;
+        usort($statuses, fn (string $left, string $right): int => $this->mapStatusRank($right) <=> $this->mapStatusRank($left));
+
+        return $statuses[0];
+    }
+
+    private function mapStatusRank(?string $status): int
+    {
+        return match (strtolower((string) $status)) {
+            'tidak_ada' => 0,
+            'aman' => 1,
+            'waspada' => 2,
+            'kurang', 'menipis' => 3,
+            'kosong', 'kritis' => 4,
+            default => 0,
+        };
+    }
+
+    private function formatStatusLabel(?string $status): string
+    {
+        return match (strtolower((string) $status)) {
+            'aman' => 'Aman',
+            'waspada' => 'Waspada',
+            'kurang' => 'Kurang',
+            'menipis' => 'Menipis',
+            'kosong' => 'Kosong',
+            'kritis' => 'Kritis',
+            'tidak_ada' => 'Tidak Ada',
+            '' => '-',
+            default => ucwords(str_replace('_', ' ', (string) $status)),
+        };
     }
 }

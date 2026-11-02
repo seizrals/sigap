@@ -23,10 +23,7 @@ class InputDataController extends Controller
     public function pangan()
     {
         $kecamatan = Kecamatan::where('is_active', true)->orderBy('nama_kecamatan')->get();
-        $komoditas = Komoditas::where('is_active', true)
-            ->where('is_strategis', true)
-            ->orderBy('nama_komoditas')
-            ->get();
+        $komoditas = Komoditas::orderBy('nama_komoditas')->get();
         $dataPangan = DataPangan::with(['kecamatan', 'komoditas'])
             ->orderByDesc('tanggal_input')
             ->orderByDesc('created_at')
@@ -127,7 +124,7 @@ class InputDataController extends Controller
             'entries.*.komoditas_id' => [
                 'required',
                 'distinct',
-                Rule::exists('komoditas', 'id')->where('is_active', true)->where('is_strategis', true),
+                Rule::exists('komoditas', 'id'),
             ],
             'entries.*.kecamatan_id' => ['required', 'exists:kecamatan,id'],
             'entries.*.harga_hari_sebelumnya' => ['nullable', 'numeric', 'min:0'],
@@ -232,7 +229,6 @@ class InputDataController extends Controller
     public function bbm()
     {
         $spbu = Spbu::with('kecamatan')
-            ->where('is_active', true)
             ->orderBy('nama_spbu')
             ->get();
         $kecamatan = $spbu->pluck('kecamatan')->filter()->unique('id')->sortBy('nama_kecamatan')->values();
@@ -248,7 +244,6 @@ class InputDataController extends Controller
             'spbu_id' => [
                 'required',
                 Rule::exists('spbu', 'id')
-                    ->where('is_active', true)
                     ->where('kecamatan_id', $request->input('kecamatan_id')),
             ],
             'jenis_bbm' => 'required|in:Pertalite (JBKP),Pertamax,Pertamax Turbo,Solar (JBT),Dexlite,Pertamina Dex,Bio Solar',

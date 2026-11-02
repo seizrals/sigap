@@ -101,9 +101,8 @@ class DatabaseSeeder extends Seeder
         $komoditasIds = [];
         foreach ($komoditasData as $k) {
             $kom = Komoditas::firstOrCreate(
-                ['kode_komoditas' => $k[0]],
+                ['nama_komoditas' => $k[1]],
                 [
-                    'nama_komoditas' => $k[1],
                     'kategori' => $k[2],
                     'satuan' => $k[3],
                     'harga_het' => $k[4],
@@ -112,8 +111,6 @@ class DatabaseSeeder extends Seeder
                     'stok_aman_minimum' => 100,
                     'persentase_kenaikan_waspada' => 10,
                     'persentase_kenaikan_bahaya' => 25,
-                    'is_strategis' => true,
-                    'is_active' => true,
                 ]
             );
             $komoditasIds[$k[1]] = $kom->id;
@@ -166,64 +163,48 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $upsertSpbu = function ($kode, $attributes) {
-            $spbu = Spbu::withTrashed()->firstOrNew(['kode_spbu' => $kode]);
+        $upsertSpbu = function ($nama, $attributes) {
+            $spbu = Spbu::withTrashed()->firstOrNew(['nama_spbu' => $nama]);
             $spbu->fill($attributes);
             $spbu->deleted_at = null;
             $spbu->save();
             return $spbu;
         };
 
-        $spbu1 = $upsertSpbu('SPBU-001', [
+        $spbu1 = $upsertSpbu('SPBU 74.962.01 Pontolo Kwandang', [
             'kecamatan_id' => $kecamatanIds['Kwandang'],
             'desa_id' => $desaIds['Pontolo'] ?? ($desaIds['Titidu'] ?? null),
-            'nama_spbu' => 'SPBU 74.962.01 Pontolo Kwandang',
             'tipe_spbu' => 'SPBU Umum',
             'alamat' => 'Jl. Trans Sulawesi, Desa Pontolo, Kec. Kwandang',
-            'latitude' => 0.7250,
-            'longitude' => 123.0550,
             'melayani_nelayan' => true,
             'melayani_pertanian' => true,
-            'is_active' => true,
         ]);
 
-        $spbu2 = $upsertSpbu('SPBU-002', [
+        $spbu2 = $upsertSpbu('SPBU 74.962.02 Ilangata Anggrek', [
             'kecamatan_id' => $kecamatanIds['Anggrek'],
             'desa_id' => $desaIds['Ilangata'] ?? null,
-            'nama_spbu' => 'SPBU 74.962.02 Ilangata Anggrek',
             'tipe_spbu' => 'SPBU Umum',
             'alamat' => 'Jl. Trans Sulawesi, Desa Ilangata, Kec. Anggrek',
-            'latitude' => 0.6200,
-            'longitude' => 123.1000,
             'melayani_nelayan' => true,
             'melayani_pertanian' => true,
-            'is_active' => true,
         ]);
 
-        $spbu3 = $upsertSpbu('SPBU-003', [
+        $spbu3 = $upsertSpbu('SPBU 74.962.04 Kota Jin Atinggola', [
             'kecamatan_id' => $kecamatanIds['Atinggola'],
             'desa_id' => $desaIds['Kota Jin'] ?? null,
-            'nama_spbu' => 'SPBU 74.962.04 Kota Jin Atinggola',
             'tipe_spbu' => 'SPBU Umum',
             'alamat' => 'Jl. Trans Sulawesi, Desa Kota Jin, Kec. Atinggola',
-            'latitude' => 0.7450,
-            'longitude' => 123.1200,
             'melayani_nelayan' => true,
             'melayani_pertanian' => true,
-            'is_active' => true,
         ]);
 
-        $spbu4 = $upsertSpbu('SPBU-004', [
+        $spbu4 = $upsertSpbu('SPBU 76.965.01 Tolite Jaya Tolinggula', [
             'kecamatan_id' => $kecamatanIds['Tolinggula'],
             'desa_id' => $desaIds['Tolite Jaya'] ?? null,
-            'nama_spbu' => 'SPBU 76.965.01 Tolite Jaya Tolinggula',
             'tipe_spbu' => 'SPBU Kompak',
             'alamat' => 'Jl. Trans Sulawesi Gorontalo-Buol, Desa Tolite Jaya, Kec. Tolinggula',
-            'latitude' => 0.5500,
-            'longitude' => 123.2000,
             'melayani_nelayan' => true,
             'melayani_pertanian' => true,
-            'is_active' => true,
         ]);
 
         $tanggal = now()->toDateString();

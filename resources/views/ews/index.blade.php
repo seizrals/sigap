@@ -28,91 +28,71 @@
             @endif
 
             {{-- Notifikasi Deteksi Kritis --}}
-<div class="border-2 border-red-100 rounded-2xl p-5 bg-red-50/30 mb-4">
-    <div class="flex items-center justify-between mb-3">
-        <p class="text-xs font-bold uppercase tracking-wider text-red-600">Notifikasi Deteksi Kritis</p>
-        <span class="text-[10px] font-semibold bg-red-100 text-red-700 px-2.5 py-0.5 rounded-full">
-            {{ isset($alerts) ? count($alerts) : 0 }} Peringatan
-        </span>
-    </div>
-
-    <!-- Container dengan Fungsi Scroll (Maksimal tinggi sekitar 480px, bisa disesuaikan) -->
-    <div class="max-h-[300px] overflow-y-auto pr-1 space-y-4 custom-scrollbar">
-        @forelse($alerts as $alert)
-            <div class="relative bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs overflow-hidden">
-            <div class="absolute left-0 top-0 bottom-0 w-1.5 {{ in_array($alert->tingkat_risiko, ['tinggi', 'kritis'], true) ? 'bg-red-600' : ($alert->tingkat_risiko == 'sedang' ? 'bg-amber-500' : 'bg-emerald-500') }}"></div>
-            <div class="pl-2">
-                <div class="flex items-start justify-between gap-4 mb-4">
-                    <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-xl {{ in_array($alert->tingkat_risiko, ['tinggi', 'kritis'], true) ? 'bg-red-100/80 text-red-600' : ($alert->tingkat_risiko == 'sedang' ? 'bg-amber-100/80 text-amber-600' : 'bg-emerald-100/80 text-emerald-600') }} flex items-center justify-center shrink-0">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 005.814-5.519l2.74-1.22m0 0l-5.94-2.28 2.28 5.941"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-bold text-slate-900 leading-snug">{{ $alert->judul_alert }}</h3>
-                            <p class="text-xs font-semibold {{ in_array($alert->tingkat_risiko, ['tinggi', 'kritis'], true) ? 'text-red-600' : ($alert->tingkat_risiko == 'sedang' ? 'text-amber-600' : 'text-emerald-600') }} mt-0.5">Wilayah: {{ $alert->kecamatan?->nama_kecamatan ?? 'Gorontalo Utara' }}</p>
-                            <p class="text-[11px] text-slate-500 mt-1">{{ ucfirst($alert->kategori) }} · Risiko {{ ucfirst($alert->tingkat_risiko) }}</p>
-                        </div>
-                    </div>
-                    <span class="px-3 py-1 rounded-lg bg-slate-100 text-[11px] font-semibold text-slate-500 whitespace-nowrap">
-                        {{ \Carbon\Carbon::parse($alert->waktu_terdeteksi)->diffForHumans() }}
+            <div class="border-2 border-red-100 rounded-2xl p-5 bg-red-50/30 mb-4">
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-xs font-bold uppercase tracking-wider text-red-600">Notifikasi Deteksi Kritis</p>
+                    <span class="text-[10px] font-semibold bg-red-100 text-red-700 px-2.5 py-0.5 rounded-full">
+                        {{ isset($alerts) ? count($alerts) : 0 }} Peringatan
                     </span>
                 </div>
-                <div class="bg-slate-50/80 border border-slate-100 rounded-xl p-3.5 mb-4 text-xs leading-relaxed text-slate-600">
-                    <strong class="font-bold text-slate-800">Analisis :</strong>
-                    {{ $alert->analisis_sistem }}
-                </div>
-                @if($alert->latitude !== null && $alert->longitude !== null)
-                    <p class="text-[11px] text-slate-500 mb-4">Titik lokasi: {{ number_format((float) $alert->latitude, 5, '.', '') }}, {{ number_format((float) $alert->longitude, 5, '.', '') }}</p>
-                @endif
-                
-                @if($alert->foto_laporan_path)
-                <div class="mb-4">
-                    <p class="text-xs font-semibold text-slate-600 mb-2">Lampiran foto</p>
-                    <div class="flex flex-wrap gap-x-4 gap-y-2">
-                        @foreach($alert->foto_laporan_path as $index => $fotoPath)
-                            <button type="button" x-data @click="$dispatch('open-alert-photo', { src: @js(asset('storage/' . $fotoPath)), title: @js('Lampiran foto ' . ($index + 1) . ' - ' . $alert->judul_alert) })" class="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline">
-                                Lihat foto {{ $index + 1 }}
-                            </button>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
 
-                <div class="flex flex-wrap items-center gap-2.5">
-                    @if(!$alert->rekomendasi->contains('tipe_rekomendasi', 'operasi_pasar'))
-                        <form method="POST" action="{{ route('ews.rekomendasi.store', $alert) }}">
-                            @csrf
-                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-colors">
-                                <span>Rekomendasi Strategis</span>
-                            </button>
-                        </form>
-                    @else
-                        <span class="inline-flex items-center px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-semibold">
-                            Rekomendasi sudah diterbitkan
-                        </span>
-                    @endif
+                <!-- Container dengan Fungsi Scroll -->
+                <div class="max-h-[300px] overflow-y-auto pr-1 space-y-4 custom-scrollbar">
+                    @forelse($alerts as $alert)
+                        <div class="relative bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5 {{ in_array($alert->tingkat_risiko, ['tinggi', 'kritis'], true) ? 'bg-red-600' : ($alert->tingkat_risiko == 'sedang' ? 'bg-amber-500' : 'bg-emerald-500') }}"></div>
+                        <div class="pl-2">
+                            <div class="flex items-start justify-between gap-4 mb-4">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-10 h-10 rounded-xl {{ in_array($alert->tingkat_risiko, ['tinggi', 'kritis'], true) ? 'bg-red-100/80 text-red-600' : ($alert->tingkat_risiko == 'sedang' ? 'bg-amber-100/80 text-amber-600' : 'bg-emerald-100/80 text-emerald-600') }} flex items-center justify-center shrink-0">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 005.814-5.519l2.74-1.22m0 0l-5.94-2.28 2.28 5.941"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-base font-bold text-slate-900 leading-snug">{{ $alert->judul_alert }}</h3>
+                                        <p class="text-xs font-semibold {{ in_array($alert->tingkat_risiko, ['tinggi', 'kritis'], true) ? 'text-red-600' : ($alert->tingkat_risiko == 'sedang' ? 'text-amber-600' : 'text-emerald-600') }} mt-0.5">Wilayah: {{ $alert->kecamatan?->nama_kecamatan ?? 'Gorontalo Utara' }}</p>
+                                        <p class="text-[11px] text-slate-500 mt-1">{{ ucfirst($alert->kategori) }} · Risiko {{ ucfirst($alert->tingkat_risiko) }}</p>
+                                    </div>
+                                </div>
+                                <span class="px-3 py-1 rounded-lg bg-slate-100 text-[11px] font-semibold text-slate-500 whitespace-nowrap">
+                                    {{ \Carbon\Carbon::parse($alert->waktu_terdeteksi)->diffForHumans() }}
+                                </span>
+                            </div>
+                            <div class="bg-slate-50/80 border border-slate-100 rounded-xl p-3.5 mb-4 text-xs leading-relaxed text-slate-600">
+                                <strong class="font-bold text-slate-800">Analisis :</strong>
+                                {{ $alert->analisis_sistem }}
+                            </div>
+                            
+                            @if($alert->foto_laporan_path)
+                            <div class="mb-4">
+                                <p class="text-xs font-semibold text-slate-600 mb-2">Lampiran foto</p>
+                                <div class="flex flex-wrap gap-x-4 gap-y-2">
+                                    @foreach($alert->foto_laporan_path as $index => $fotoPath)
+                                        <button type="button" x-data @click="$dispatch('open-alert-photo', { src: @js(asset('storage/' . $fotoPath)), title: @js('Lampiran foto ' . ($index + 1) . ' - ' . $alert->judul_alert) })" class="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline">
+                                            Lihat foto {{ $index + 1 }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+
+                            <div class="flex flex-wrap items-center gap-2.5">
+                            </div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-8 text-center text-slate-400 text-sm">
+                        Tidak ada peringatan kritis saat ini.
+                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>
-        @empty
-        <div class="bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-8 text-center text-slate-400 text-sm">
-            Tidak ada peringatan kritis saat ini.
-        </div>
-        @endforelse
     </div>
-</div>
 
     {{-- Kolom Kanan: Widget --}}
     <div class="space-y-6">
-
-        {{-- Widget Peta Kerawanan --}}
-
-
-        {{-- Widget Rekomendasi Strategis Otomatis --}}
-
-
         {{-- Widget Input Laporan Manual --}}
         <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
             <h3 class="text-sm font-bold text-slate-900 leading-snug mb-2">Input Laporan Manual Lapangan</h3>
@@ -239,16 +219,6 @@
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Titik Lokasi di Provinsi Gorontalo *</label>
-                <div id="ews-location-map" class="h-[260px] w-full rounded-xl border border-slate-200 overflow-hidden"></div>
-                <label for="ews-coordinate-input" class="block text-xs font-semibold text-slate-600 mt-3 mb-1.5">Tempel Koordinat Google Maps</label>
-                <input type="text" id="ews-coordinate-input" value="{{ old('latitude') && old('longitude') ? old('latitude') . ', ' . old('longitude') : '' }}" placeholder="Contoh: 0.7200000, 123.0500000 atau URL Google Maps" autocomplete="off" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 shadow-sm transition">
-                <input type="hidden" name="latitude" id="ews-latitude" value="{{ old('latitude') }}">
-                <input type="hidden" name="longitude" id="ews-longitude" value="{{ old('longitude') }}">
-                <p id="ews-location-message" class="text-[11px] text-slate-500 mt-1.5" aria-live="polite">Klik peta atau tempel koordinat desimal dari Google Maps. URL pendek tanpa koordinat tidak dapat dibaca.</p>
-            </div>
-
-            <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1.5">Judul Peringatan *</label>
                 <input type="text" name="judul_alert" value="{{ old('judul_alert') }}" required placeholder="Contoh: Lonjakan Harga Cabai Rawit" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 shadow-sm transition">
             </div>
@@ -281,136 +251,5 @@
 @endsection
 
 @push('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('ews-alert-form');
-        const mapElement = document.getElementById('ews-location-map');
-        const coordinateInput = document.getElementById('ews-coordinate-input');
-        const latitudeInput = document.getElementById('ews-latitude');
-        const longitudeInput = document.getElementById('ews-longitude');
-        const locationMessage = document.getElementById('ews-location-message');
-        let map;
-        let marker;
-        let boundary;
-
-        const pointInRing = (longitude, latitude, ring) => {
-            let isInside = false;
-            for (let index = 0, previous = ring.length - 1; index < ring.length; previous = index++) {
-                const [currentLongitude, currentLatitude] = ring[index];
-                const [previousLongitude, previousLatitude] = ring[previous];
-                const crossesLatitude = (currentLatitude > latitude) !== (previousLatitude > latitude);
-                const crossingLongitude = (previousLongitude - currentLongitude)
-                    * (latitude - currentLatitude)
-                    / ((previousLatitude - currentLatitude) || 0.0000000001)
-                    + currentLongitude;
-
-                if (crossesLatitude && longitude < crossingLongitude) isInside = !isInside;
-            }
-
-            return isInside;
-        };
-
-        const isInsideBoundary = (longitude, latitude, geometry) => geometry.coordinates.some((polygon) => {
-            if (!pointInRing(longitude, latitude, polygon[0])) return false;
-            return !polygon.slice(1).some((hole) => pointInRing(longitude, latitude, hole));
-        });
-
-        const parseCoordinates = (value) => {
-            const latitudeFirst = value.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/i)
-                || value.match(/(?:@|[?&]q=)?\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/i);
-            const longitudeFirst = value.match(/!2d(-?\d+(?:\.\d+)?)!3d(-?\d+(?:\.\d+)?)/i);
-
-            if (latitudeFirst) return [Number(latitudeFirst[1]), Number(latitudeFirst[2])];
-            if (longitudeFirst) return [Number(longitudeFirst[2]), Number(longitudeFirst[1])];
-
-            return null;
-        };
-
-        const setSelectedLocation = (latitude, longitude, boundary) => {
-            if (!Number.isFinite(latitude) || !Number.isFinite(longitude)
-                || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180
-                || !isInsideBoundary(longitude, latitude, boundary.geometry)) {
-                latitudeInput.value = '';
-                longitudeInput.value = '';
-                if (marker) map.removeLayer(marker);
-                locationMessage.textContent = 'Koordinat tidak valid atau berada di luar Provinsi Gorontalo.';
-                locationMessage.classList.add('text-red-600');
-                return false;
-            }
-
-            latitudeInput.value = latitude.toFixed(7);
-            longitudeInput.value = longitude.toFixed(7);
-            coordinateInput.value = `${latitude.toFixed(7)}, ${longitude.toFixed(7)}`;
-            locationMessage.textContent = `Lokasi dipilih: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-            locationMessage.classList.remove('text-red-600');
-            if (marker) map.removeLayer(marker);
-            marker = L.marker([latitude, longitude]).addTo(map);
-            map.setView([latitude, longitude], Math.max(map.getZoom(), 12));
-
-            return true;
-        };
-
-        const initializeMap = async () => {
-            if (!map) {
-                const response = await fetch('{{ asset('data/gorontalo-boundary.geojson') }}');
-                boundary = await response.json();
-                map = L.map(mapElement).setView([0.72, 123.05], 9);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap contributors',
-                    maxZoom: 18
-                }).addTo(map);
-                const boundaryLayer = L.geoJSON(boundary, {
-                    style: { color: '#2563eb', weight: 2, fillColor: '#0ea5e9', fillOpacity: 0.08 }
-                }).addTo(map);
-                map.fitBounds(boundaryLayer.getBounds());
-                map.setMaxBounds(boundaryLayer.getBounds().pad(0.15));
-                map.setMaxBoundsViscosity(1);
-
-                map.on('click', (event) => {
-                    const { lat, lng } = event.latlng;
-                    setSelectedLocation(lat, lng, boundary);
-                });
-
-                if (latitudeInput.value && longitudeInput.value
-                    && isInsideBoundary(Number(longitudeInput.value), Number(latitudeInput.value), boundary.geometry)) {
-                    setSelectedLocation(Number(latitudeInput.value), Number(longitudeInput.value), boundary);
-                }
-            }
-
-            window.setTimeout(() => map.invalidateSize(), 100);
-        };
-
-        window.addEventListener('open-alert-modal', initializeMap);
-        if (form.dataset.open === 'true') initializeMap();
-
-        coordinateInput.addEventListener('input', async () => {
-            const coordinates = parseCoordinates(coordinateInput.value.trim());
-            if (!coordinates) {
-                latitudeInput.value = '';
-                longitudeInput.value = '';
-                if (marker && map) map.removeLayer(marker);
-                locationMessage.textContent = 'Tempel pasangan latitude, longitude atau URL Google Maps yang memuat koordinat.';
-                locationMessage.classList.remove('text-red-600');
-                return;
-            }
-
-            if (!map) await initializeMap();
-            setSelectedLocation(coordinates[0], coordinates[1], boundary);
-        });
-
-        form.addEventListener('submit', (event) => {
-            if (!latitudeInput.value || !longitudeInput.value) {
-                event.preventDefault();
-                locationMessage.textContent = 'Pilih titik lokasi di peta sebelum menyimpan peringatan.';
-                locationMessage.classList.add('text-red-600');
-            }
-        });
-    });
-</script>
-@endpush
-
-@push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 @endpush

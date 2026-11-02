@@ -259,14 +259,26 @@ class InputDataController extends Controller
             'distribusi_nelayan' => 'nullable|boolean',
             'kuota_nelayan_harian_kl' => 'nullable|numeric',
             'realisasi_nelayan_kl' => 'nullable|numeric',
+            'distribusi_masuk_nelayan_kl' => 'nullable|numeric',
+            'distribusi_keluar_nelayan_kl' => 'nullable|numeric',
             'distribusi_pertanian' => 'nullable|boolean',
             'kuota_pertanian_harian_kl' => 'nullable|numeric',
             'realisasi_pertanian_kl' => 'nullable|numeric',
+            'distribusi_masuk_pertanian_kl' => 'nullable|numeric',
+            'distribusi_keluar_pertanian_kl' => 'nullable|numeric',
             'status_antrean' => 'required|in:tidak_ada,pendek,panjang,sangat_panjang',
             'estimasi_waktu_tunggu_menit' => 'nullable|integer',
             'status_ketersediaan' => 'required|in:aman,waspada,menipis,kosong',
             'harga_jual_per_liter' => 'nullable|numeric',
         ]);
+
+        $isNelayan = !empty($validated['distribusi_nelayan']);
+        $masukNelayan = $isNelayan ? ($request->input('distribusi_masuk_nelayan_kl') ?? $request->input('kuota_nelayan_harian_kl')) : null;
+        $keluarNelayan = $isNelayan ? ($request->input('distribusi_keluar_nelayan_kl') ?? $request->input('realisasi_nelayan_kl')) : null;
+
+        $isPertanian = !empty($validated['distribusi_pertanian']);
+        $masukPertanian = $isPertanian ? ($request->input('distribusi_masuk_pertanian_kl') ?? $request->input('kuota_pertanian_harian_kl')) : null;
+        $keluarPertanian = $isPertanian ? ($request->input('distribusi_keluar_pertanian_kl') ?? $request->input('realisasi_pertanian_kl')) : null;
 
         DataBbm::create([
             'tanggal_input' => $validated['tanggal_input'],
@@ -278,12 +290,16 @@ class InputDataController extends Controller
             'stok_masuk_hari_ini_kl' => $validated['stok_masuk_hari_ini_kl'] ?? null,
             'penjualan_harian_rata_kl' => $validated['penjualan_harian_rata_kl'] ?? null,
             'estimasi_hari_ketersediaan' => $validated['estimasi_hari_ketersediaan'] ?? null,
-            'distribusi_nelayan' => $validated['distribusi_nelayan'] ?? false,
-            'kuota_nelayan_harian_kl' => $validated['kuota_nelayan_harian_kl'] ?? null,
-            'realisasi_nelayan_kl' => $validated['realisasi_nelayan_kl'] ?? null,
-            'distribusi_pertanian' => $validated['distribusi_pertanian'] ?? false,
-            'kuota_pertanian_harian_kl' => $validated['kuota_pertanian_harian_kl'] ?? null,
-            'realisasi_pertanian_kl' => $validated['realisasi_pertanian_kl'] ?? null,
+            'distribusi_nelayan' => $isNelayan,
+            'kuota_nelayan_harian_kl' => $masukNelayan,
+            'realisasi_nelayan_kl' => $keluarNelayan,
+            'distribusi_masuk_nelayan_kl' => $masukNelayan,
+            'distribusi_keluar_nelayan_kl' => $keluarNelayan,
+            'distribusi_pertanian' => $isPertanian,
+            'kuota_pertanian_harian_kl' => $masukPertanian,
+            'realisasi_pertanian_kl' => $keluarPertanian,
+            'distribusi_masuk_pertanian_kl' => $masukPertanian,
+            'distribusi_keluar_pertanian_kl' => $keluarPertanian,
             'status_antrean' => $validated['status_antrean'],
             'estimasi_waktu_tunggu_menit' => $validated['estimasi_waktu_tunggu_menit'] ?? null,
             'status_ketersediaan' => $validated['status_ketersediaan'],

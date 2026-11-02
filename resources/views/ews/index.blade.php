@@ -214,7 +214,7 @@
                         <option value="pangan" @selected(old('kategori', 'pangan') === 'pangan')>Pangan</option>
                         <option value="lpg" @selected(old('kategori') === 'lpg')>LPG</option>
                         <option value="bbm" @selected(old('kategori') === 'bbm')>BBM</option>
-                        <option value="multikomoditas" @selected(old('kategori') === 'multikomoditas')>Multikomoditas</option>
+                        
                     </select>
                 </div>
                 <div>

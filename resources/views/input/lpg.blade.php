@@ -5,24 +5,24 @@
 
 @section('content')
 <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
-    <div class="bg-gradient-to-r from-orange-400 to-orange-600 p-6 text-white flex items-center gap-4">
-        <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+    <div class="bg-gradient-to-r from-orange-400 to-orange-600 p-4 sm:p-6 text-white flex items-center gap-3 sm:gap-4">
+        <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z"/></svg>
         </div>
         <div>
-            <h3 class="font-bold text-lg">Form Input Ketersediaan LPG</h3>
-            <p class="text-sm opacity-90">Laporkan stok, distribusi, dan harga LPG di wilayah Anda.</p>
+            <h3 class="font-bold text-base sm:text-lg">Form Input Ketersediaan LPG</h3>
+            <p class="text-xs sm:text-sm opacity-90 mt-0.5">Laporkan stok, distribusi, dan harga LPG di wilayah Anda.</p>
         </div>
     </div>
 
     @if(session('success'))
-        <div class="mx-6 mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium">
+        <div class="mx-4 sm:mx-6 mt-4 sm:mt-6 p-3.5 sm:p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium">
             {{ session('success') }}
         </div>
     @endif
 
     @if($errors->any())
-        <div class="mx-6 mt-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
+        <div class="mx-4 sm:mx-6 mt-4 sm:mt-6 p-3.5 sm:p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
             <ul class="list-disc list-inside space-y-1">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -31,9 +31,9 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('input.lpg.store') }}" class="bg-white p-6 rounded-2xl shadow-sm max-w-8xl mx-auto space-y-5 text-slate-700">
+    <form method="POST" action="{{ route('input.lpg.store') }}" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm max-w-8xl mx-auto space-y-4 sm:space-y-5 text-slate-700">
         @csrf
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Input</label>
                 <input type="date" name="tanggal_input" value="{{ old('tanggal_input', date('Y-m-d')) }}" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-orange-500 shadow-sm transition">
@@ -57,7 +57,7 @@
             </div>
         </div>
 
-        <div class="bg-amber-50/50 border border-amber-100 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-amber-50/50 border border-amber-100 rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <div>
                 <label class="block text-[10px] font-extrabold uppercase tracking-wider text-amber-700 mb-1.5">STOK TERSEDIA</label>
                 <div class="relative flex items-center">
@@ -81,7 +81,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1.5">Harga HET</label>
                 <div class="relative flex items-center">
@@ -116,7 +116,11 @@
         </div>
 
         <div class="flex justify-end pt-4 border-t border-slate-100">
-            <button type="submit" class="px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm shadow-md shadow-orange-500/20 flex items-center gap-2 transition">
+            <button type="submit" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm shadow-md shadow-orange-500/20 flex items-center justify-center gap-2 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                Submit Data LPG
+            </button>
+        </div>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                 Submit Data LPG
             </button>

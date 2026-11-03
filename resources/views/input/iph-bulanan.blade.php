@@ -10,32 +10,32 @@
     <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
         
         {{-- Excel Title & Ribbon Bar --}}
-        <div class="bg-[#107c41] px-6 py-4 text-white flex flex-wrap items-center justify-between gap-4">
+        <div class="bg-[#107c41] px-4 sm:px-6 py-3.5 sm:py-4 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center font-black text-lg tracking-wider text-white border border-white/20">
+                <div class="w-10 h-10 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center font-black text-lg tracking-wider text-white border border-white/20 shrink-0">
                     <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M21.17 3.25Q21.5 3.25 21.76 3.5 22 3.74 22 4.1v15.8q0 .35-.24.6-.25.25-.59.25H7.83q-.35 0-.6-.25-.24-.25-.24-.6V17H2.83q-.35 0-.59-.24Q2 16.5 2 16.16V7.84q0-.35.24-.6.24-.24.59-.24H7V4.1q0-.36.24-.6.25-.25.59-.25zM7 15.5h13.5V4.75H7.83V7H12q.35 0 .6.24.24.25.24.6v8.32q0 .35-.24.6-.25.24-.6.24H7zm-3.5 0h3.5V8.5H3.5zm7.32-6.72L9.2 12.3l1.62 3.52H9.3l-1.05-2.52-.3 1v1.52H6.67V8.78h1.28v2.45l1.32-2.45z"/>
                     </svg>
                 </div>
-                <div>
+                <div class="min-w-0">
                     <div class="flex items-center gap-2">
                         <span class="text-[10px] font-extrabold tracking-wider bg-white/20 px-2 py-0.5 rounded uppercase">Excel Grid</span>
-                        <h3 class="font-extrabold text-base md:text-lg">IPH_Bulanan_Gorut.xlsx</h3>
+                        <h3 class="font-extrabold text-base md:text-lg truncate">IPH_Bulanan_Gorut.xlsx</h3>
                     </div>
-                    <p class="text-xs text-emerald-100 opacity-90 mt-0.5">Tabel Indeks Perkembangan Harga (IPH) Bulanan BPS Kabupaten Gorontalo Utara</p>
+                    <p class="text-xs text-emerald-100 opacity-90 mt-0.5 truncate">Tabel Indeks Perkembangan Harga (IPH) Bulanan BPS Kabupaten Gorontalo Utara</p>
                 </div>
             </div>
 
             {{-- Action Buttons: Download Excel & Monitoring --}}
-            <div class="flex flex-wrap items-center gap-2.5">
-                <a href="{{ route('input.iph_bulanan.export-excel', ['tahun' => $tahun]) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-[#107c41] hover:bg-emerald-50 rounded-xl text-xs font-black transition shadow-md">
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <a href="{{ route('input.iph_bulanan.export-excel', ['tahun' => $tahun]) }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-[#107c41] hover:bg-emerald-50 rounded-xl text-xs font-black transition shadow-md w-full sm:w-auto">
                     <svg class="w-4 h-4 text-[#107c41]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
                     </svg>
                     Download Excel (.xlsx)
                 </a>
 
-                <a href="{{ route('dashboard', ['tab' => 'iph-bulanan']) }}" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-emerald-800/80 hover:bg-emerald-900 text-white rounded-xl text-xs font-bold transition border border-emerald-600/40">
+                <a href="{{ route('dashboard', ['tab' => 'iph-bulanan']) }}" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-emerald-800/80 hover:bg-emerald-900 text-white rounded-xl text-xs font-bold transition border border-emerald-600/40 w-full sm:w-auto">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
                     Lihat Grafik Monitoring
                 </a>

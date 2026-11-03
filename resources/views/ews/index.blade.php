@@ -4,13 +4,13 @@
 @section('page-title', 'Early Warning System (EWS)')
 
 @section('content')
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 2xl:gap-8">
 
     {{-- Kolom Kiri: Alert Cards --}}
-    <div class="lg:col-span-2 space-y-6">
+    <div class="lg:col-span-7 2xl:col-span-8 space-y-5 sm:space-y-6">
 
         {{-- Card Header EWS --}}
-        <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm p-6">
+        <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm p-4 sm:p-6">
             <div class="flex items-start justify-between mb-5">
                 <div>
                     <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
@@ -298,7 +298,7 @@
                         <option value="pangan" @selected(old('kategori', 'pangan') === 'pangan')>Pangan</option>
                         <option value="lpg" @selected(old('kategori') === 'lpg')>LPG</option>
                         <option value="bbm" @selected(old('kategori') === 'bbm')>BBM</option>
-                        <option value="multikomoditas" @selected(old('kategori') === 'multikomoditas')>Multikomoditas</option>
+                        
                     </select>
                 </div>
                 <div class="space-y-1.5">

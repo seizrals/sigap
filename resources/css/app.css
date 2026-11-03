@@ -9,6 +9,8 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
+    --breakpoint-xs: 30rem;
+
     --color-sigap-primary: #0A1629;
     --color-sigap-primary-light: #111D34;
     --color-sigap-secondary: #F59E0B;
@@ -40,10 +42,54 @@
         top: 0;
         bottom: 0;
         left: 0;
-        z-index: 50;
+        z-index: 9999 !important;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
     #app-sidebar.sidebar-collapsed {
         transform: translateX(-100%);
     }
+}
+
+/* Isolasi Stacking Context Leaflet agar tidak menembus navbar / sidebar mobile */
+#gisMap,
+#ews-location-map,
+.leaflet-container {
+    z-index: 0 !important;
+    isolation: isolate !important;
+    position: relative !important;
+}
+
+/* Touch & Mobile Viewport Ergonomics */
+@supports (padding: max(0px)) {
+    body {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track,
+.overflow-x-auto::-webkit-scrollbar-track,
+.overflow-y-auto::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb,
+.overflow-x-auto::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover,
+.overflow-x-auto::-webkit-scrollbar-thumb:hover,
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }

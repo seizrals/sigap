@@ -16,10 +16,10 @@
     @endif
 
     {{-- Filter & Kontrol Pencarian --}}
-    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+    <div class="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div>
-                <h3 class="text-base font-bold text-slate-800">Daftar Saran & Laporan Masuk</h3>
+                <h3 class="text-sm sm:text-base font-bold text-slate-800">Daftar Saran & Laporan Masuk</h3>
                 <p class="text-xs text-slate-500">Aduan dan masukan masyarakat yang dikirimkan melalui Portal Publik.</p>
             </div>
             <div class="flex items-center gap-2">
@@ -116,7 +116,7 @@
                     default => 'Lainnya',
                 };
             @endphp
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 hover:border-slate-300 transition space-y-3">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-3.5 sm:p-5 hover:border-slate-300 transition space-y-3">
                 <div class="flex flex-wrap items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
                     <div class="flex items-center gap-2">
                         <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider border {{ $badgeStyle }}">

@@ -2,46 +2,51 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <title>SIGAP+ Gorontalo Utara - Siaga Pangan Plus</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-sigap-bg min-h-screen antialiased">
+<body class="bg-sigap-bg min-h-screen antialiased selection:bg-blue-600 selection:text-white">
 
     {{-- Header --}}
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 overflow-hidden w-full">
-        <div class="w-full pl-4 sm:pl-6 lg:pl-8 pr-2 sm:pr-3 lg:pr-4 h-20 sm:h-24 flex items-center justify-between gap-4">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 w-full select-none">
+        <div class="w-full max-w-[2400px] mx-auto px-2 xs:px-3 sm:px-6 lg:px-8 h-16 sm:h-20 lg:h-24 flex items-center justify-between gap-1.5 xs:gap-2.5 sm:gap-4 overflow-hidden">
             {{-- Kiri: Logo & Nama Sistem --}}
-            <div class="flex items-center gap-3 shrink-0">
-                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden shadow-lg shrink-0">
+            <div class="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0 min-w-0">
+                <div class="w-7 h-7 xs:w-8 xs:h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-lg sm:rounded-xl overflow-hidden shadow-xs sm:shadow-md shrink-0">
                     <img src="{{ asset('images/logo_gorut.png') }}" alt="Logo Gorontalo Utara" class="w-full h-full object-contain">
                 </div>
-                <div>
-                    <p class="font-bold text-slate-900 text-sm sm:text-base leading-tight">SIGAP+ GORONTALO UTARA</p>
-                    <p class="text-[11px] sm:text-xs text-slate-500 font-medium">Sistem Informasi Siaga Pangan Plus</p>
+                <div class="min-w-0">
+                    <p class="font-extrabold text-slate-900 text-xs sm:text-sm lg:text-base leading-none tracking-tight truncate">
+                        <span>SIGAP+</span><span class="hidden sm:inline font-bold text-slate-800"> GORONTALO UTARA</span>
+                    </p>
+                    <p class="text-[9px] xs:text-[10px] sm:text-xs text-slate-500 font-semibold truncate leading-tight mt-0.5">
+                        <span class="sm:hidden font-medium text-slate-600">Gorontalo Utara</span>
+                        <span class="hidden sm:inline">Sistem Informasi Siaga Pangan Plus</span>
+                    </p>
                 </div>
             </div>
 
             {{-- Kanan: Tombol Masuk Sistem + Foto Bupati & Wabup Berdampingan Mentok di Kanan --}}
-            <div class="flex items-center gap-3 sm:gap-4 shrink-0 h-full ml-auto">
-                <a href="{{ route('login') }}" class="inline-flex items-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-sigap-accent text-white text-xs sm:text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md shadow-blue-500/20">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <div class="flex items-center gap-1.5 xs:gap-2.5 sm:gap-4 shrink-0 h-full ml-auto">
+                <a href="{{ route('login') }}" class="inline-flex items-center gap-1 xs:gap-1.5 sm:gap-2 px-2 xs:px-2.5 sm:px-4 lg:px-5 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl bg-sigap-accent text-white text-[11px] xs:text-xs sm:text-sm font-bold sm:font-semibold hover:bg-blue-700 transition shadow-xs sm:shadow-md shadow-blue-500/20 shrink-0">
+                    <svg class="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
                     </svg>
-                    <span>Masuk Sistem</span>
+                    <span class="whitespace-nowrap">Masuk Sistem</span>
                 </a>
 
                 {{-- Foto Pimpinan (Bupati & Wakil Bupati) Berdampingan Mentok di Kanan --}}
-                <div class="flex items-end gap-1.5 sm:gap-2 h-full shrink-0">
-                    <div class="h-20 sm:h-24 flex items-end shrink-0" title="Bupati Gorontalo Utara - Dr. H. Thariq Modanggu, M.Pd">
+                <div class="flex items-end gap-0.5 xs:gap-1 sm:gap-2 h-full shrink-0">
+                    <div class="h-full flex items-end shrink-0" title="Bupati Gorontalo Utara - Dr. H. Thariq Modanggu, M.Pd">
                         <img src="{{ asset('images/bupati.png') }}" 
                              alt="Foto Bupati Gorontalo Utara" 
-                             class="h-20 sm:h-24 w-auto object-contain object-bottom drop-shadow-sm select-none pointer-events-none">
+                             class="h-12 xs:h-14 sm:h-18 lg:h-24 w-auto max-h-full object-contain object-bottom drop-shadow-sm select-none pointer-events-none">
                     </div>
-                    <div class="h-20 sm:h-24 flex items-end shrink-0" title="Wakil Bupati Gorontalo Utara - Dra. Hj. Nurjana H. Yusuf, M.Si">
+                    <div class="h-full flex items-end shrink-0" title="Wakil Bupati Gorontalo Utara - Dra. Hj. Nurjana H. Yusuf, M.Si">
                         <img src="{{ asset('images/wabup.png') }}" 
                              alt="Foto Wakil Bupati Gorontalo Utara" 
-                             class="h-20 sm:h-24 w-auto object-contain object-bottom drop-shadow-sm select-none pointer-events-none">
+                             class="h-12 xs:h-14 sm:h-18 lg:h-24 w-auto max-h-full object-contain object-bottom drop-shadow-sm select-none pointer-events-none">
                     </div>
                 </div>
             </div>
@@ -49,51 +54,51 @@
     </header>
 
     {{-- Hero Section --}}
-    <section class="bg-gradient-to-br from-sigap-primary via-sigap-primary-light to-sigap-accent text-white">
-        <div class="max-w-7xl mx-auto px-6 py-16">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <section class="bg-gradient-to-br from-sigap-primary via-sigap-primary-light to-sigap-accent text-white py-10 sm:py-14 lg:py-20 2xl:py-28">
+        <div class="max-w-7xl 2xl:max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 <div>
-                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur text-xs font-semibold text-amber-300 border border-white/10 mb-5">
+                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur text-xs font-semibold text-amber-300 border border-white/10 mb-4 sm:mb-5">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         Sistem Pemantauan Pangan Real-Time
                     </span>
-                    <h1 class="text-4xl lg:text-5xl font-black leading-tight mb-5">
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl font-black leading-tight mb-4 sm:mb-5">
                         Siaga Pangan<br>
                         <span class="text-amber-400">Gorontalo Utara</span>
                     </h1>
-                    <p class="text-slate-300 text-base leading-relaxed mb-8 max-w-lg">
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8 max-w-lg">
                         Platform terintegrasi untuk memantau harga, stok pangan, LPG, dan BBM di 11 kecamatan.
                         Bersama membangun ketahanan pangan yang transparan dan akuntabel.
                     </p>
-                    <div class="flex flex-wrap gap-4">
-                        <a href="#beri-saran" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold text-sm transition-colors shadow-lg shadow-amber-500/30">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <div class="flex flex-wrap gap-3 sm:gap-4">
+                        <a href="#beri-saran" class="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold text-xs sm:text-sm transition-colors shadow-lg shadow-amber-500/30">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/>
                             </svg>
                             Beri Saran / Laporan
                         </a>
                     </div>
                 </div>
-                <div class="hidden lg:flex justify-center">
-                    <div class="relative">
+                <div class="hidden md:flex justify-center">
+                    <div class="relative w-full max-w-sm lg:max-w-md">
                         <div class="absolute inset-0 bg-amber-400/20 blur-3xl rounded-full"></div>
-                        <div class="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 w-96">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-emerald-500/10 border border-emerald-400/20 rounded-2xl p-5 text-center">
-                                    <div class="text-3xl font-black text-emerald-400">11</div>
-                                    <div class="text-xs text-slate-300 mt-1">Kecamatan</div>
+                        <div class="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 w-full">
+                            <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                                <div class="bg-emerald-500/10 border border-emerald-400/20 rounded-2xl p-4 sm:p-5 text-center">
+                                    <div class="text-2xl sm:text-3xl font-black text-emerald-400">11</div>
+                                    <div class="text-[11px] sm:text-xs text-slate-300 mt-1">Kecamatan</div>
                                 </div>
-                                <div class="bg-amber-500/10 border border-amber-400/20 rounded-2xl p-5 text-center">
-                                    <div class="text-3xl font-black text-amber-400">30+</div>
-                                    <div class="text-xs text-slate-300 mt-1">Komoditas</div>
+                                <div class="bg-amber-500/10 border border-amber-400/20 rounded-2xl p-4 sm:p-5 text-center">
+                                    <div class="text-2xl sm:text-3xl font-black text-amber-400">60+</div>
+                                    <div class="text-[11px] sm:text-xs text-slate-300 mt-1">Komoditas</div>
                                 </div>
-                                <div class="bg-sky-500/10 border border-sky-400/20 rounded-2xl p-5 text-center">
-                                    <div class="text-3xl font-black text-sky-400">EWS</div>
-                                    <div class="text-xs text-slate-300 mt-1">Early Warning</div>
+                                <div class="bg-sky-500/10 border border-sky-400/20 rounded-2xl p-4 sm:p-5 text-center">
+                                    <div class="text-2xl sm:text-3xl font-black text-sky-400">EWS</div>
+                                    <div class="text-[11px] sm:text-xs text-slate-300 mt-1">Early Warning</div>
                                 </div>
-                                <div class="bg-rose-500/10 border border-rose-400/20 rounded-2xl p-5 text-center">
-                                    <div class="text-3xl font-black text-rose-400">GIS</div>
-                                    <div class="text-xs text-slate-300 mt-1">Peta Digital</div>
+                                <div class="bg-rose-500/10 border border-rose-400/20 rounded-2xl p-4 sm:p-5 text-center">
+                                    <div class="text-2xl sm:text-3xl font-black text-rose-400">GIS</div>
+                                    <div class="text-[11px] sm:text-xs text-slate-300 mt-1">Peta Digital</div>
                                 </div>
                             </div>
                         </div>
@@ -117,8 +122,8 @@
             <div class="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-white/60"></div>
         </div>
 
-        <div class="max-w-7xl mx-auto px-6 relative z-10">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+        <div class="max-w-7xl 2xl:max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
 
                 {{-- Info Side --}}
                 <div class="space-y-6">
@@ -129,10 +134,10 @@
                             </svg>
                             KANAL PARTISIPASI PUBLIK
                         </span>
-                        <h2 class="text-3xl lg:text-4xl font-black text-slate-900 mb-4 leading-tight">
+                        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 mb-4 leading-tight">
                             Beri Saran &<br>Laporkan Temuan
                         </h2>
-                        <p class="text-slate-600 leading-relaxed max-w-lg">
+                        <p class="text-slate-600 text-sm sm:text-base leading-relaxed max-w-lg">
                             Bantu kami memantau harga dan ketersediaan pangan, LPG, serta BBM di wilayah Anda.
                             Setiap laporan akan divalidasi oleh TPID Kabupaten Gorontalo Utara sebelum ditindaklanjuti.
                         </p>
@@ -176,15 +181,15 @@
                 </div>
 
                 {{-- Form Side --}}
-                <div class="relative">
-                    <div class="bg-white/95 backdrop-blur-md rounded-[28px] border border-slate-200 shadow-xl overflow-hidden">
-                    <div class="bg-gradient-to-r from-sigap-accent to-blue-700 p-6 text-white">
-                        <h3 class="font-bold text-xl">Sampaikan Saran / Aduan</h3>
-                        <p class="text-sm opacity-90 mt-1">Masukan Anda membantu kami menjaga stabilitas daerah.</p>
+                <div class="relative w-full min-w-0">
+                    <div class="bg-white/95 backdrop-blur-md rounded-[24px] sm:rounded-[28px] border border-slate-200 shadow-xl overflow-hidden">
+                    <div class="bg-gradient-to-r from-sigap-accent to-blue-700 p-5 sm:p-6 text-white">
+                        <h3 class="font-bold text-lg sm:text-xl">Sampaikan Saran / Aduan</h3>
+                        <p class="text-xs sm:text-sm opacity-90 mt-1">Masukan Anda membantu kami menjaga stabilitas daerah.</p>
                     </div>
 
                     @if(session('success'))
-                        <div class="mx-6 mt-5 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium flex items-center gap-2">
+                        <div class="mx-4 sm:mx-6 mt-5 p-3.5 sm:p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium flex items-center gap-2">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
@@ -193,7 +198,7 @@
                     @endif
 
                     @if($errors->any())
-                        <div class="mx-6 mt-5 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
+                        <div class="mx-4 sm:mx-6 mt-5 p-3.5 sm:p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
                             <ul class="list-disc list-inside space-y-1">
                                 @foreach($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -202,11 +207,11 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('saran-publik.store') }}" class="p-6 space-y-4">
+                    <form method="POST" action="{{ route('saran-publik.store') }}" class="p-4 sm:p-6 space-y-4">
                         @csrf
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">Kategori Laporan *</label>
-                            <select name="kategori" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                            <select name="kategori" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                                 <option value="lonjakan_harga" @selected(old('kategori', 'lonjakan_harga') === 'lonjakan_harga')>Lonjakan Harga</option>
                                 <option value="kelangkaan_stok" @selected(old('kategori') === 'kelangkaan_stok')>Kelangkaan Stok</option>
                                 <option value="saran_kebijakan" @selected(old('kategori') === 'saran_kebijakan')>Saran Kebijakan</option>
@@ -218,7 +223,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Kecamatan</label>
-                                <select name="kecamatan_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                                <select name="kecamatan_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                                     <option value="">Pilih Kecamatan...</option>
                                     @if(isset($kecamatan))
                                         @foreach($kecamatan as $kec)
@@ -229,48 +234,48 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Alamat / Lokasi Spesifik *</label>
-                                <input type="text" name="lokasi_spesifik" value="{{ old('lokasi_spesifik') }}" required placeholder="Contoh: Pasar Moluo, Desa Molingkapoto" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                                <input type="text" name="lokasi_spesifik" value="{{ old('lokasi_spesifik') }}" required placeholder="Contoh: Pasar Moluo, Desa Molingkapoto" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">Judul Laporan *</label>
-                            <input type="text" name="judul_laporan" value="{{ old('judul_laporan') }}" required placeholder="Contoh: Harga cabai naik tajam" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                            <input type="text" name="judul_laporan" value="{{ old('judul_laporan') }}" required placeholder="Contoh: Harga cabai naik tajam" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                         </div>
 
-                        <div id="commodity-fields" class="grid grid-cols-2 gap-3 @if(!in_array(old('kategori', 'lonjakan_harga'), ['lonjakan_harga', 'kelangkaan_stok', 'pelanggaran_het'], true)) hidden @endif">
+                        <div id="commodity-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-3 @if(!in_array(old('kategori', 'lonjakan_harga'), ['lonjakan_harga', 'kelangkaan_stok', 'pelanggaran_het'], true)) hidden @endif">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Komoditas *</label>
-                                <input type="text" name="nama_komoditas_dilaporkan" value="{{ old('nama_komoditas_dilaporkan') }}" required placeholder="Contoh: Cabai Rawit" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                                <input type="text" name="nama_komoditas_dilaporkan" value="{{ old('nama_komoditas_dilaporkan') }}" required placeholder="Contoh: Cabai Rawit" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Harga (Rp) *</label>
-                                <input type="number" name="harga_dilaporkan" value="{{ old('harga_dilaporkan') }}" min="0" required placeholder="Contoh: 85000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                                <input type="number" name="harga_dilaporkan" value="{{ old('harga_dilaporkan') }}" min="0" required placeholder="Contoh: 85000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">Isi Laporan / Saran *</label>
-                            <textarea name="isi_laporan" rows="4" required placeholder="Tuliskan kelangkaan barang, fluktuasi harga, atau saran untuk TPID..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition resize-none"></textarea>
+                            <textarea name="isi_laporan" rows="4" required placeholder="Tuliskan kelangkaan barang, fluktuasi harga, atau saran untuk TPID..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 sm:p-4 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition resize-none"></textarea>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama (opsional)</label>
-                                <input type="text" name="nama_pelapor" placeholder="Nama Anda" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                                <input type="text" name="nama_pelapor" placeholder="Nama Anda" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Kontak (Wajib)*</label>
-                                <input type="text" name="kontak_pelapor" value="{{ old('kontak_pelapor') }}" required placeholder="No. HP / Email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                                <input type="text" name="kontak_pelapor" value="{{ old('kontak_pelapor') }}" required placeholder="No. HP / Email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
                             </div>
                         </div>
 
-                        <label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+                        <label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer pt-1">
                             <input type="checkbox" name="anonim" value="1" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                             <span>Kirim sebagai anonim</span>
                         </label>
 
-                        <button type="submit" class="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold text-sm shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                        <button type="submit" class="w-full py-3 sm:py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold text-sm shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/>
                             </svg>
@@ -285,7 +290,7 @@
 
     {{-- Footer --}}
     <footer class="bg-sigap-primary text-slate-400 border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-6 py-10">
+        <div class="max-w-7xl 2xl:max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
             <div class="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <div class="w-11 h-11 rounded-xl overflow-hidden shadow-lg shrink-0">

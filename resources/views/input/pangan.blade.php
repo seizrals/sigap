@@ -5,23 +5,23 @@
 
 @section('content')
 <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-    <div class="bg-gradient-to-r from-amber-400 to-amber-500 p-6 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="bg-gradient-to-r from-amber-400 to-amber-500 p-4 sm:p-6 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h2 class="text-lg font-bold">Data Pangan Strategis</h2>
-            <p class="text-sm opacity-90 mt-1">Harga dan ketersediaan pangan per kecamatan.</p>
+            <h2 class="text-base sm:text-lg font-bold">Data Pangan Strategis</h2>
+            <p class="text-xs sm:text-sm opacity-90 mt-0.5">Harga dan ketersediaan pangan per kecamatan.</p>
         </div>
-        <button type="button" id="open-pangan-modal" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-amber-700 font-bold text-sm shadow-sm hover:bg-amber-50 transition-colors">
+        <button type="button" id="open-pangan-modal" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-amber-700 font-bold text-sm shadow-sm hover:bg-amber-50 transition-colors w-full sm:w-auto">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
             Tambah Permintaan
         </button>
     </div>
 
     @if(session('success'))
-        <div class="mx-5 mt-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium" role="status">{{ session('success') }}</div>
+        <div class="mx-4 sm:mx-5 mt-4 sm:mt-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium" role="status">{{ session('success') }}</div>
     @endif
 
-    <div class="p-5">
-        <div class="overflow-x-auto border border-slate-200 rounded-xl">
+    <div class="p-3.5 sm:p-5">
+        <div class="overflow-x-auto -mx-3.5 sm:mx-0 px-3.5 sm:px-0 border border-slate-200 rounded-xl">
             <table class="min-w-[1250px] w-full border-collapse text-left text-xs">
                 <thead class="bg-amber-50 text-slate-600">
                     <tr class="border-b border-amber-200">
@@ -79,16 +79,16 @@
     </div>
 </div>
 
-<div id="pangan-modal" data-open="{{ $errors->any() ? 'true' : 'false' }}" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/50 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="pangan-modal-title">
-    <div class="w-full max-w-3xl max-h-[92vh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-slate-200">
-        <div class="bg-gradient-to-r from-amber-400 to-amber-500 px-6 py-5 text-white flex items-start justify-between gap-4">
-            <div><h2 id="pangan-modal-title" class="text-lg font-bold">Tambah Permintaan</h2><p class="text-sm opacity-90 mt-1">Input harga dan ketersediaan pangan strategis.</p></div>
-            <button type="button" data-close-pangan-modal class="p-1 text-white/90 hover:text-white" aria-label="Tutup formulir">
+<div id="pangan-modal" data-open="{{ $errors->any() ? 'true' : 'false' }}" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 backdrop-blur-xs p-2 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="pangan-modal-title">
+    <div class="w-full max-w-4xl 2xl:max-w-5xl max-h-[94vh] sm:max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-slate-200">
+        <div class="bg-gradient-to-r from-amber-400 to-amber-500 px-4 sm:px-6 py-4 sm:py-5 text-white flex items-start justify-between gap-4 sticky top-0 z-10">
+            <div><h2 id="pangan-modal-title" class="text-base sm:text-lg font-bold">Tambah Permintaan</h2><p class="text-xs sm:text-sm opacity-90 mt-0.5">Input harga dan ketersediaan pangan strategis.</p></div>
+            <button type="button" data-close-pangan-modal class="p-1.5 text-white/90 hover:text-white rounded-lg hover:bg-white/10 transition" aria-label="Tutup formulir">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
             </button>
         </div>
 
-        <form id="pangan-form" method="POST" action="{{ route('input.pangan.store') }}" data-update-url="{{ route('input.pangan.update', ['dataPangan' => '__ID__']) }}" class="p-6 space-y-4">
+        <form id="pangan-form" method="POST" action="{{ route('input.pangan.store') }}" data-update-url="{{ route('input.pangan.update', ['dataPangan' => '__ID__']) }}" class="p-4 sm:p-6 space-y-4">
             @csrf
             @if(old('_method') === 'PUT') <input type="hidden" name="_method" value="PUT"> @endif
             <input type="hidden" name="record_id" id="pangan-record-id" value="{{ old('record_id') }}">

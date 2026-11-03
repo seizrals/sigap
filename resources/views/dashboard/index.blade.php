@@ -9,39 +9,39 @@
     {{-- Quick Status Cards --}}
     
     {{-- GIS Map Section + Rekomendasi Strategis --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
-            <div class="flex items-center justify-between p-6 border-b border-slate-100">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 2xl:gap-8">
+        <div class="lg:col-span-8 2xl:col-span-8 bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden flex flex-col relative z-0 isolate">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-slate-100 gap-3">
                 <div>
-                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>
                         Peta GIS Kerawanan Wilayah
                     </h3>
-                    <p class="text-sm text-slate-500 mt-1">Visualisasi zona risiko inflasi per kecamatan di Kabupaten Gorontalo Utara</p>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Visualisasi zona risiko inflasi per kecamatan di Kabupaten Gorontalo Utara</p>
                 </div>
-                <div class="flex items-center gap-3 text-xs">
+                <div class="flex items-center gap-3 text-xs shrink-0">
                     <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500"></span><span class="font-semibold text-slate-600">Aman</span></div>
                     <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500"></span><span class="font-semibold text-slate-600">Waspada</span></div>
                     <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-500"></span><span class="font-semibold text-slate-600">Bahaya</span></div>
                 </div>
             </div>
-            <div id="gisMap" class="h-[400px] w-full"></div>
+            <div id="gisMap" class="h-[280px] sm:h-[360px] lg:h-[440px] 2xl:h-[580px] w-full relative z-0 isolate"></div>
         </div>
 
         {{-- Widget Rekomendasi Strategis Otomatis --}}
-        <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
-            <div class="p-6 border-b border-slate-100">
+        <div class="lg:col-span-4 2xl:col-span-4 bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+            <div class="p-4 sm:p-6 border-b border-slate-100">
                 <div class="flex items-center gap-2 mb-1">
-                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                     </svg>
-                    <h3 class="text-base font-bold text-slate-900">Rekomendasi Strategis</h3>
+                    <h3 class="text-sm sm:text-base font-bold text-slate-900">Rekomendasi Strategis</h3>
                 </div>
                 <p class="text-xs text-slate-500 leading-relaxed">
                     Rekomendasi pasar yang diterbitkan dan tindakan otomatis berdasarkan data peringatan.
                 </p>
             </div>
-            <div class="p-4 space-y-3 max-h-[400px] overflow-y-auto">
+            <div class="p-3.5 sm:p-4 space-y-3 max-h-[300px] sm:max-h-[360px] lg:max-h-[440px] 2xl:max-h-[580px] overflow-y-auto">
                 @forelse($rekomendasiStrategis as $rek)
                 <div class="border-l-4 pl-3 py-1 {{ $rek['zona'] == 'merah' ? 'border-red-500' : ($rek['zona'] == 'kuning' ? 'border-amber-400' : 'border-emerald-500') }}">
                     <div class="flex items-start gap-2.5">
@@ -79,26 +79,26 @@
 
     {{-- Tab Navigation & Content --}}
     <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
-        <div class="flex items-center gap-2 border-b border-slate-100 px-6 overflow-x-auto">
-            <button id="btn-iph-mingguan" onclick="switchTab('iph-mingguan')" class="tab-btn whitespace-nowrap px-4 py-4 text-sm font-bold border-b-2 border-blue-600 text-blue-600 transition-all">
+        <div class="flex items-center gap-1 sm:gap-2 border-b border-slate-100 px-3 sm:px-6 overflow-x-auto scrollbar-none">
+            <button id="btn-iph-mingguan" onclick="switchTab('iph-mingguan')" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 transition-all">
                 DATA IPH MINGGUAN
             </button>
-            <button id="btn-iph-bulanan" onclick="switchTab('iph-bulanan')" class="tab-btn whitespace-nowrap px-4 py-4 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">
+            <button id="btn-iph-bulanan" onclick="switchTab('iph-bulanan')" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">
                 DATA IPH BULANAN
             </button>
-            <button id="btn-pangan" onclick="switchTab('pangan')" class="tab-btn whitespace-nowrap px-4 py-4 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">
+            <button id="btn-pangan" onclick="switchTab('pangan')" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">
                 PANGAN STRATEGIS
             </button>
-            <button id="btn-lpg" onclick="switchTab('lpg')" class="tab-btn whitespace-nowrap px-4 py-4 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">LPG 3 KG</button>
-            <button id="btn-bbm" onclick="switchTab('bbm')" class="tab-btn whitespace-nowrap px-4 py-4 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">BBM SUBSIDI</button>
+            <button id="btn-lpg" onclick="switchTab('lpg')" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">LPG 3 KG</button>
+            <button id="btn-bbm" onclick="switchTab('bbm')" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">BBM SUBSIDI</button>
         </div>
 
-        <div class="p-6">
+        <div class="p-3.5 sm:p-6">
             {{-- Tab IPH Mingguan--}}
             <div id="content-iph-mingguan" class="tab-content">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                    <div class="lg:col-span-4 space-y-4">
-                        <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100 space-y-4">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
+                    <div class="lg:col-span-5 2xl:col-span-4 space-y-4">
+                        <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-100 space-y-4">
                             <input type="hidden" name="tab" value="iph-mingguan">
                             <div class="flex items-center justify-between">
                                 <p class="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">Filter Rentang IPH Mingguan</p>
@@ -149,15 +149,15 @@
                             $bgMingguan = $statusMingguan === 'Tinggi' ? 'bg-rose-600 shadow-rose-600/20' : ($statusMingguan === 'Waspada' ? 'bg-amber-600 shadow-amber-600/20' : 'bg-emerald-600 shadow-emerald-600/20');
                             $badgeMingguan = $statusMingguan === 'Tinggi' ? 'bg-rose-500/50 border-rose-400/30' : ($statusMingguan === 'Waspada' ? 'bg-amber-500/50 border-amber-400/30' : 'bg-emerald-500/50 border-emerald-400/30');
                         @endphp
-                        <div class="{{ $bgMingguan }} rounded-2xl p-5 text-white shadow-lg transition">
+                        <div class="{{ $bgMingguan }} rounded-2xl p-4 sm:p-5 text-white shadow-lg transition">
                             <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-100 mb-1">{{ $iphMingguanTerbaru?->periode_label ?? 'IPH Minggu II Mei' }}</p>
-                            <p class="text-4xl font-extrabold tracking-tight mb-3">{{ number_format($valMingguan, 2, ',', '.') }}%</p>
+                            <p class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">{{ number_format($valMingguan, 2, ',', '.') }}%</p>
                             <span class="inline-block {{ $badgeMingguan }} backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border">
                                 Status: {{ $statusMingguan }}
                             </span>
                         </div>
                     </div>
-                    <div class="lg:col-span-8 relative h-[320px] w-full">
+                    <div class="lg:col-span-7 2xl:col-span-8 relative h-[260px] sm:h-[320px] lg:h-[360px] 2xl:h-[480px] w-full min-w-0">
                         <canvas id="iphChartMingguan"></canvas>
                     </div>
                 </div>
@@ -165,9 +165,9 @@
 
             {{-- Tab IPH Bulanan--}}
             <div id="content-iph-bulanan" class="tab-content hidden">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                    <div class="lg:col-span-4 space-y-4">
-                        <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100 space-y-4">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
+                    <div class="lg:col-span-5 2xl:col-span-4 space-y-4">
+                        <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-100 space-y-4">
                             <input type="hidden" name="tab" value="iph-bulanan">
                             <div class="flex items-center justify-between">
                                 <p class="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">Filter Rentang IPH Bulanan</p>
@@ -222,15 +222,15 @@
                             $bgBulanan = $statusBulanan === 'Tinggi' ? 'bg-rose-600 shadow-rose-600/20' : ($statusBulanan === 'Waspada' ? 'bg-amber-600 shadow-amber-600/20' : 'bg-blue-600 shadow-blue-600/20');
                             $badgeBulanan = $statusBulanan === 'Tinggi' ? 'bg-rose-500/50 border-rose-400/30' : ($statusBulanan === 'Waspada' ? 'bg-amber-500/50 border-amber-400/30' : 'bg-blue-500/50 border-blue-400/30');
                         @endphp
-                        <div class="{{ $bgBulanan }} rounded-2xl p-5 text-white shadow-lg transition">
+                        <div class="{{ $bgBulanan }} rounded-2xl p-4 sm:p-5 text-white shadow-lg transition">
                             <p class="text-[10px] font-bold uppercase tracking-wider text-blue-100 mb-1">{{ $iphBulananTerbaru ? ($iphBulananTerbaru->nama_bulan . ' ' . $iphBulananTerbaru->tahun) : 'Mei 2026' }}</p>
-                            <p class="text-4xl font-extrabold tracking-tight mb-3">{{ number_format($valBulanan, 2, ',', '.') }}%</p>
+                            <p class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">{{ number_format($valBulanan, 2, ',', '.') }}%</p>
                             <span class="inline-block {{ $badgeBulanan }} backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border">
                                 Status: {{ $statusBulanan }}
                             </span>
                         </div>
                     </div>
-                    <div class="lg:col-span-8 relative h-[320px] w-full">
+                    <div class="lg:col-span-7 2xl:col-span-8 relative h-[260px] sm:h-[320px] lg:h-[360px] 2xl:h-[480px] w-full min-w-0">
                         <canvas id="iphChartBulanan"></canvas>
                     </div>
                 </div>
@@ -238,38 +238,38 @@
 
             {{-- Tab Pangan --}}
             <div id="content-pangan" class="tab-content hidden">
-                <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-4 rounded-2xl mb-6 flex flex-wrap items-end gap-4 text-xs font-semibold text-slate-500">
+                <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-3.5 sm:p-4 rounded-2xl mb-5 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-3 sm:gap-4 text-xs font-semibold text-slate-500">
                     <input type="hidden" name="tab" value="pangan">
-                    <label class="flex flex-col gap-1.5">
+                    <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                         <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Pilih Kecamatan</span>
-                        <select name="pangan_kecamatan_id" class="min-w-44 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
+                        <select name="pangan_kecamatan_id" class="w-full sm:min-w-44 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
                             <option value="">Seluruh Kecamatan</option>
                             @foreach($kecamatan as $kec)
                                 <option value="{{ $kec->id }}" @selected((string) ($filters['pangan_kecamatan_id'] ?? '') === (string) $kec->id)>{{ $kec->nama_kecamatan }}</option>
                             @endforeach
                         </select>
                     </label>
-                    <label class="flex flex-col gap-1.5">
+                    <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                         <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Pilih Komoditas</span>
-                        <select name="pangan_komoditas_id" class="min-w-48 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
+                        <select name="pangan_komoditas_id" class="w-full sm:min-w-48 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
                             <option value="">Semua Komoditas</option>
                             @foreach($komoditasPangan as $item)
                                 <option value="{{ $item->id }}" @selected((string) ($filters['pangan_komoditas_id'] ?? '') === (string) $item->id)>{{ $item->nama_komoditas }}</option>
                             @endforeach
                         </select>
                     </label>
-                    <label class="flex flex-col gap-1.5">
+                    <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                         <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Periode Lalu</span>
-                        <input type="date" name="periode_sebelumnya" value="{{ $periodeSebelumnya }}" class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
+                        <input type="date" name="periode_sebelumnya" value="{{ $periodeSebelumnya }}" class="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
                     </label>
-                    <label class="flex flex-col gap-1.5">
+                    <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                         <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Periode Saat Ini</span>
-                        <input type="date" name="periode_saat_ini" value="{{ $periodeSaatIni }}" class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
+                        <input type="date" name="periode_saat_ini" value="{{ $periodeSaatIni }}" class="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
                     </label>
-                    <button type="submit" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition-colors">Terapkan</button>
+                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition-colors text-center">Terapkan</button>
                 </form>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                <div class="overflow-x-auto -mx-3.5 sm:mx-0 px-3.5 sm:px-0">
+                    <table class="min-w-[950px] w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
                                 <th class="pb-4 pr-4">Kecamatan</th>
@@ -284,18 +284,18 @@
                         <tbody class="divide-y divide-slate-100 text-sm font-semibold">
                             @forelse($dataPangan as $d)
                             <tr class="hover:bg-slate-50/50 transition">
-                                <td class="py-4 pr-4 text-slate-700 font-bold">{{ $d['kecamatan'] }}</td>
-                                <td class="py-4 pr-4">
+                                <td class="py-4 pr-4 text-slate-700 font-bold whitespace-nowrap">{{ $d['kecamatan'] }}</td>
+                                <td class="py-4 pr-4 whitespace-nowrap">
                                     <p class="font-bold text-slate-800">{{ $d['komoditas'] }}</p>
                                     <p class="text-[10px] text-slate-400">{{ $d['satuan'] }}</p>
                                 </td>
-                                <td class="py-4 px-4 text-slate-600">{{ $d['stok'] !== null ? number_format((float) $d['stok'], 0, ',', '.') : '-' }} {{ $d['satuan'] }}</td>
-                                <td class="py-4 px-4 text-slate-600">{{ $d['harga_lalu'] !== null ? 'Rp '.number_format((float) $d['harga_lalu'], 0, ',', '.') : '-' }}</td>
-                                <td class="py-4 px-4 font-bold text-slate-800">{{ $d['harga_saat_ini'] !== null ? 'Rp '.number_format((float) $d['harga_saat_ini'], 0, ',', '.') : '-' }}</td>
-                                <td class="py-4 px-4 {{ ($d['perubahan_persen'] ?? 0) > 0 ? 'text-rose-500' : (($d['perubahan_persen'] ?? 0) < 0 ? 'text-emerald-500' : 'text-slate-400') }}">
+                                <td class="py-4 px-4 text-slate-600 whitespace-nowrap">{{ $d['stok'] !== null ? number_format((float) $d['stok'], 0, ',', '.') : '-' }} {{ $d['satuan'] }}</td>
+                                <td class="py-4 px-4 text-slate-600 whitespace-nowrap">{{ $d['harga_lalu'] !== null ? 'Rp '.number_format((float) $d['harga_lalu'], 0, ',', '.') : '-' }}</td>
+                                <td class="py-4 px-4 font-bold text-slate-800 whitespace-nowrap">{{ $d['harga_saat_ini'] !== null ? 'Rp '.number_format((float) $d['harga_saat_ini'], 0, ',', '.') : '-' }}</td>
+                                <td class="py-4 px-4 whitespace-nowrap {{ ($d['perubahan_persen'] ?? 0) > 0 ? 'text-rose-500' : (($d['perubahan_persen'] ?? 0) < 0 ? 'text-emerald-500' : 'text-slate-400') }}">
                                     {{ $d['perubahan_persen'] === null ? '-' : (($d['perubahan_persen'] > 0 ? '+' : '').number_format((float) $d['perubahan_persen'], 1, ',', '.').'%') }}
                                 </td>
-                                <td class="py-4 pl-4 text-right">
+                                <td class="py-4 pl-4 text-right whitespace-nowrap">
                                     <span class="inline-block text-[11px] font-bold px-3 py-1 rounded-full uppercase {{ $d['status_ketersediaan'] === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($d['status_ketersediaan'] === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-600') }}">{{ $d['status_ketersediaan'] ? ($d['status_ketersediaan'] === 'kosong' ? 'Kritis' : $d['status_ketersediaan']) : '-' }}</span>
                                 </td>
                             </tr>
@@ -311,26 +311,26 @@
 
             {{-- Tab LPG --}}
             <div id="content-lpg" class="tab-content hidden">
-                <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-4 rounded-2xl mb-6 flex flex-wrap items-end gap-4 text-xs font-semibold text-slate-500">
+                <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-3.5 sm:p-4 rounded-2xl mb-5 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-3 sm:gap-4 text-xs font-semibold text-slate-500">
                     <input type="hidden" name="tab" value="lpg">
-                    <label class="flex flex-col gap-1.5">
+                    <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                         <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Kecamatan</span>
-                        <select name="lpg_kecamatan_id" class="min-w-44 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-orange-500 shadow-sm">
+                        <select name="lpg_kecamatan_id" class="w-full sm:min-w-44 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-orange-500 shadow-sm">
                             <option value="">Semua Kecamatan</option>
                             @foreach($kecamatan as $kec)
                                 <option value="{{ $kec->id }}" @selected((string) ($filters['lpg_kecamatan_id'] ?? request('lpg_kecamatan_id')) === (string) $kec->id)>{{ $kec->nama_kecamatan }}</option>
                             @endforeach
                         </select>
                     </label>
-                    <label class="flex flex-col gap-1.5">
+                    <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                         <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Tanggal</span>
-                        <input type="date" name="lpg_tanggal" value="{{ $lpgTanggal ?? '' }}" class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-orange-500 shadow-sm">
+                        <input type="date" name="lpg_tanggal" value="{{ $lpgTanggal ?? '' }}" class="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-orange-500 shadow-sm">
                     </label>
-                    <button type="submit" class="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs transition-colors">Terapkan</button>
+                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs transition-colors text-center">Terapkan</button>
                 </form>
 
-                <div class="overflow-x-auto">
-                    <table class="min-w-[1250px] w-full text-left border-collapse">
+                <div class="overflow-x-auto -mx-3.5 sm:mx-0 px-3.5 sm:px-0">
+                    <table class="min-w-[1150px] w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
                                 <th class="pb-4 pr-4">Tanggal</th>
@@ -351,9 +351,9 @@
                                 <td class="py-4 pr-4 whitespace-nowrap">{{ $d->tanggal_input?->format('d/m/Y') }}</td>
                                 <td class="py-4 pr-4 whitespace-nowrap">{{ $d->kecamatan?->nama_kecamatan ?? '-' }}</td>
                                 <td class="py-4 pr-4 whitespace-nowrap">{{ $d->jenis_lpg }}</td>
-                                <td class="py-4 px-3 text-right">{{ number_format($d->stok_tersedia_tabung, 0, ',', '.') }}</td>
-                                <td class="py-4 px-3 text-right">{{ number_format($d->distribusi_masuk_tabung, 0, ',', '.') }}</td>
-                                <td class="py-4 px-3 text-right text-rose-600">{{ number_format($d->distribusi_keluar_tabung, 0, ',', '.') }}</td>
+                                <td class="py-4 px-3 text-right whitespace-nowrap">{{ number_format($d->stok_tersedia_tabung, 0, ',', '.') }}</td>
+                                <td class="py-4 px-3 text-right whitespace-nowrap">{{ number_format($d->distribusi_masuk_tabung, 0, ',', '.') }}</td>
+                                <td class="py-4 px-3 text-right text-rose-600 whitespace-nowrap">{{ number_format($d->distribusi_keluar_tabung, 0, ',', '.') }}</td>
                                 <td class="py-4 px-3 text-right whitespace-nowrap">{{ $d->harga_pangkalan !== null ? 'Rp '.number_format((float) $d->harga_pangkalan, 0, ',', '.') : '-' }}</td>
                                 <td class="py-4 px-3 text-right whitespace-nowrap">{{ $d->harga_eceran_lapangan !== null ? 'Rp '.number_format((float) $d->harga_eceran_lapangan, 0, ',', '.') : '-' }}</td>
                                 <td class="py-4 px-3 whitespace-nowrap">
@@ -373,38 +373,38 @@
 
             {{-- Tab BBM --}}
             <div id="content-bbm" class="tab-content hidden">
-                <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-                    <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-4 rounded-2xl flex flex-wrap items-end gap-4 text-xs font-semibold text-slate-500">
+                <div class="mb-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-3.5 sm:p-4 rounded-2xl flex flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-3 sm:gap-4 text-xs font-semibold text-slate-500 w-full lg:w-auto">
                         <input type="hidden" name="tab" value="bbm">
-                        <label class="flex flex-col gap-1.5">
+                        <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                             <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Jenis BBM</span>
-                            <select name="bbm_jenis" class="min-w-48 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
+                            <select name="bbm_jenis" class="w-full sm:min-w-48 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
                                 <option value="">Semua Jenis BBM</option>
                                 <option value="Pertalite (JBKP)" @selected(in_array($bbmJenis, ['Pertalite (JBKP)', 'Pertalite'], true))>Pertalite</option>
                                 <option value="Bio Solar" @selected($bbmJenis === 'Bio Solar')>Bio Solar</option>
                             </select>
                         </label>
                         
-                        <label class="flex flex-col gap-1.5">
+                        <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                             <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Pilih Tanggal</span>
-                            <input type="date" name="bbm_tanggal" value="{{ $bbmTanggal ?? '' }}" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
+                            <input type="date" name="bbm_tanggal" value="{{ $bbmTanggal ?? '' }}" class="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
                         </label>
 
-                        <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors">Terapkan</button>
+                        <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors text-center">Terapkan</button>
                     </form>
 
-                    <div class="flex items-center gap-3">
-                        <div class="bg-blue-600 text-white px-4 py-2 rounded-xl text-center shadow-sm">
+                    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                        <div class="flex-1 sm:flex-initial bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-xl text-center shadow-sm">
                             <p class="text-[9px] font-extrabold tracking-wider uppercase opacity-90">Pertalite</p>
                             <p class="text-xs font-black italic">Rp 10.000</p>
                         </div>
-                        <div class="bg-orange-500 text-white px-4 py-2 rounded-xl text-center shadow-sm">
+                        <div class="flex-1 sm:flex-initial bg-orange-500 text-white px-3 sm:px-4 py-2 rounded-xl text-center shadow-sm">
                             <p class="text-[9px] font-extrabold tracking-wider uppercase opacity-90">BioSolar</p>
                             <p class="text-xs font-black italic">Rp 6.800</p>
                         </div>
                     </div>
                 </div>
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto -mx-3.5 sm:mx-0 px-3.5 sm:px-0">
                     <table class="min-w-[1250px] w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
@@ -632,7 +632,9 @@
         // --- 3. INISIALISASI LEAFLET GIS ---
         const gisMapEl = document.getElementById('gisMap');
         if (gisMapEl) {
-            const map = L.map('gisMap').setView([0.72, 123.05], 10);
+            const map = L.map('gisMap', {
+                scrollWheelZoom: false
+            }).setView([0.72, 123.05], 10);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors',
                 maxZoom: 18
@@ -647,11 +649,16 @@
                 'merah': '#ef4444'
             };
 
+            const allPoints = [];
+
             if (kecamatanData.length > 0) {
                 kecamatanData.forEach(function(kec) {
                     if (kec.latitude && kec.longitude) {
+                        const lat = parseFloat(kec.latitude);
+                        const lng = parseFloat(kec.longitude);
+                        allPoints.push([lat, lng]);
                         const color = colorMap[kec.zona_risiko] || '#94a3b8';
-                        L.circleMarker([parseFloat(kec.latitude), parseFloat(kec.longitude)], {
+                        L.circleMarker([lat, lng], {
                             radius: 12,
                             fillColor: color,
                             color: '#ffffff',
@@ -671,6 +678,7 @@
                     { nama: 'Anggrek', lat: 0.6200, lng: 123.1000, zona: 'hijau' }
                 ];
                 fallback.forEach(function(kec) {
+                    allPoints.push([kec.lat, kec.lng]);
                     const color = colorMap[kec.zona];
                     L.circleMarker([kec.lat, kec.lng], {
                         radius: 12,
@@ -685,6 +693,9 @@
             }
 
             marketRecommendations.forEach(function(rekomendasi) {
+                const lat = parseFloat(rekomendasi.latitude);
+                const lng = parseFloat(rekomendasi.longitude);
+                allPoints.push([lat, lng]);
                 const color = colorMap[rekomendasi.zona] || '#ef4444';
                 const popup = document.createElement('div');
                 const title = document.createElement('strong');
@@ -698,7 +709,7 @@
                 detail.textContent = rekomendasi.detail;
                 popup.append(title, alertTitle, location, detail);
 
-                L.circleMarker([rekomendasi.latitude, rekomendasi.longitude], {
+                L.circleMarker([lat, lng], {
                     radius: 9,
                     fillColor: color,
                     color: '#ffffff',
@@ -706,6 +717,62 @@
                     opacity: 1,
                     fillOpacity: 0.95
                 }).addTo(map).bindPopup(popup);
+            });
+
+            let userHasInteracted = false;
+            map.on('zoomstart dragstart', function() {
+                userHasInteracted = true;
+            });
+
+            // Sinkronkan view dan bounds peta agar mencakup seluruh Gorontalo Utara
+            function syncMapBounds() {
+                if (allPoints.length > 0) {
+                    map.fitBounds(allPoints, {
+                        padding: [25, 25],
+                        maxZoom: window.innerWidth < 640 ? 10 : 11
+                    });
+                }
+            }
+            syncMapBounds();
+
+            // Fungsi invalidateSize agar posisi tile tidak bergeser/abu-abu saat sidebar berubah
+            function invalidateGisMap(shouldFit = false) {
+                map.invalidateSize({ pan: false });
+                if (shouldFit && !userHasInteracted) {
+                    syncMapBounds();
+                }
+            }
+
+            // Panggilan berkala saat render awal dan transisi CSS
+            [100, 250, 400, 700].forEach(delay => {
+                setTimeout(() => invalidateGisMap(false), delay);
+            });
+
+            // ResizeObserver pada kontainer peta
+            if (window.ResizeObserver) {
+                let roTimer;
+                const ro = new ResizeObserver(() => {
+                    invalidateGisMap(false);
+                    clearTimeout(roTimer);
+                    roTimer = setTimeout(() => invalidateGisMap(!userHasInteracted), 150);
+                });
+                ro.observe(gisMapEl);
+            }
+
+            // Event listener saat window di-resize atau sidebar ditoggle
+            let resizeTimer;
+            window.addEventListener('resize', function () {
+                invalidateGisMap(false);
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    invalidateGisMap(!userHasInteracted);
+                }, 200);
+            });
+
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => {
+                    invalidateGisMap(true);
+                }, 300);
             });
         }
     });

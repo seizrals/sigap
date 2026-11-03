@@ -4,13 +4,13 @@
 @section('page-title', 'Early Warning System (EWS)')
 
 @section('content')
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 2xl:gap-8">
 
     {{-- Kolom Kiri: Alert Cards --}}
-    <div class="lg:col-span-2 space-y-6">
+    <div class="lg:col-span-7 2xl:col-span-8 space-y-5 sm:space-y-6">
 
         {{-- Card Header EWS --}}
-        <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm p-6">
+        <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm p-4 sm:p-6">
             <div class="flex items-start justify-between mb-5">
                 <div>
                     <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
@@ -105,7 +105,7 @@
 </div>
 
     {{-- Kolom Kanan: Widget --}}
-    <div class="space-y-6">
+    <div class="lg:col-span-5 2xl:col-span-4 space-y-5 sm:space-y-6">
 
         {{-- Widget Peta Kerawanan --}}
 
@@ -207,7 +207,7 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">Kategori *</label>
                     <select name="kategori" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-500 shadow-sm transition">

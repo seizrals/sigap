@@ -5,24 +5,24 @@
 
 @section('content')
 <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
-    <div class="bg-gradient-to-r from-blue-500 to-blue-700 p-6 text-white flex items-center gap-4">
-        <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+    <div class="bg-gradient-to-r from-blue-500 to-blue-700 p-4 sm:p-6 text-white flex items-center gap-3 sm:gap-4">
+        <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
         <div>
-            <h3 class="font-bold text-lg">Form Input Ketersediaan BBM</h3>
-            <p class="text-sm opacity-90">Pantau stok SPBU dan distribusi BBM untuk Nelayan & Pertanian.</p>
+            <h3 class="font-bold text-base sm:text-lg">Form Input Ketersediaan BBM</h3>
+            <p class="text-xs sm:text-sm opacity-90 mt-0.5">Pantau stok SPBU dan distribusi BBM untuk Nelayan & Pertanian.</p>
         </div>
     </div>
 
     @if(session('success'))
-        <div class="mx-6 mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium">
+        <div class="mx-4 sm:mx-6 mt-4 sm:mt-6 p-3.5 sm:p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium">
             {{ session('success') }}
         </div>
     @endif
 
     @if($errors->any())
-        <div class="mx-6 mt-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
+        <div class="mx-4 sm:mx-6 mt-4 sm:mt-6 p-3.5 sm:p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
             <ul class="list-disc list-inside space-y-1">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -31,7 +31,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('input.bbm.store') }}" class="bg-white p-6 rounded-2xl shadow-sm max-w-8xl mx-auto space-y-5 text-slate-700">
+    <form method="POST" action="{{ route('input.bbm.store') }}" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm max-w-8xl mx-auto space-y-4 sm:space-y-5 text-slate-700">
         @csrf
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
@@ -135,7 +135,7 @@
         </div>
 
         <div class="flex justify-end pt-2">
-            <button type="submit" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-600/20 flex items-center gap-2 transition">
+            <button type="submit" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-600/20 flex items-center justify-center gap-2 transition">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                 Kirim Laporan BBM
             </button>

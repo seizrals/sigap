@@ -1,17 +1,17 @@
-<aside id="app-sidebar" class="w-64 bg-sigap-primary text-slate-100 flex flex-col shrink-0 border-r border-slate-800 h-full overflow-hidden">
-    <div class="h-24 flex items-center justify-between px-5 border-b border-slate-800">
+<aside id="app-sidebar" class="w-64 sm:w-72 lg:w-64 bg-sigap-primary text-slate-100 flex flex-col shrink-0 border-r border-slate-800 h-full overflow-hidden select-none z-[9999] lg:z-auto">
+    <div class="h-16 sm:h-20 lg:h-24 flex items-center justify-between px-4 sm:px-5 border-b border-slate-800 shrink-0">
         <div class="flex items-center gap-3 min-w-0">
-            <div class="w-11 h-11 rounded-xl overflow-hidden shadow-lg shrink-0">
+            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl overflow-hidden shadow-lg shrink-0">
                 <img src="{{ asset('images/logo_gorut.png') }}" alt="Logo Gorontalo Utara" class="w-full h-full object-contain">
             </div>
             <div class="min-w-0">
-                <p class="font-bold tracking-tight truncate">SIAGA PANGAN</p>
-                <p class="text-[11px] text-slate-400 font-medium uppercase tracking-wider truncate">Gorontalo Utara</p>
+                <p class="font-bold tracking-tight truncate text-sm sm:text-base">SIAGA PANGAN</p>
+                <p class="text-[10px] sm:text-[11px] text-slate-400 font-medium uppercase tracking-wider truncate">Gorontalo Utara</p>
             </div>
         </div>
         <button id="sidebar-hide-btn" 
                 type="button" 
-                class="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition focus:outline-none focus:ring-2 focus:ring-blue-500/20 shrink-0" 
+                class="text-slate-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-800 transition focus:outline-none focus:ring-2 focus:ring-blue-500/20 shrink-0" 
                 title="Tutup Menu Navigasi"
                 aria-label="Tutup Menu Navigasi">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

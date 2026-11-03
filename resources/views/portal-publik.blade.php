@@ -27,28 +27,14 @@
                 </div>
             </div>
 
-            {{-- Kanan: Tombol Masuk Sistem + Foto Bupati & Wabup Berdampingan Mentok di Kanan --}}
-            <div class="flex items-center gap-1.5 xs:gap-2.5 sm:gap-4 shrink-0 h-full ml-auto">
-                <a href="{{ route('login') }}" class="inline-flex items-center gap-1 xs:gap-1.5 sm:gap-2 px-2 xs:px-2.5 sm:px-4 lg:px-5 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl bg-sigap-accent text-white text-[11px] xs:text-xs sm:text-sm font-bold sm:font-semibold hover:bg-blue-700 transition shadow-xs sm:shadow-md shadow-blue-500/20 shrink-0">
-                    <svg class="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            {{-- Kanan: Tombol Masuk Sistem Mentok di Kanan --}}
+            <div class="flex items-center shrink-0 ml-auto">
+                <a href="{{ route('login') }}" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-sigap-accent text-white text-xs sm:text-sm font-bold hover:bg-blue-700 transition shadow-sm sm:shadow-md shadow-blue-500/20 shrink-0">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
                     </svg>
                     <span class="whitespace-nowrap">Masuk Sistem</span>
                 </a>
-
-                {{-- Foto Pimpinan (Bupati & Wakil Bupati) Berdampingan Mentok di Kanan --}}
-                <div class="flex items-end gap-0.5 xs:gap-1 sm:gap-2 h-full shrink-0">
-                    <div class="h-full flex items-end shrink-0" title="Bupati Gorontalo Utara - Dr. H. Thariq Modanggu, M.Pd">
-                        <img src="{{ asset('images/bupati.png') }}" 
-                             alt="Foto Bupati Gorontalo Utara" 
-                             class="h-12 xs:h-14 sm:h-18 lg:h-24 w-auto max-h-full object-contain object-bottom drop-shadow-sm select-none pointer-events-none">
-                    </div>
-                    <div class="h-full flex items-end shrink-0" title="Wakil Bupati Gorontalo Utara - Dra. Hj. Nurjana H. Yusuf, M.Si">
-                        <img src="{{ asset('images/wabup.png') }}" 
-                             alt="Foto Wakil Bupati Gorontalo Utara" 
-                             class="h-12 xs:h-14 sm:h-18 lg:h-24 w-auto max-h-full object-contain object-bottom drop-shadow-sm select-none pointer-events-none">
-                    </div>
-                </div>
             </div>
         </div>
     </header>
@@ -79,26 +65,60 @@
                         </a>
                     </div>
                 </div>
-                <div class="hidden md:flex justify-center">
-                    <div class="relative w-full max-w-sm lg:max-w-md">
-                        <div class="absolute inset-0 bg-amber-400/20 blur-3xl rounded-full"></div>
-                        <div class="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 w-full">
-                            <div class="grid grid-cols-2 gap-3 sm:gap-4">
-                                <div class="bg-emerald-500/10 border border-emerald-400/20 rounded-2xl p-4 sm:p-5 text-center">
-                                    <div class="text-2xl sm:text-3xl font-black text-emerald-400">11</div>
-                                    <div class="text-[11px] sm:text-xs text-slate-300 mt-1">Kecamatan</div>
+                {{-- Foto Pimpinan Daerah (Bupati & Wakil Bupati) Tanpa Border dengan Gradien Fade Menyamarkan Potongan --}}
+                <div class="flex justify-center items-end mt-6 lg:mt-0">
+                    <div class="relative w-full max-w-md sm:max-w-lg lg:max-w-xl xl:max-w-2xl">
+                        {{-- Ambient Backlight Glow --}}
+                        <div class="absolute -inset-6 bg-gradient-to-tr from-amber-400/20 via-blue-500/20 to-emerald-400/15 blur-3xl rounded-full pointer-events-none"></div>
+                        <div class="absolute inset-x-8 bottom-4 h-44 bg-sigap-accent/35 blur-2xl rounded-full pointer-events-none"></div>
+
+                        {{-- Area Foto & Nameplate --}}
+                        <div class="relative w-full flex flex-col items-center">
+                            {{-- Wadah Foto Bupati & Wakil Bupati --}}
+                            <div class="relative w-full h-[380px] sm:h-[440px] lg:h-[480px] xl:h-[530px] flex items-end justify-center overflow-hidden">
+                                
+                                {{-- Figur Berdampingan dengan Mask Gradient Fade di Bawah --}}
+                                <div class="relative z-10 flex items-end justify-center w-full h-full px-2 gap-2 sm:gap-4"
+                                     style="-webkit-mask-image: linear-gradient(to bottom, black 65%, rgba(0,0,0,0.85) 80%, transparent 98%); mask-image: linear-gradient(to bottom, black 65%, rgba(0,0,0,0.85) 80%, transparent 98%);">
+                                    
+                                    {{-- Bupati (Kiri) --}}
+                                    <div class="relative flex-1 h-full flex items-end justify-center group/bupati transition-transform duration-300 hover:scale-[1.02]">
+                                        <img src="{{ asset('images/bupati.png') }}" 
+                                             alt="Foto Bupati Gorontalo Utara - Dr. H. Thariq Modanggu, M.Pd"
+                                             class="w-full h-full max-h-full object-contain object-bottom select-none pointer-events-none"
+                                             style="filter: drop-shadow(0 20px 24px rgba(0,0,0,0.75)) drop-shadow(0 6px 10px rgba(15,23,42,0.5));">
+                                    </div>
+
+                                    {{-- Wakil Bupati (Kanan) --}}
+                                    <div class="relative flex-1 h-full flex items-end justify-center group/wabup transition-transform duration-300 hover:scale-[1.02]">
+                                        <img src="{{ asset('images/wabup.png') }}" 
+                                             alt="Foto Wakil Bupati Gorontalo Utara - Dra. Hj. Nurjana H. Yusuf, M.Si"
+                                             class="w-full h-full max-h-full object-contain object-bottom select-none pointer-events-none"
+                                             style="filter: drop-shadow(0 20px 24px rgba(0,0,0,0.75)) drop-shadow(0 6px 10px rgba(15,23,42,0.5));">
+                                    </div>
                                 </div>
-                                <div class="bg-amber-500/10 border border-amber-400/20 rounded-2xl p-4 sm:p-5 text-center">
-                                    <div class="text-2xl sm:text-3xl font-black text-amber-400">60+</div>
-                                    <div class="text-[11px] sm:text-xs text-slate-300 mt-1">Komoditas</div>
-                                </div>
-                                <div class="bg-sky-500/10 border border-sky-400/20 rounded-2xl p-4 sm:p-5 text-center">
-                                    <div class="text-2xl sm:text-3xl font-black text-sky-400">EWS</div>
-                                    <div class="text-[11px] sm:text-xs text-slate-300 mt-1">Early Warning</div>
-                                </div>
-                                <div class="bg-rose-500/10 border border-rose-400/20 rounded-2xl p-4 sm:p-5 text-center">
-                                    <div class="text-2xl sm:text-3xl font-black text-rose-400">GIS</div>
-                                    <div class="text-[11px] sm:text-xs text-slate-300 mt-1">Peta Digital</div>
+
+                                {{-- Lapisan Kabut Gradien Halus Menyamarkan Ujung Bawah Foto --}}
+                                <div class="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-sigap-primary via-sigap-primary/60 to-transparent z-15 pointer-events-none"></div>
+
+                                {{-- Nameplate Badges Overlap di Ujung Bawah Figur (Berfungsi Seperti Podium) --}}
+                                <div class="absolute bottom-3 sm:bottom-4 inset-x-3 sm:inset-x-5 z-20 flex gap-2 sm:gap-3">
+                                    <div class="flex-1 px-2.5 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl bg-slate-950/80 backdrop-blur-md border border-white/15 text-center shadow-xl">
+                                        <p class="text-[11px] sm:text-xs lg:text-sm font-extrabold text-white leading-tight truncate" title="Dr. H. Thariq Modanggu, M.Pd">
+                                            Dr. H. Thariq Modanggu, M.Pd
+                                        </p>
+                                        <p class="text-[9px] sm:text-[10px] font-bold text-amber-300 uppercase tracking-wider mt-0.5">
+                                            Bupati Gorontalo Utara
+                                        </p>
+                                    </div>
+                                    <div class="flex-1 px-2.5 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl bg-slate-950/80 backdrop-blur-md border border-white/15 text-center shadow-xl">
+                                        <p class="text-[11px] sm:text-xs lg:text-sm font-extrabold text-white leading-tight truncate" title="Dra. Hj. Nurjana H. Yusuf, M.Si">
+                                            Dra. Hj. Nurjana H. Yusuf, M.Si
+                                        </p>
+                                        <p class="text-[9px] sm:text-[10px] font-bold text-amber-300 uppercase tracking-wider mt-0.5">
+                                            Wakil Bupati Gorontalo Utara
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

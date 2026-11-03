@@ -169,13 +169,11 @@
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Kategori</label>
                         <select name="kategori" id="k_kategori" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-blue-500 transition shadow-sm">
                             <option value="pangan">Pangan Strategis</option>
-                            <option value="lpg">LPG</option>
-                            <option value="bbm">BBM</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Satuan</label>
-                        <input type="text" name="satuan" id="k_satuan" required placeholder="Kg, Liter, Tabung" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-blue-500 transition shadow-sm">
+                        <input type="text" name="satuan" id="k_satuan" required placeholder="Kg, Liter, Butir, Ikat" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-blue-500 transition shadow-sm">
                     </div>
                 </div>
 
@@ -324,13 +322,14 @@
             methodDiv.innerHTML = '<input type="hidden" name="_method" value="PUT">';
             
             document.getElementById('k_nama').value = data.nama_komoditas;
-            document.getElementById('k_kategori').value = data.kategori;
+            document.getElementById('k_kategori').value = data.kategori || 'pangan';
             document.getElementById('k_satuan').value = data.satuan;
         } else {
             title.innerText = 'Tambah Komoditas';
             form.action = "{{ route('master-data.komoditas.store') }}";
             methodDiv.innerHTML = '';
             form.reset();
+            document.getElementById('k_kategori').value = 'pangan';
         }
 
         modal.classList.remove('hidden');

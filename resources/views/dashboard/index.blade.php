@@ -230,22 +230,7 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <div class="inline-flex items-center gap-1.5">
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Filter Bulan:</label>
-                                    <select id="chart_filter_bulan" onchange="syncAndApplyMingguanBulan(this.value)" class="bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg px-2.5 py-1 outline-none focus:border-emerald-500 shadow-xs cursor-pointer">
-                                        <option value="">Semua Bulan</option>
-                                        @foreach([
-                                            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-                                            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-                                            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
-                                        ] as $num => $nama)
-                                            <option value="{{ $num }}" @selected((string) ($filterDariBulanMingguan ?? '') === (string) $num)>{{ $nama }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <span class="text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100 hidden sm:inline-block">💡 Klik titik untuk rincian</span>
-                            </div>
+                            <span class="text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100">💡 Klik titik untuk rincian</span>
                         </div>
                         <div class="relative h-[260px] sm:h-[320px] lg:h-[360px] 2xl:h-[480px] w-full min-w-0" id="iphMingguanChartWrapper">
                             <canvas id="iphChartMingguan"></canvas>
@@ -344,6 +329,21 @@
 
             {{-- Tab Pangan --}}
             <div id="content-pangan" class="tab-content hidden">
+                {{-- Button Total Stok Pangan Daerah --}}
+                <div class="flex justify-end mb-4">
+                    <button type="button" onclick="openTotalStokModal()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold text-xs shadow-md shadow-blue-500/20 transition-all active:scale-[0.98] cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                        </svg>
+                        <span>Total Stok Pangan Daerah</span>
+                    </button>
+                </div>
+
+                {{-- Card Total Stok Pangan di Bawah Peta --}}
+                <div id="pangan-stok-cards-wrapper">
+                    @include('dashboard.partials.pangan-stok-cards')
+                </div>
+
                 <form id="pangan-filter-form" method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-3.5 sm:p-4 rounded-2xl mb-5 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-3 sm:gap-4 text-xs font-semibold text-slate-500">
                     <input type="hidden" name="tab" value="pangan">
                     <label class="flex flex-col gap-1.5 w-full sm:w-auto">
@@ -439,6 +439,8 @@
             </div>
         </div>
     </div>
+    {{-- Modal Total Stok Pangan Daerah --}}
+    @include('dashboard.partials.modal-total-stok')
 </div>
 @endsection
 
@@ -493,16 +495,56 @@
         if (el) el.classList.add('hidden');
     };
 
-    window.syncAndApplyMingguanBulan = function(val) {
-        const leftDariBulan = document.querySelector('#iph-mingguan-form [name="iph_mingguan_dari_bulan"]');
-        if (leftDariBulan) {
-            leftDariBulan.value = val;
-        }
-        const form = document.getElementById('iph-mingguan-form');
-        if (form) {
-            applyFilter(form);
+    window.openTotalStokModal = function(targetKomoditasId = null) {
+        const modal = document.getElementById('modalTotalStokDaerah');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+
+        if (targetKomoditasId) {
+            const accord = document.getElementById(`modal-rincian-${targetKomoditasId}`);
+            const icon = document.getElementById(`modal-icon-${targetKomoditasId}`);
+            if (accord) {
+                accord.classList.remove('hidden');
+                if (icon) icon.style.transform = 'rotate(180deg)';
+                setTimeout(() => {
+                    accord.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
         }
     };
+
+    window.closeTotalStokModal = function() {
+        const modal = document.getElementById('modalTotalStokDaerah');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    };
+
+    window.toggleModalRincian = function(komoditasId) {
+        const el = document.getElementById(`modal-rincian-${komoditasId}`);
+        const icon = document.getElementById(`modal-icon-${komoditasId}`);
+        if (!el) return;
+        const isHidden = el.classList.toggle('hidden');
+        if (icon) {
+            icon.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+    };
+
+    window.filterModalKomoditas = function(keyword) {
+        const q = (keyword || '').toLowerCase().trim();
+        const rows = document.querySelectorAll('.modal-komoditas-row');
+        rows.forEach(row => {
+            const name = (row.getAttribute('data-nama') || '').toLowerCase();
+            row.style.display = (!q || name.includes(q)) ? '' : 'none';
+        });
+    };
+
+    window.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeTotalStokModal();
+        }
+    });
 
     const statusColorMap = {
         tidak_ada: '#cbd5e1', // Slate 300
@@ -656,12 +698,6 @@
                     mingguanStatusEl.className = 'inline-block ' + (s === 'Tinggi' ? 'bg-rose-500/50 border-rose-400/30' : (s === 'Waspada' ? 'bg-amber-500/50 border-amber-400/30' : 'bg-emerald-500/50 border-emerald-400/30')) + ' backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border';
                 }
 
-                // Sync filter bulan select above chart if filtered from left form
-                const chartFilterBulan = document.getElementById('chart_filter_bulan');
-                const leftDariBulan = document.querySelector('#iph-mingguan-form [name="iph_mingguan_dari_bulan"]');
-                if (chartFilterBulan && leftDariBulan && chartFilterBulan !== document.activeElement) {
-                    chartFilterBulan.value = leftDariBulan.value;
-                }
                 const badgeContainer = document.getElementById('iph-mingguan-badge-wrapper');
                 if (badgeContainer) {
                     if (data.chartMingguan.labelDari) {
@@ -696,7 +732,11 @@
                 }
             }
 
-            // 4. Update Tables
+            // 4. Update Tables & Cards
+            const panganStokCardsWrapper = document.getElementById('pangan-stok-cards-wrapper');
+            if (panganStokCardsWrapper && data.htmlPanganStokCards) {
+                panganStokCardsWrapper.innerHTML = data.htmlPanganStokCards;
+            }
             const panganTableWrapper = document.getElementById('pangan-table-wrapper');
             if (panganTableWrapper && data.htmlPanganTable) {
                 panganTableWrapper.innerHTML = data.htmlPanganTable;

@@ -541,8 +541,8 @@ class IphSpreadsheetTest extends TestCase
         $resp->assertDontSee('iphBulananDetailSection');
         $resp->assertDontSee('Tabel Komoditas Andil Utama');
 
-        // Check month filter on chart header
-        $resp->assertSee('Filter Bulan:');
+        // Chart header filter bulan removed per user request
+        $resp->assertDontSee('id="chart_filter_bulan"', false);
     }
 
     public function test_iph_year_dropdowns_have_no_duplicates_and_dynamically_include_inputted_years(): void

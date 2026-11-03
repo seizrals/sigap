@@ -22,6 +22,9 @@ class MasterDataTest extends TestCase
         $response->assertOk();
         $response->assertSee('id="deleteModal"', false);
         $response->assertSee('Konfirmasi Hapus');
+        $response->assertSee('Pangan Strategis');
+        $response->assertDontSee('<option value="lpg">LPG</option>', false);
+        $response->assertDontSee('<option value="bbm">BBM</option>', false);
     }
 
     public function test_can_store_komoditas_without_kode_komoditas(): void

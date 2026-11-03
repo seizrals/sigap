@@ -134,7 +134,7 @@
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5">
             <div class="mb-4">
                 <h3 class="text-base font-bold text-slate-800">Tambah Pengguna</h3>
-                <p class="text-xs text-slate-500">Role admin dan pejabat OPD tidak perlu memilih wilayah. User wilayah wajib memilih kecamatan.</p>
+                <p class="text-xs text-slate-500">Role admin dan pejabat OPD/instansi tidak perlu memilih wilayah. User wilayah wajib memilih kecamatan.</p>
             </div>
 
             <form method="POST" action="{{ route('users.store') }}" class="space-y-4" data-user-form>

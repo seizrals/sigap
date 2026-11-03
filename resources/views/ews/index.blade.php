@@ -99,7 +99,7 @@
                                     </div>
 
                                     @if(!$alert->is_manual || ($alert->is_manual && !isset($alert->status) || $alert->status != 'selesai'))
-                                        <button type="button" x-data @click="$dispatch('open-resolve-modal', { id: @js($alert->id), title: @js($alert->judul_alert) })" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white text-[11px] font-black hover:bg-emerald-700 transition shadow-sm active:scale-95">
+                                        <button type="button" x-data @click="$dispatch('open-resolve-modal', { id: @js($alert->id), title: @js($alert->judul_alert) })" class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-[14px] bg-emerald-600 text-white text-[11px] font-black hover:bg-emerald-700 transition shadow-sm shadow-emerald-500/20 active:scale-95">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.746 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
                                             Selesai Ditindaklanjuti
                                         </button>
@@ -122,15 +122,15 @@
     </div>
 
     {{-- Kolom Kanan: Widget --}}
-    <div class="space-y-6">
+    <div class="lg:col-span-5 2xl:col-span-4 space-y-6">
         {{-- Widget Input Laporan Manual --}}
         <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
             <h3 class="text-sm font-bold text-slate-900 leading-snug mb-2">Input Laporan Manual Lapangan</h3>
             <p class="text-xs text-slate-500 leading-relaxed mb-5">
                 Gunakan formulir ini untuk melaporkan temuan anomali harga atau stok yang belum tertangkap otomatis oleh sistem.
             </p>
-            <button x-data @click="$dispatch('open-alert-modal')" class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-md shadow-red-500/20 active:scale-95">
-                <svg class="w-4 h-4 shrink-0 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button x-data @click="$dispatch('open-alert-modal')" class="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-bold transition-all shadow-lg shadow-red-500/25 active:scale-95">
+                <svg class="w-5 h-5 shrink-0 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Buat Peringatan Baru</span>

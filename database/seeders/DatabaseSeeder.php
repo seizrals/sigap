@@ -34,22 +34,22 @@ class DatabaseSeeder extends Seeder
         );
 
         $kecamatans = [
-            ['kode' => '7505010', 'nama' => 'Atinggola', 'lat' => 0.7450, 'lng' => 123.1200, 'zona' => 'merah'],
-            ['kode' => '7505020', 'nama' => 'Kwandang', 'lat' => 0.7210, 'lng' => 123.0510, 'zona' => 'merah'],
-            ['kode' => '7505030', 'nama' => 'Sumalata', 'lat' => 0.6800, 'lng' => 123.1800, 'zona' => 'kuning'],
-            ['kode' => '7505040', 'nama' => 'Gentuma Raya', 'lat' => 0.6500, 'lng' => 123.2200, 'zona' => 'kuning'],
-            ['kode' => '7505050', 'nama' => 'Anggrek', 'lat' => 0.6200, 'lng' => 123.1000, 'zona' => 'hijau'],
-            ['kode' => '7505060', 'nama' => 'Ponelo Kepulauan', 'lat' => 0.7000, 'lng' => 123.3000, 'zona' => 'merah'],
-            ['kode' => '7505070', 'nama' => 'Biau', 'lat' => 0.5800, 'lng' => 123.1500, 'zona' => 'hijau'],
-            ['kode' => '7505080', 'nama' => 'Tolinggula', 'lat' => 0.5500, 'lng' => 123.2000, 'zona' => 'hijau'],
-            ['kode' => '7505090', 'nama' => 'Monano', 'lat' => 0.8500, 'lng' => 122.8200, 'zona' => 'kuning'],
-            ['kode' => '7505100', 'nama' => 'Sumalata Timur', 'lat' => 0.9500, 'lng' => 122.5800, 'zona' => 'hijau'],
-            ['kode' => '7505110', 'nama' => 'Tomilito', 'lat' => 0.8800, 'lng' => 122.9500, 'zona' => 'hijau'],
+            ['kode' => '7505010', 'nama' => 'Atinggola', 'lat' => 0.8524, 'lng' => 123.1706, 'zona' => 'merah'],
+            ['kode' => '7505020', 'nama' => 'Kwandang', 'lat' => 0.8351, 'lng' => 122.9197, 'zona' => 'merah'],
+            ['kode' => '7505030', 'nama' => 'Sumalata', 'lat' => 0.9575, 'lng' => 122.5033, 'zona' => 'kuning'],
+            ['kode' => '7505040', 'nama' => 'Gentuma Raya', 'lat' => 0.8791, 'lng' => 123.0805, 'zona' => 'kuning'],
+            ['kode' => '7505050', 'nama' => 'Anggrek', 'lat' => 0.8252, 'lng' => 122.8161, 'zona' => 'hijau'],
+            ['kode' => '7505060', 'nama' => 'Ponelo Kepulauan', 'lat' => 0.8950, 'lng' => 122.9500, 'zona' => 'merah'],
+            ['kode' => '7505070', 'nama' => 'Biau', 'lat' => 0.9250, 'lng' => 122.6500, 'zona' => 'hijau'],
+            ['kode' => '7505080', 'nama' => 'Tolinggula', 'lat' => 0.9650, 'lng' => 122.3500, 'zona' => 'hijau'],
+            ['kode' => '7505090', 'nama' => 'Monano', 'lat' => 0.8350, 'lng' => 122.7500, 'zona' => 'kuning'],
+            ['kode' => '7505100', 'nama' => 'Sumalata Timur', 'lat' => 0.9600, 'lng' => 122.5500, 'zona' => 'hijau'],
+            ['kode' => '7505110', 'nama' => 'Tomilito', 'lat' => 0.8650, 'lng' => 122.9800, 'zona' => 'hijau'],
         ];
 
         $kecamatanIds = [];
         foreach ($kecamatans as $kec) {
-            $kecamatan = Kecamatan::firstOrCreate(
+            $kecamatan = Kecamatan::updateOrCreate(
                 ['kode_kecamatan' => $kec['kode']],
                 [
                     'nama_kecamatan' => $kec['nama'],
@@ -182,8 +182,8 @@ class DatabaseSeeder extends Seeder
                 'desa_id' => $desaIds['Molingkapoto'],
                 'tipe_lokasi' => 'Pasar Tradisional',
                 'alamat' => 'Jl. Pasar Kwandang',
-                'latitude' => 0.7210,
-                'longitude' => 123.0510,
+                'latitude' => 0.8351,
+                'longitude' => 122.9197,
                 'is_active' => true,
             ]
         );
@@ -197,8 +197,8 @@ class DatabaseSeeder extends Seeder
                 'nama_pemilik' => 'H. Ahmad',
                 'no_hp' => '081234567890',
                 'alamat' => 'Desa Molingkapoto, Kwandang',
-                'latitude' => 0.7210,
-                'longitude' => 123.0510,
+                'latitude' => 0.8351,
+                'longitude' => 122.9197,
                 'status_izin' => 'aktif',
                 'kapasitas_stok_maks' => 1000,
                 'is_active' => true,
@@ -214,8 +214,8 @@ class DatabaseSeeder extends Seeder
                 'nama_pemilik' => 'B. Jaya',
                 'no_hp' => '081234567891',
                 'alamat' => 'Desa Kota Jin, Atinggola',
-                'latitude' => 0.7450,
-                'longitude' => 123.1200,
+                'latitude' => 0.8524,
+                'longitude' => 123.1706,
                 'status_izin' => 'aktif',
                 'kapasitas_stok_maks' => 800,
                 'is_active' => true,

@@ -43,8 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('ews')->name('ews.')->group(function () {
         Route::get('/', [EwsController::class, 'index'])->name('index');
         Route::post('/store', [EwsController::class, 'store'])->name('store');
-        Route::post('/{alert}/rekomendasi', [EwsController::class, 'storeRekomendasi'])->name('rekomendasi.store');
-        Route::get('/monitor-kabupaten', [EwsController::class, 'monitorKabupaten'])->name('monitor-kabupaten');
+        Route::post('/{id}/resolve', [EwsController::class, 'resolve'])->name('resolve');
     });
 
     Route::resource('saran-publik', SaranPublikController::class)->names('saran-publik')->except(['store']);

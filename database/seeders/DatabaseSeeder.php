@@ -101,8 +101,9 @@ class DatabaseSeeder extends Seeder
         $komoditasIds = [];
         foreach ($komoditasData as $k) {
             $kom = Komoditas::firstOrCreate(
-                ['nama_komoditas' => $k[1]],
+                ['kode_komoditas' => $k[0]],
                 [
+                    'nama_komoditas' => $k[1],
                     'kategori' => $k[2],
                     'satuan' => $k[3],
                     'harga_het' => $k[4],
@@ -172,6 +173,7 @@ class DatabaseSeeder extends Seeder
         };
 
         $spbu1 = $upsertSpbu('SPBU 74.962.01 Pontolo Kwandang', [
+            'kode_spbu' => 'SPBU-001',
             'kecamatan_id' => $kecamatanIds['Kwandang'],
             'desa_id' => $desaIds['Pontolo'] ?? ($desaIds['Titidu'] ?? null),
             'tipe_spbu' => 'SPBU Umum',
@@ -181,6 +183,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $spbu2 = $upsertSpbu('SPBU 74.962.02 Ilangata Anggrek', [
+            'kode_spbu' => 'SPBU-002',
             'kecamatan_id' => $kecamatanIds['Anggrek'],
             'desa_id' => $desaIds['Ilangata'] ?? null,
             'tipe_spbu' => 'SPBU Umum',
@@ -190,6 +193,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $spbu3 = $upsertSpbu('SPBU 74.962.04 Kota Jin Atinggola', [
+            'kode_spbu' => 'SPBU-003',
             'kecamatan_id' => $kecamatanIds['Atinggola'],
             'desa_id' => $desaIds['Kota Jin'] ?? null,
             'tipe_spbu' => 'SPBU Umum',
@@ -199,6 +203,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $spbu4 = $upsertSpbu('SPBU 76.965.01 Tolite Jaya Tolinggula', [
+            'kode_spbu' => 'SPBU-004',
             'kecamatan_id' => $kecamatanIds['Tolinggula'],
             'desa_id' => $desaIds['Tolite Jaya'] ?? null,
             'tipe_spbu' => 'SPBU Kompak',
@@ -209,12 +214,13 @@ class DatabaseSeeder extends Seeder
 
         $tanggal = now()->toDateString();
 
-        DataPangan::create([
+        DataPangan::firstOrCreate([
             'tanggal_input' => $tanggal,
             'kecamatan_id' => $kecamatanIds['Kwandang'],
+            'komoditas_id' => $komoditasIds['Cabai Rawit'],
+        ], [
             'desa_id' => $desaIds['Molingkapoto'],
             'pasar_lokasi_id' => $pasar->id,
-            'komoditas_id' => $komoditasIds['Cabai Rawit'],
             'user_id' => $admin->id,
             'harga_hari_ini' => 85000,
             'harga_hari_sebelumnya' => 75000,
@@ -223,17 +229,18 @@ class DatabaseSeeder extends Seeder
             'stok_tersedia' => 50,
             'satuan_stok' => 'Kg',
             'status_harga' => 'harga_tinggi',
-            'status_ketersediaan' => 'kurang',
+            'status_ketersediaan' => 'waspada',
             'status_verifikasi' => 'disetujui',
             'keterangan_lapangan' => 'Pasokan menurun akibat cuaca buruk',
         ]);
 
-        DataPangan::create([
+        DataPangan::firstOrCreate([
             'tanggal_input' => $tanggal,
             'kecamatan_id' => $kecamatanIds['Kwandang'],
+            'komoditas_id' => $komoditasIds['Beras Premium'],
+        ], [
             'desa_id' => $desaIds['Molingkapoto'],
             'pasar_lokasi_id' => $pasar->id,
-            'komoditas_id' => $komoditasIds['Beras Premium'],
             'user_id' => $admin->id,
             'harga_hari_ini' => 15000,
             'harga_hari_sebelumnya' => 15000,
@@ -246,13 +253,14 @@ class DatabaseSeeder extends Seeder
             'status_verifikasi' => 'disetujui',
         ]);
 
-        DataLpg::create([
+        DataLpg::firstOrCreate([
             'tanggal_input' => $tanggal,
             'kecamatan_id' => $kecamatanIds['Kwandang'],
-            'desa_id' => $desaIds['Molingkapoto'],
             'pangkalan_lpg_id' => $pangkalan1->id,
-            'user_id' => $admin->id,
             'jenis_lpg' => 'LPG 3 Kg (Subsidi)',
+        ], [
+            'desa_id' => $desaIds['Molingkapoto'],
+            'user_id' => $admin->id,
             'stok_tersedia_tabung' => 850,
             'distribusi_masuk_tabung' => 1200,
             'distribusi_keluar_tabung' => 400,
@@ -266,13 +274,14 @@ class DatabaseSeeder extends Seeder
             'status_verifikasi' => 'disetujui',
         ]);
 
-        DataLpg::create([
+        DataLpg::firstOrCreate([
             'tanggal_input' => $tanggal,
             'kecamatan_id' => $kecamatanIds['Atinggola'],
-            'desa_id' => $desaIds['Kota Jin'],
             'pangkalan_lpg_id' => $pangkalan2->id,
-            'user_id' => $admin->id,
             'jenis_lpg' => 'LPG 3 Kg (Subsidi)',
+        ], [
+            'desa_id' => $desaIds['Kota Jin'],
+            'user_id' => $admin->id,
             'stok_tersedia_tabung' => 2,
             'distribusi_masuk_tabung' => 0,
             'distribusi_keluar_tabung' => 398,
@@ -282,7 +291,7 @@ class DatabaseSeeder extends Seeder
             'selisih_harga_eceran_het' => 6500,
             'persentase_kenaikan_harga' => 35.14,
             'status_harga' => 'melampaui_het_tinggi',
-            'status_ketersediaan' => 'menipis',
+            'status_ketersediaan' => 'waspada',
             'status_distribusi' => 'panic_buying',
             'status_verifikasi' => 'disetujui',
             'keterangan_kendala' => 'Stok menipis, harga eceran melonjak',
@@ -357,7 +366,7 @@ class DatabaseSeeder extends Seeder
             'distribusi_nelayan' => true,
             'distribusi_pertanian' => true,
             'status_antrean' => 'panjang',
-            'status_ketersediaan' => 'menipis',
+            'status_ketersediaan' => 'waspada',
             'harga_jual_per_liter' => 6800,
             'status_verifikasi' => 'disetujui',
             'keterangan_kendala' => 'Stok menipis, antrean panjang',
@@ -479,7 +488,7 @@ class DatabaseSeeder extends Seeder
             [
                 'sumber_deteksi' => 'otomatis_sistem',
                 'kategori' => 'pangan',
-                'tingkat_risiko' => 'kritis',
+                'status_ketersediaan' => 'kritis',
                 'status' => 'terbuka',
                 'kecamatan_id' => $kecamatanIds['Kwandang'],
                 'komoditas_id' => $komoditasIds['Cabai Rawit'],
@@ -497,7 +506,7 @@ class DatabaseSeeder extends Seeder
             [
                 'sumber_deteksi' => 'otomatis_sistem',
                 'kategori' => 'lpg',
-                'tingkat_risiko' => 'tinggi',
+                'status_ketersediaan' => 'waspada',
                 'status' => 'terbuka',
                 'kecamatan_id' => $kecamatanIds['Ponelo Kepulauan'],
                 'judul_alert' => 'Indikasi Penumpukan Pembelian LPG 3Kg',

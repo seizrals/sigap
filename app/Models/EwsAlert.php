@@ -18,7 +18,7 @@ class EwsAlert extends Model
         'kode_alert',
         'sumber_deteksi',
         'kategori',
-        'tingkat_risiko',
+        'status_ketersediaan',
         'status',
         'kecamatan_id',
         'desa_id',

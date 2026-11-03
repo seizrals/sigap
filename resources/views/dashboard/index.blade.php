@@ -331,7 +331,7 @@
                                     {{ $d['perubahan_persen'] === null ? '-' : (($d['perubahan_persen'] > 0 ? '+' : '').number_format((float) $d['perubahan_persen'], 1, ',', '.').'%') }}
                                 </td>
                                 <td class="py-4 pl-4 text-right">
-                                    <span class="inline-block text-[11px] font-bold px-3 py-1 rounded-full uppercase {{ $d['status_ketersediaan'] === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($d['status_ketersediaan'] === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-600') }}">{{ $d['status_ketersediaan'] ? ($d['status_ketersediaan'] === 'kosong' ? 'Kritis' : $d['status_ketersediaan']) : '-' }}</span>
+                                    <span class="inline-block text-[11px] font-bold px-3 py-1 rounded-full uppercase {{ $d['status_ketersediaan'] === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($d['status_ketersediaan'] === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-600') }}">{{ $d['status_ketersediaan'] ? ucfirst($d['status_ketersediaan']) : '-' }}</span>
                                 </td>
                             </tr>
                             @empty
@@ -664,18 +664,12 @@
                 tidak_ada: '#cbd5e1', // Slate 300
                 aman: '#10b981',
                 waspada: '#f59e0b',
-                kurang: '#f59e0b',
-                menipis: '#f59e0b',
-                kosong: '#ef4444',
                 kritis: '#ef4444'
             };
             const statusLabelMap = {
                 tidak_ada: 'Belum Ada Data',
                 aman: 'Aman',
                 waspada: 'Waspada',
-                kurang: 'Kurang',
-                menipis: 'Menipis',
-                kosong: 'Kosong',
                 kritis: 'Kritis'
             };
 

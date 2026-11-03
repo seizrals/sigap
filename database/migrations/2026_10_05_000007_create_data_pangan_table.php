@@ -29,7 +29,7 @@ return new class extends Migration
             $table->decimal('stok_keluar_hari_ini', 12, 2)->nullable();
 
             $table->enum('status_harga', ['stabil', 'naik_wajar', 'naik_tinggi', 'turun', 'harga_tinggi'])->default('stabil');
-            $table->enum('status_ketersediaan', ['aman', 'waspada', 'kurang', 'kosong'])->default('aman');
+            $table->enum('status_ketersediaan', ['aman', 'waspada', 'kritis'])->default('aman');
             $table->enum('status_verifikasi', ['draft', 'pending', 'disetujui', 'ditolak'])->default('draft');
 
             $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();

@@ -44,8 +44,7 @@ class DashboardController extends Controller
             ->orderBy('nama_komoditas')
             ->get();
 
-        $komoditasDefisit = DataPangan::where('status_ketersediaan', 'kurang')
-            ->orWhere('status_ketersediaan', 'kosong')
+        $komoditasDefisit = DataPangan::whereIn('status_ketersediaan', ['waspada', 'kritis'])
             ->distinct('komoditas_id')
             ->count('komoditas_id');
 
@@ -496,8 +495,7 @@ class DashboardController extends Controller
             'tidak_ada' => 0,
             'aman' => 1,
             'waspada' => 2,
-            'kurang', 'menipis' => 3,
-            'kosong', 'kritis' => 4,
+            'kritis' => 4,
             default => 0,
         };
     }
@@ -507,9 +505,6 @@ class DashboardController extends Controller
         return match (strtolower((string) $status)) {
             'aman' => 'Aman',
             'waspada' => 'Waspada',
-            'kurang' => 'Kurang',
-            'menipis' => 'Menipis',
-            'kosong' => 'Kosong',
             'kritis' => 'Kritis',
             'tidak_ada' => 'Tidak Ada',
             '' => '-',

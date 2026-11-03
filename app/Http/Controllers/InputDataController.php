@@ -132,7 +132,7 @@ class InputDataController extends Controller
             'entries.*.stok_tersedia' => ['nullable', 'numeric', 'min:0'],
             'entries.*.satuan_stok' => ['nullable', 'string', 'max:30'],
             'entries.*.sumber_distribusi_masuk' => ['nullable', 'string', 'max:255'],
-            'entries.*.status_ketersediaan' => ['required', 'in:aman,waspada,kurang,kosong'],
+            'entries.*.status_ketersediaan' => ['required', 'in:aman,waspada,kritis'],
         ]);
 
         return $validated['entries'];
@@ -183,7 +183,7 @@ class InputDataController extends Controller
             'harga_pangkalan' => 'nullable|numeric',
             'harga_het_pemerintah' => 'nullable|numeric',
             'harga_eceran_lapangan' => 'nullable|numeric',
-            'status_ketersediaan' => 'required|in:aman,waspada,menipis,kosong',
+            'status_ketersediaan' => 'required|in:aman,waspada,kritis',
             'status_distribusi' => 'required|in:lancar,terhambat,macet,panic_buying',
         ]);
 
@@ -259,7 +259,7 @@ class InputDataController extends Controller
             'realisasi_pertanian_kl' => 'nullable|numeric',
             'status_antrean' => 'required|in:tidak_ada,pendek,panjang,sangat_panjang',
             'estimasi_waktu_tunggu_menit' => 'nullable|integer',
-            'status_ketersediaan' => 'required|in:aman,waspada,menipis,kosong',
+            'status_ketersediaan' => 'required|in:aman,waspada,kritis',
             'harga_jual_per_liter' => 'nullable|numeric',
         ]);
 

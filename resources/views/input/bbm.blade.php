@@ -85,8 +85,7 @@
                 <select name="status_ketersediaan" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-600 shadow-sm transition">
                     <option value="aman" {{ old('status_ketersediaan', 'aman') == 'aman' ? 'selected' : '' }}>Aman</option>
                     <option value="waspada" {{ old('status_ketersediaan') == 'waspada' ? 'selected' : '' }}>Waspada</option>
-                    <option value="menipis" {{ old('status_ketersediaan') == 'menipis' ? 'selected' : '' }}>Menipis</option>
-                    <option value="kosong" {{ old('status_ketersediaan') == 'kosong' ? 'selected' : '' }}>Kritis</option>
+                    <option value="kritis" {{ old('status_ketersediaan') == 'kritis' ? 'selected' : '' }}>Kritis</option>
                 </select>
             </div>
         </div>

@@ -52,7 +52,7 @@ class DashboardControllerTest extends TestCase
             'user_id' => $user->id,
             'harga_hari_ini' => 84000,
             'stok_tersedia' => 15,
-            'status_ketersediaan' => 'kurang',
+            'status_ketersediaan' => 'waspada',
             'status_verifikasi' => 'disetujui',
         ]);
 
@@ -80,7 +80,7 @@ class DashboardControllerTest extends TestCase
             return $mapPoints->contains(function (array $point) use ($komoditasTerpilih): bool {
                 return $point['latitude'] === 0.72
                     && $point['longitude'] === 123.05
-                    && $point['status_ketersediaan'] === 'kurang'
+                    && $point['status_ketersediaan'] === 'waspada'
                     && $point['kategori'] === 'Pangan Strategis'
                     && $point['detail_items'][0]['judul'] === $komoditasTerpilih->nama_komoditas;
             });
@@ -109,7 +109,7 @@ class DashboardControllerTest extends TestCase
             'distribusi_masuk_tabung' => 100,
             'distribusi_keluar_tabung' => 92,
             'harga_eceran_lapangan' => 22000,
-            'status_ketersediaan' => 'menipis',
+            'status_ketersediaan' => 'waspada',
             'status_distribusi' => 'terhambat',
             'status_verifikasi' => 'disetujui',
         ]);
@@ -129,7 +129,7 @@ class DashboardControllerTest extends TestCase
             'jenis_bbm' => 'Pertalite (JBKP)',
             'stok_tersedia_kl' => 2.5,
             'status_antrean' => 'panjang',
-            'status_ketersediaan' => 'kosong',
+            'status_ketersediaan' => 'kritis',
             'harga_jual_per_liter' => 10000,
             'status_verifikasi' => 'disetujui',
         ]);
@@ -141,7 +141,7 @@ class DashboardControllerTest extends TestCase
         $lpgResponse->assertViewHas('mapPoints', function ($mapPoints): bool {
             return $mapPoints->contains(fn (array $point): bool => $point['kecamatan'] === 'Atinggola'
                 && $point['kategori'] === 'LPG 3 KG'
-                && $point['status_ketersediaan'] === 'menipis'
+                && $point['status_ketersediaan'] === 'waspada'
                 && $point['detail_items'][0]['judul'] === 'LPG 3 Kg (Subsidi)'
             );
         });
@@ -153,7 +153,7 @@ class DashboardControllerTest extends TestCase
         $bbmResponse->assertViewHas('mapPoints', function ($mapPoints): bool {
             return $mapPoints->contains(fn (array $point): bool => $point['kecamatan'] === 'Atinggola'
                 && $point['kategori'] === 'BBM Subsidi'
-                && $point['status_ketersediaan'] === 'kosong'
+                && $point['status_ketersediaan'] === 'kritis'
                 && str_contains($point['detail_items'][0]['judul'], 'Pertalite (JBKP)')
             );
         });

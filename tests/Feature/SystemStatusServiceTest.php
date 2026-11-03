@@ -57,7 +57,7 @@ class SystemStatusServiceTest extends TestCase
         $statuses = SystemStatusService::getHeaderStatuses();
         $this->assertEquals('WASPADA', $statuses['pangan']['status']);
 
-        // Input data bahaya (kosong)
+        // Input data bahaya (kritis)
         DataPangan::create([
             'tanggal_input' => '2026-10-30',
             'kecamatan_id' => $kecamatan->id,
@@ -67,7 +67,7 @@ class SystemStatusServiceTest extends TestCase
             'harga_hari_sebelumnya' => 60000,
             'perubahan_harga_persen' => 100,
             'status_harga' => 'harga_tinggi',
-            'status_ketersediaan' => 'kosong',
+            'status_ketersediaan' => 'kritis',
             'status_verifikasi' => 'disetujui',
         ]);
 
@@ -97,7 +97,7 @@ class SystemStatusServiceTest extends TestCase
             'pangkalan_lpg_id' => $pangkalan->id,
             'user_id' => $user->id,
             'jenis_lpg' => 'LPG 3 Kg (Subsidi)',
-            'status_ketersediaan' => 'menipis',
+            'status_ketersediaan' => 'waspada',
             'status_harga' => 'melampaui_het_ringan',
             'status_distribusi' => 'terhambat',
         ]);
@@ -122,7 +122,7 @@ class SystemStatusServiceTest extends TestCase
             'spbu_id' => $spbu->id,
             'user_id' => $user->id,
             'jenis_bbm' => 'Pertalite (JBKP)',
-            'status_ketersediaan' => 'kosong',
+            'status_ketersediaan' => 'kritis',
             'status_antrean' => 'sangat_panjang',
         ]);
 

@@ -417,4 +417,188 @@ class IphSpreadsheetTest extends TestCase
         $respBulanan->assertDontSee('Google Sheets');
         $respBulanan->assertDontSee('docs.google.com/spreadsheets');
     }
+
+    public function test_iph_tables_and_exports_do_not_contain_status_column(): void
+    {
+        $user = User::factory()->create(['username' => 'admin_test_nostatus', 'role' => 'admin_kabupaten']);
+
+        IphMingguan::create([
+            'tahun' => 2026,
+            'bulan' => 5,
+            'minggu_ke' => 'I',
+            'periode_label' => 'Minggu I Mei 2026',
+            'tanggal_awal_periode' => '2026-05-01',
+            'tanggal_akhir_periode' => '2026-05-07',
+            'tanggal_publikasi' => '2026-05-10',
+            'iph_kabupaten' => 2.50,
+            'ranking' => 10,
+            'komoditas_andil' => 'Cabai Rawit (0.3)',
+            'status_kategori' => 'waspada',
+            'user_id' => $user->id,
+        ]);
+
+        IphBulanan::create([
+            'tahun' => 2026,
+            'bulan' => 5,
+            'nama_bulan' => 'Mei',
+            'iph_bulanan' => 1.80,
+            'ranking' => 12,
+            'komoditas_andil' => 'Beras (0.2)',
+            'status_kategori' => 'terkendali',
+            'user_id' => $user->id,
+        ]);
+
+        // Input Mingguan Page
+        $respMingguan = $this->actingAs($user)->get(route('input.iph.index'));
+        $respMingguan->assertOk();
+        $respMingguan->assertDontSee('>STATUS<', false);
+        $respMingguan->assertSee('Komoditas Andil Utama');
+
+        // Input Bulanan Page
+        $respBulanan = $this->actingAs($user)->get(route('input.iph_bulanan'));
+        $respBulanan->assertOk();
+        $respBulanan->assertDontSee('>STATUS<', false);
+        $respBulanan->assertSee('Komoditas Andil Utama');
+
+        // Excel Mingguan Export
+        $exportMingguan = $this->actingAs($user)->get(route('input.iph.export-excel'));
+        $exportMingguan->assertOk();
+
+        // Excel Bulanan Export
+        $exportBulanan = $this->actingAs($user)->get(route('input.iph_bulanan.export-excel'));
+        $exportBulanan->assertOk();
+    }
+
+    public function test_iph_mingguan_month_range_filter_and_chart_komoditas_details(): void
+    {
+        $user = User::factory()->create(['username' => 'admin_test_range', 'role' => 'admin_kabupaten']);
+
+        IphMingguan::create([
+            'tahun' => 2026,
+            'bulan' => 1,
+            'minggu_ke' => 'I',
+            'periode_label' => 'Minggu I Januari 2026',
+            'tanggal_awal_periode' => '2026-01-01',
+            'tanggal_akhir_periode' => '2026-01-07',
+            'tanggal_publikasi' => '2026-01-10',
+            'iph_kabupaten' => 1.10,
+            'ranking' => 20,
+            'komoditas_andil' => 'Beras (0.15)',
+            'user_id' => $user->id,
+        ]);
+
+        IphMingguan::create([
+            'tahun' => 2026,
+            'bulan' => 3,
+            'minggu_ke' => 'II',
+            'periode_label' => 'Minggu II Maret 2026',
+            'tanggal_awal_periode' => '2026-03-08',
+            'tanggal_akhir_periode' => '2026-03-14',
+            'tanggal_publikasi' => '2026-03-17',
+            'iph_kabupaten' => 2.20,
+            'ranking' => 15,
+            'komoditas_andil' => 'Cabai Rawit (0.35), Bawang Merah (0.20)',
+            'user_id' => $user->id,
+        ]);
+
+        IphMingguan::create([
+            'tahun' => 2026,
+            'bulan' => 6,
+            'minggu_ke' => 'III',
+            'periode_label' => 'Minggu III Juni 2026',
+            'tanggal_awal_periode' => '2026-06-15',
+            'tanggal_akhir_periode' => '2026-06-21',
+            'tanggal_publikasi' => '2026-06-24',
+            'iph_kabupaten' => 3.30,
+            'ranking' => 5,
+            'komoditas_andil' => 'Minyak Goreng (0.45)',
+            'user_id' => $user->id,
+        ]);
+
+        // Filter range: Bulan 2 (Feb) sampai Bulan 4 (Apr)
+        $resp = $this->actingAs($user)->get(route('dashboard', [
+            'tab' => 'iph-mingguan',
+            'iph_mingguan_tahun' => '2026',
+            'iph_mingguan_dari_bulan' => '2',
+            'iph_mingguan_sampai_bulan' => '4',
+        ]));
+
+        $resp->assertOk();
+        $resp->assertViewHas('chartMingguanLabels', fn ($labels) => $labels === ['M-II Mar']);
+        $resp->assertViewHas('chartMingguanValues', fn ($vals) => $vals === [2.20]);
+        $resp->assertViewHas('chartMingguanDetails', function ($details) {
+            return count($details) === 1
+                && $details[0]['ranking'] === 15
+                && count($details[0]['komoditas_list']) === 2
+                && $details[0]['komoditas_list'][0]['nama'] === 'Cabai Rawit'
+                && $details[0]['komoditas_list'][0]['raw_val'] === 0.35;
+        });
+
+        // Check HTML renders popup overlay and that separate bottom tables are removed
+        $resp->assertSee('iphMingguanPopup');
+        $resp->assertSee('iphBulananPopup');
+        $resp->assertDontSee('iphMingguanDetailSection');
+        $resp->assertDontSee('iphBulananDetailSection');
+        $resp->assertDontSee('Tabel Komoditas Andil Utama');
+
+        // Check month filter on chart header
+        $resp->assertSee('Filter Bulan:');
+    }
+
+    public function test_iph_year_dropdowns_have_no_duplicates_and_dynamically_include_inputted_years(): void
+    {
+        $user = User::factory()->create(['username' => 'admin_test_year_unique', 'role' => 'admin_kabupaten']);
+
+        // Insert multiple records for 2026
+        IphMingguan::create([
+            'tahun' => 2026,
+            'bulan' => 1,
+            'minggu_ke' => 'I',
+            'periode_label' => 'Minggu I Januari 2026',
+            'tanggal_awal_periode' => '2026-01-01',
+            'tanggal_akhir_periode' => '2026-01-07',
+            'tanggal_publikasi' => '2026-01-10',
+            'iph_kabupaten' => 1.5,
+            'user_id' => $user->id,
+        ]);
+        IphMingguan::create([
+            'tahun' => 2026,
+            'bulan' => 2,
+            'minggu_ke' => 'II',
+            'periode_label' => 'Minggu II Februari 2026',
+            'tanggal_awal_periode' => '2026-02-08',
+            'tanggal_akhir_periode' => '2026-02-14',
+            'tanggal_publikasi' => '2026-02-17',
+            'iph_kabupaten' => 1.7,
+            'user_id' => $user->id,
+        ]);
+
+        // Insert year 2027
+        IphMingguan::create([
+            'tahun' => 2027,
+            'bulan' => 1,
+            'minggu_ke' => 'I',
+            'periode_label' => 'Minggu I Januari 2027',
+            'tanggal_awal_periode' => '2027-01-01',
+            'tanggal_akhir_periode' => '2027-01-07',
+            'tanggal_publikasi' => '2027-01-10',
+            'iph_kabupaten' => 2.0,
+            'user_id' => $user->id,
+        ]);
+
+        // Check Dashboard
+        $dashboardResp = $this->actingAs($user)->get(route('dashboard', ['tab' => 'iph-mingguan']));
+        $dashboardResp->assertOk();
+        $dashboardResp->assertViewHas('daftarTahunMingguan', function ($years) {
+            // Must have 2027 and 2026, and exactly 2 elements (no duplicate 2026)
+            return $years === [2027, 2026];
+        });
+
+        // Check Input Spreadsheet Mingguan
+        $inputResp = $this->actingAs($user)->get(route('input.iph.index'));
+        $inputResp->assertOk();
+        $inputResp->assertViewHas('daftarTahun', function ($years) {
+            return $years === [2027, 2026];
+        });
+    }
 }

@@ -9,9 +9,9 @@
     {{-- Quick Status Cards --}}
     
     {{-- GIS Map Section + Rekomendasi Strategis --}}
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 2xl:gap-8">
-        <div class="lg:col-span-8 2xl:col-span-8 bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden flex flex-col relative z-0 isolate">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-slate-100 gap-3">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 2xl:gap-8 items-stretch">
+        <div class="lg:col-span-8 2xl:col-span-8 bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden flex flex-col relative z-0 isolate h-full">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-slate-100 gap-3 shrink-0">
                 <div>
                     <h3 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
                         <svg class="w-5 h-5 text-blue-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>
@@ -26,7 +26,9 @@
                     <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-500"></span><span class="font-semibold text-slate-600">Bahaya</span></div>
                 </div>
             </div>
-            <div id="gisMap" class="h-[220px] sm:h-[280px] lg:h-[350px] 2xl:h-[480px] w-full relative z-0 isolate"></div>
+            <div class="p-4 sm:p-5 flex-1 flex flex-col min-h-0">
+                <div id="gisMap" class="w-full h-full min-h-[460px] sm:min-h-[500px] lg:min-h-[560px] rounded-2xl border border-slate-200/80 shadow-xs relative z-0 isolate overflow-hidden"></div>
+            </div>
         </div>
 
         <div class="lg:col-span-4 2xl:col-span-4 bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
@@ -48,7 +50,7 @@
                     @endif
                     <div>
                         <label for="map_filter_type" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Data Peta</label>
-                        <select id="map_filter_type" name="map_filter_type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500 shadow-sm">
+                        <select id="map_filter_type" name="map_filter_type" onchange="applyFilter(this.form)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500 shadow-sm cursor-pointer">
                             <option value="pangan" @selected($mapFilterType === 'pangan')>Pangan Strategis</option>
                             <option value="lpg" @selected($mapFilterType === 'lpg')>LPG 3 KG</option>
                             <option value="bbm" @selected($mapFilterType === 'bbm')>BBM Subsidi</option>
@@ -57,40 +59,34 @@
 
                     <div id="map-komoditas-wrapper" class="{{ $mapFilterType === 'pangan' ? '' : 'hidden' }}">
                         <label for="map_komoditas_id" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Komoditas Pangan</label>
-                        <select id="map_komoditas_id" name="map_komoditas_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500 shadow-sm">
+                        <select id="map_komoditas_id" name="map_komoditas_id" onchange="applyFilter(this.form)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500 shadow-sm cursor-pointer">
                             <option value="">Semua Komoditas</option>
                             @foreach($komoditasPangan as $item)
                                 <option value="{{ $item->id }}" @selected((string) $mapKomoditasId === (string) $item->id)>{{ $item->nama_komoditas }}</option>
                             @endforeach
                         </select>
                     </div>
-
-                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition shadow-sm">
-                        Terapkan Filter Peta
-                    </button>
                 </form>
 
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
                     <div>
                         <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Filter Aktif</p>
-                        <p class="text-sm font-bold text-slate-800 mt-1">
+                        <p id="map-active-type" class="text-sm font-bold text-slate-800 mt-1">
                             {{ $mapFilterType === 'pangan' ? 'Pangan Strategis' : ($mapFilterType === 'lpg' ? 'LPG 3 KG' : 'BBM Subsidi') }}
                         </p>
-                        @if($mapFilterType === 'pangan' && $mapFilterKomoditas)
-                            <p class="text-xs text-slate-500 mt-1">Komoditas: {{ $mapFilterKomoditas->nama_komoditas }}</p>
-                        @elseif($mapFilterType === 'pangan')
-                            <p class="text-xs text-slate-500 mt-1">Komoditas: Semua komoditas strategis</p>
-                        @endif
+                        <p id="map-active-komoditas" class="text-xs text-slate-500 mt-1 {{ $mapFilterType === 'pangan' ? '' : 'hidden' }}">
+                            Komoditas: {{ $mapFilterKomoditas ? $mapFilterKomoditas->nama_komoditas : 'Semua komoditas strategis' }}
+                        </p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div class="rounded-xl bg-white border border-slate-200 px-3 py-3">
                             <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Titik Aktif</p>
-                            <p class="text-2xl font-extrabold text-slate-900 mt-1">{{ $activePointsCount }}</p>
+                            <p id="map-active-count" class="text-2xl font-extrabold text-slate-900 mt-1">{{ $activePointsCount }}</p>
                         </div>
                         <div class="rounded-xl bg-white border border-slate-200 px-3 py-3">
                             <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Sumber Data</p>
-                            <p class="text-sm font-bold text-slate-900 mt-2">{{ $mapFilterType === 'pangan' ? 'Data Pangan' : ($mapFilterType === 'lpg' ? 'Data LPG' : 'Data BBM') }}</p>
+                            <p id="map-active-source" class="text-sm font-bold text-slate-900 mt-2">{{ $mapFilterType === 'pangan' ? 'Data Pangan' : ($mapFilterType === 'lpg' ? 'Data LPG' : 'Data BBM') }}</p>
                         </div>
                     </div>
 
@@ -134,7 +130,7 @@
             <div id="content-iph-mingguan" class="tab-content">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
                     <div class="lg:col-span-5 2xl:col-span-4 space-y-4">
-                        <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-100 space-y-4">
+                        <form id="iph-mingguan-form" method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-100 space-y-4">
                             <input type="hidden" name="tab" value="iph-mingguan">
                             <div class="flex items-center justify-between">
                                 <p class="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">Filter Rentang IPH Mingguan</p>
@@ -146,7 +142,7 @@
                             <div class="space-y-3">
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Tahun</label>
-                                    <select name="iph_mingguan_tahun" class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                    <select name="iph_mingguan_tahun" onchange="applyFilter(this.form)" class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm cursor-pointer">
                                         @foreach($daftarTahunMingguan as $thn)
                                             <option value="{{ $thn }}" @selected((string) ($filterTahunMingguan ?? date('Y')) === (string) $thn)>{{ $thn }}</option>
                                         @endforeach
@@ -154,8 +150,36 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Dari Bulan</label>
+                                        <select name="iph_mingguan_dari_bulan" onchange="applyFilter(this.form)" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-emerald-500 shadow-sm cursor-pointer">
+                                            <option value="">Semua Bulan</option>
+                                            @foreach([
+                                                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                                            ] as $num => $nama)
+                                                <option value="{{ $num }}" @selected((string) ($filterDariBulanMingguan ?? '') === (string) $num)>{{ $nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ke Bulan</label>
+                                        <select name="iph_mingguan_sampai_bulan" onchange="applyFilter(this.form)" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-emerald-500 shadow-sm cursor-pointer">
+                                            <option value="">Semua Bulan</option>
+                                            @foreach([
+                                                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                                            ] as $num => $nama)
+                                                <option value="{{ $num }}" @selected((string) ($filterSampaiBulanMingguan ?? '') === (string) $num)>{{ $nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Dari Minggu</label>
-                                        <select name="iph_mingguan_dari_minggu" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                        <select name="iph_mingguan_dari_minggu" onchange="applyFilter(this.form)" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-blue-500 shadow-sm cursor-pointer">
                                             <option value="I" @selected(($filterDariMinggu ?? 'I') === 'I' || ($filterDariMinggu ?? '') === '1')>Minggu I</option>
                                             <option value="II" @selected(($filterDariMinggu ?? '') === 'II' || ($filterDariMinggu ?? '') === '2')>Minggu II</option>
                                             <option value="III" @selected(($filterDariMinggu ?? '') === 'III' || ($filterDariMinggu ?? '') === '3')>Minggu III</option>
@@ -165,7 +189,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ke Minggu</label>
-                                        <select name="iph_mingguan_sampai_minggu" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                        <select name="iph_mingguan_sampai_minggu" onchange="applyFilter(this.form)" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-blue-500 shadow-sm cursor-pointer">
                                             <option value="I" @selected(($filterSampaiMinggu ?? '') === 'I' || ($filterSampaiMinggu ?? '') === '1')>Minggu I</option>
                                             <option value="II" @selected(($filterSampaiMinggu ?? '') === 'II' || ($filterSampaiMinggu ?? '') === '2')>Minggu II</option>
                                             <option value="III" @selected(($filterSampaiMinggu ?? '') === 'III' || ($filterSampaiMinggu ?? '') === '3')>Minggu III</option>
@@ -174,9 +198,6 @@
                                         </select>
                                     </div>
                                 </div>
-                                <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition">
-                                    Terapkan Filter Minggu
-                                </button>
                             </div>
                         </form>
                         @php
@@ -185,16 +206,56 @@
                             $bgMingguan = $statusMingguan === 'Tinggi' ? 'bg-rose-600 shadow-rose-600/20' : ($statusMingguan === 'Waspada' ? 'bg-amber-600 shadow-amber-600/20' : 'bg-emerald-600 shadow-emerald-600/20');
                             $badgeMingguan = $statusMingguan === 'Tinggi' ? 'bg-rose-500/50 border-rose-400/30' : ($statusMingguan === 'Waspada' ? 'bg-amber-500/50 border-amber-400/30' : 'bg-emerald-500/50 border-emerald-400/30');
                         @endphp
-                        <div class="{{ $bgMingguan }} rounded-2xl p-4 sm:p-5 text-white shadow-lg transition">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-100 mb-1">{{ $iphMingguanTerbaru?->periode_label ?? 'IPH Minggu II Mei' }}</p>
-                            <p class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">{{ number_format($valMingguan, 2, ',', '.') }}%</p>
-                            <span class="inline-block {{ $badgeMingguan }} backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border">
+                        <div id="iph-mingguan-card" class="{{ $bgMingguan }} rounded-2xl p-4 sm:p-5 text-white shadow-lg transition">
+                            <p id="iph-mingguan-periode" class="text-[10px] font-bold uppercase tracking-wider text-emerald-100 mb-1">{{ $iphMingguanTerbaru?->periode_label ?? 'IPH Minggu II Mei' }}</p>
+                            <p id="iph-mingguan-val" class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">{{ number_format($valMingguan, 2, ',', '.') }}%</p>
+                            <span id="iph-mingguan-status" class="inline-block {{ $badgeMingguan }} backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border">
                                 Status: {{ $statusMingguan }}
                             </span>
                         </div>
                     </div>
-                    <div class="lg:col-span-7 2xl:col-span-8 relative h-[260px] sm:h-[320px] lg:h-[360px] 2xl:h-[480px] w-full min-w-0">
-                        <canvas id="iphChartMingguan"></canvas>
+                    <div class="lg:col-span-7 2xl:col-span-8 space-y-2.5">
+                        <div class="bg-slate-50/80 p-2.5 sm:p-3 rounded-xl border border-slate-200/80 flex flex-wrap items-center justify-between gap-2.5">
+                            <div class="flex items-center gap-2">
+                                <span class="font-extrabold text-slate-800 text-xs sm:text-sm">Grafik Fluktuasi IPH Mingguan</span>
+                                <div id="iph-mingguan-badge-wrapper">
+                                    @if(!empty($filterDariBulanMingguan))
+                                        @php
+                                            [, $labelDari] = \App\Http\Controllers\InputDataController::parseBulan($filterDariBulanMingguan);
+                                            $labelSampai = !empty($filterSampaiBulanMingguan) ? \App\Http\Controllers\InputDataController::parseBulan($filterSampaiBulanMingguan)[1] : null;
+                                        @endphp
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                            {{ $labelDari }}{{ $labelSampai && $labelSampai !== $labelDari ? ' - ' . $labelSampai : '' }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="inline-flex items-center gap-1.5">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Filter Bulan:</label>
+                                    <select id="chart_filter_bulan" onchange="syncAndApplyMingguanBulan(this.value)" class="bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg px-2.5 py-1 outline-none focus:border-emerald-500 shadow-xs cursor-pointer">
+                                        <option value="">Semua Bulan</option>
+                                        @foreach([
+                                            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                                        ] as $num => $nama)
+                                            <option value="{{ $num }}" @selected((string) ($filterDariBulanMingguan ?? '') === (string) $num)>{{ $nama }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <span class="text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100 hidden sm:inline-block">💡 Klik titik untuk rincian</span>
+                            </div>
+                        </div>
+                        <div class="relative h-[260px] sm:h-[320px] lg:h-[360px] 2xl:h-[480px] w-full min-w-0" id="iphMingguanChartWrapper">
+                            <canvas id="iphChartMingguan"></canvas>
+                            {{-- Popup Deskripsi seperti di Peta saat titik diklik --}}
+                            <div id="iphMingguanPopup" class="absolute z-30 hidden bg-white rounded-xl shadow-xl border border-slate-200 p-3.5 w-[280px] sm:w-[320px] max-w-[92vw] text-left pointer-events-auto">
+                                <button type="button" class="absolute top-2 right-2.5 text-slate-400 hover:text-slate-700 text-lg font-bold leading-none w-6 h-6 flex items-center justify-center rounded-lg hover:bg-slate-100 transition" onclick="closePopup('iphMingguanPopup')" title="Tutup">&times;</button>
+                                <div id="iphMingguanPopupContent"></div>
+                                <div id="iphMingguanPopupTip" class="absolute w-2.5 h-2.5 bg-white border border-slate-200 rotate-45 pointer-events-none"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -203,7 +264,7 @@
             <div id="content-iph-bulanan" class="tab-content hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
                     <div class="lg:col-span-5 2xl:col-span-4 space-y-4">
-                        <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-100 space-y-4">
+                        <form id="iph-bulanan-form" method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-100 space-y-4">
                             <input type="hidden" name="tab" value="iph-bulanan">
                             <div class="flex items-center justify-between">
                                 <p class="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">Filter Rentang IPH Bulanan</p>
@@ -215,7 +276,7 @@
                             <div class="space-y-3">
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Tahun</label>
-                                    <select name="iph_bulanan_tahun" class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                    <select name="iph_bulanan_tahun" onchange="applyFilter(this.form)" class="w-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2 outline-none focus:border-blue-500 shadow-sm cursor-pointer">
                                         @foreach($daftarTahunBulanan as $thn)
                                             <option value="{{ $thn }}" @selected((string) ($filterTahunBulanan ?? date('Y')) === (string) $thn)>{{ $thn }}</option>
                                         @endforeach
@@ -224,7 +285,7 @@
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Dari Bulan</label>
-                                        <select name="iph_bulanan_dari_bulan" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                        <select name="iph_bulanan_dari_bulan" onchange="applyFilter(this.form)" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-blue-500 shadow-sm cursor-pointer">
                                             @foreach([
                                                 1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
                                                 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
@@ -236,7 +297,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ke Bulan</label>
-                                        <select name="iph_bulanan_sampai_bulan" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-blue-500 shadow-sm">
+                                        <select name="iph_bulanan_sampai_bulan" onchange="applyFilter(this.form)" class="w-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-2.5 py-2 outline-none focus:border-blue-500 shadow-sm cursor-pointer">
                                             @foreach([
                                                 1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
                                                 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
@@ -247,9 +308,6 @@
                                         </select>
                                     </div>
                                 </div>
-                                <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition">
-                                    Terapkan Filter Bulan
-                                </button>
                             </div>
                         </form>
                         @php
@@ -258,27 +316,39 @@
                             $bgBulanan = $statusBulanan === 'Tinggi' ? 'bg-rose-600 shadow-rose-600/20' : ($statusBulanan === 'Waspada' ? 'bg-amber-600 shadow-amber-600/20' : 'bg-blue-600 shadow-blue-600/20');
                             $badgeBulanan = $statusBulanan === 'Tinggi' ? 'bg-rose-500/50 border-rose-400/30' : ($statusBulanan === 'Waspada' ? 'bg-amber-500/50 border-amber-400/30' : 'bg-blue-500/50 border-blue-400/30');
                         @endphp
-                        <div class="{{ $bgBulanan }} rounded-2xl p-4 sm:p-5 text-white shadow-lg transition">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-blue-100 mb-1">{{ $iphBulananTerbaru ? ($iphBulananTerbaru->nama_bulan . ' ' . $iphBulananTerbaru->tahun) : 'Mei 2026' }}</p>
-                            <p class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">{{ number_format($valBulanan, 2, ',', '.') }}%</p>
-                            <span class="inline-block {{ $badgeBulanan }} backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border">
+                        <div id="iph-bulanan-card" class="{{ $bgBulanan }} rounded-2xl p-4 sm:p-5 text-white shadow-lg transition">
+                            <p id="iph-bulanan-periode" class="text-[10px] font-bold uppercase tracking-wider text-blue-100 mb-1">{{ $iphBulananTerbaru ? ($iphBulananTerbaru->nama_bulan . ' ' . $iphBulananTerbaru->tahun) : 'Mei 2026' }}</p>
+                            <p id="iph-bulanan-val" class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">{{ number_format($valBulanan, 2, ',', '.') }}%</p>
+                            <span id="iph-bulanan-status" class="inline-block {{ $badgeBulanan }} backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border">
                                 Status: {{ $statusBulanan }}
                             </span>
                         </div>
                     </div>
-                    <div class="lg:col-span-7 2xl:col-span-8 relative h-[260px] sm:h-[320px] lg:h-[360px] 2xl:h-[480px] w-full min-w-0">
-                        <canvas id="iphChartBulanan"></canvas>
+                    <div class="lg:col-span-7 2xl:col-span-8 space-y-2">
+                        <div class="flex items-center justify-between text-xs text-slate-400">
+                            <span class="font-medium">Grafik Tren IPH Bulanan</span>
+                            <span class="text-[11px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">💡 Klik titik grafik untuk melihat rincian</span>
+                        </div>
+                        <div class="relative h-[260px] sm:h-[320px] lg:h-[360px] 2xl:h-[480px] w-full min-w-0" id="iphBulananChartWrapper">
+                            <canvas id="iphChartBulanan"></canvas>
+                            {{-- Popup Deskripsi seperti di Peta saat titik diklik --}}
+                            <div id="iphBulananPopup" class="absolute z-30 hidden bg-white rounded-xl shadow-xl border border-slate-200 p-3.5 w-[280px] sm:w-[320px] max-w-[92vw] text-left pointer-events-auto">
+                                <button type="button" class="absolute top-2 right-2.5 text-slate-400 hover:text-slate-700 text-lg font-bold leading-none w-6 h-6 flex items-center justify-center rounded-lg hover:bg-slate-100 transition" onclick="closePopup('iphBulananPopup')" title="Tutup">&times;</button>
+                                <div id="iphBulananPopupContent"></div>
+                                <div id="iphBulananPopupTip" class="absolute w-2.5 h-2.5 bg-white border border-slate-200 rotate-45 pointer-events-none"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- Tab Pangan --}}
             <div id="content-pangan" class="tab-content hidden">
-                <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-3.5 sm:p-4 rounded-2xl mb-5 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-3 sm:gap-4 text-xs font-semibold text-slate-500">
+                <form id="pangan-filter-form" method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-3.5 sm:p-4 rounded-2xl mb-5 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-3 sm:gap-4 text-xs font-semibold text-slate-500">
                     <input type="hidden" name="tab" value="pangan">
                     <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                         <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Pilih Kecamatan</span>
-                        <select name="pangan_kecamatan_id" class="w-full sm:min-w-44 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
+                        <select name="pangan_kecamatan_id" onchange="applyFilter(this.form)" class="w-full sm:min-w-44 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm cursor-pointer">
                             <option value="">Seluruh Kecamatan</option>
                             @foreach($kecamatan as $kec)
                                 <option value="{{ $kec->id }}" @selected((string) ($filters['pangan_kecamatan_id'] ?? '') === (string) $kec->id)>{{ $kec->nama_kecamatan }}</option>
@@ -287,7 +357,7 @@
                     </label>
                     <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                         <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Pilih Komoditas</span>
-                        <select name="pangan_komoditas_id" class="w-full sm:min-w-48 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
+                        <select name="pangan_komoditas_id" onchange="applyFilter(this.form)" class="w-full sm:min-w-48 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm cursor-pointer">
                             <option value="">Semua Komoditas</option>
                             @foreach($komoditasPangan as $item)
                                 <option value="{{ $item->id }}" @selected((string) ($filters['pangan_komoditas_id'] ?? '') === (string) $item->id)>{{ $item->nama_komoditas }}</option>
@@ -296,62 +366,25 @@
                     </label>
                     <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                         <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Periode Lalu</span>
-                        <input type="date" name="periode_sebelumnya" value="{{ $periodeSebelumnya }}" class="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
+                        <input type="date" name="periode_sebelumnya" value="{{ $periodeSebelumnya }}" onchange="applyFilter(this.form)" class="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm cursor-pointer">
                     </label>
                     <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                         <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Periode Saat Ini</span>
-                        <input type="date" name="periode_saat_ini" value="{{ $periodeSaatIni }}" class="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm">
+                        <input type="date" name="periode_saat_ini" value="{{ $periodeSaatIni }}" onchange="applyFilter(this.form)" class="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-amber-500 shadow-sm cursor-pointer">
                     </label>
-                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition-colors text-center">Terapkan</button>
                 </form>
-                <div class="overflow-x-auto -mx-3.5 sm:mx-0 px-3.5 sm:px-0">
-                    <table class="min-w-[950px] w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
-                                <th class="pb-4 pr-4">Kecamatan</th>
-                                <th class="pb-4 pr-4">Nama Komoditas</th>
-                                <th class="pb-4 px-4">Stok</th>
-                                <th class="pb-4 px-4">Periode Lalu<br><span class="text-[10px] font-medium normal-case">{{ \Carbon\Carbon::parse($periodeSebelumnya)->format('d/m/Y') }}</span></th>
-                                <th class="pb-4 px-4">Periode Saat Ini<br><span class="text-[10px] font-medium normal-case">{{ \Carbon\Carbon::parse($periodeSaatIni)->format('d/m/Y') }}</span></th>
-                                <th class="pb-4 px-4">Perubahan</th>
-                                <th class="pb-4 pl-4 text-right">Ketersediaan</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm font-semibold">
-                            @forelse($dataPangan as $d)
-                            <tr class="hover:bg-slate-50/50 transition">
-                                <td class="py-4 pr-4 text-slate-700 font-bold whitespace-nowrap">{{ $d['kecamatan'] }}</td>
-                                <td class="py-4 pr-4 whitespace-nowrap">
-                                    <p class="font-bold text-slate-800">{{ $d['komoditas'] }}</p>
-                                    <p class="text-[10px] text-slate-400">{{ $d['satuan'] }}</p>
-                                </td>
-                                <td class="py-4 px-4 text-slate-600 whitespace-nowrap">{{ $d['stok'] !== null ? number_format((float) $d['stok'], 0, ',', '.') : '-' }} {{ $d['satuan'] }}</td>
-                                <td class="py-4 px-4 text-slate-600 whitespace-nowrap">{{ $d['harga_lalu'] !== null ? 'Rp '.number_format((float) $d['harga_lalu'], 0, ',', '.') : '-' }}</td>
-                                <td class="py-4 px-4 font-bold text-slate-800 whitespace-nowrap">{{ $d['harga_saat_ini'] !== null ? 'Rp '.number_format((float) $d['harga_saat_ini'], 0, ',', '.') : '-' }}</td>
-                                <td class="py-4 px-4 whitespace-nowrap {{ ($d['perubahan_persen'] ?? 0) > 0 ? 'text-rose-500' : (($d['perubahan_persen'] ?? 0) < 0 ? 'text-emerald-500' : 'text-slate-400') }}">
-                                    {{ $d['perubahan_persen'] === null ? '-' : (($d['perubahan_persen'] > 0 ? '+' : '').number_format((float) $d['perubahan_persen'], 1, ',', '.').'%') }}
-                                </td>
-                                <td class="py-4 pl-4 text-right whitespace-nowrap">
-                                    <span class="inline-block text-[11px] font-bold px-3 py-1 rounded-full uppercase {{ $d['status_ketersediaan'] === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($d['status_ketersediaan'] === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-600') }}">{{ $d['status_ketersediaan'] ? ucfirst($d['status_ketersediaan']) : '-' }}</span>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="7" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data untuk filter dan periode ini.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div id="pangan-table-wrapper">
+                    @include('dashboard.partials.pangan-table')
                 </div>
             </div>
 
             {{-- Tab LPG --}}
             <div id="content-lpg" class="tab-content hidden">
-                <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-3.5 sm:p-4 rounded-2xl mb-5 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-3 sm:gap-4 text-xs font-semibold text-slate-500">
+                <form id="lpg-filter-form" method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-3.5 sm:p-4 rounded-2xl mb-5 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-3 sm:gap-4 text-xs font-semibold text-slate-500">
                     <input type="hidden" name="tab" value="lpg">
                     <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                         <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Kecamatan</span>
-                        <select name="lpg_kecamatan_id" class="w-full sm:min-w-44 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-orange-500 shadow-sm">
+                        <select name="lpg_kecamatan_id" onchange="applyFilter(this.form)" class="w-full sm:min-w-44 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-orange-500 shadow-sm cursor-pointer">
                             <option value="">Semua Kecamatan</option>
                             @foreach($kecamatan as $kec)
                                 <option value="{{ $kec->id }}" @selected((string) ($filters['lpg_kecamatan_id'] ?? request('lpg_kecamatan_id')) === (string) $kec->id)>{{ $kec->nama_kecamatan }}</option>
@@ -360,61 +393,23 @@
                     </label>
                     <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                         <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Tanggal</span>
-                        <input type="date" name="lpg_tanggal" value="{{ $lpgTanggal ?? '' }}" class="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-orange-500 shadow-sm">
+                        <input type="date" name="lpg_tanggal" value="{{ $lpgTanggal ?? '' }}" onchange="applyFilter(this.form)" class="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-orange-500 shadow-sm cursor-pointer">
                     </label>
-                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs transition-colors text-center">Terapkan</button>
                 </form>
 
-                <div class="overflow-x-auto -mx-3.5 sm:mx-0 px-3.5 sm:px-0">
-                    <table class="min-w-[1150px] w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
-                                <th class="pb-4 pr-4">Tanggal</th>
-                                <th class="pb-4 pr-4">Kecamatan</th>
-                                <th class="pb-4 pr-4">Jenis LPG</th>
-                                <th class="pb-4 px-3 text-right">Stok</th>
-                                <th class="pb-4 px-3 text-right">Masuk</th>
-                                <th class="pb-4 px-3 text-right">Keluar</th>
-                                <th class="pb-4 px-3 text-right">Harga HET</th>
-                                <th class="pb-4 px-3 text-right">Harga Eceran</th>
-                                <th class="pb-4 px-3">Ketersediaan</th>
-                                <th class="pb-4 px-3">Distribusi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm font-semibold">
-                            @forelse($dataLpg as $d)
-                            <tr class="hover:bg-slate-50/50 transition">
-                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->tanggal_input?->format('d/m/Y') }}</td>
-                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->kecamatan?->nama_kecamatan ?? '-' }}</td>
-                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->jenis_lpg }}</td>
-                                <td class="py-4 px-3 text-right whitespace-nowrap">{{ number_format($d->stok_tersedia_tabung, 0, ',', '.') }}</td>
-                                <td class="py-4 px-3 text-right whitespace-nowrap">{{ number_format($d->distribusi_masuk_tabung, 0, ',', '.') }}</td>
-                                <td class="py-4 px-3 text-right text-rose-600 whitespace-nowrap">{{ number_format($d->distribusi_keluar_tabung, 0, ',', '.') }}</td>
-                                <td class="py-4 px-3 text-right whitespace-nowrap">{{ $d->harga_pangkalan !== null ? 'Rp '.number_format((float) $d->harga_pangkalan, 0, ',', '.') : '-' }}</td>
-                                <td class="py-4 px-3 text-right whitespace-nowrap">{{ $d->harga_eceran_lapangan !== null ? 'Rp '.number_format((float) $d->harga_eceran_lapangan, 0, ',', '.') : '-' }}</td>
-                                <td class="py-4 px-3 whitespace-nowrap">
-                                    <span class="inline-flex px-2 py-1 rounded-md text-[10px] font-bold uppercase {{ $d->status_ketersediaan === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($d->status_ketersediaan === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700') }}">{{ $d->status_ketersediaan }}</span>
-                                </td>
-                                <td class="py-4 px-3 whitespace-nowrap">{{ str_replace('_', ' ', $d->status_distribusi) }}</td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="10" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data LPG untuk filter ini.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div id="lpg-table-wrapper">
+                    @include('dashboard.partials.lpg-table')
                 </div>
             </div>
 
             {{-- Tab BBM --}}
             <div id="content-bbm" class="tab-content hidden">
                 <div class="mb-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <form method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-3.5 sm:p-4 rounded-2xl flex flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-3 sm:gap-4 text-xs font-semibold text-slate-500 w-full lg:w-auto">
+                    <form id="bbm-filter-form" method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-3.5 sm:p-4 rounded-2xl flex flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-3 sm:gap-4 text-xs font-semibold text-slate-500 w-full lg:w-auto">
                         <input type="hidden" name="tab" value="bbm">
                         <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                             <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Jenis BBM</span>
-                            <select name="bbm_jenis" class="w-full sm:min-w-48 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
+                            <select name="bbm_jenis" onchange="applyFilter(this.form)" class="w-full sm:min-w-48 bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm cursor-pointer">
                                 <option value="">Semua Jenis BBM</option>
                                 <option value="Pertalite (JBKP)" @selected(in_array($bbmJenis, ['Pertalite (JBKP)', 'Pertalite'], true))>Pertalite</option>
                                 <option value="Bio Solar" @selected($bbmJenis === 'Bio Solar')>Bio Solar</option>
@@ -423,10 +418,8 @@
                         
                         <label class="flex flex-col gap-1.5 w-full sm:w-auto">
                             <span class="uppercase font-bold text-[10px] tracking-wider text-slate-400">Pilih Tanggal</span>
-                            <input type="date" name="bbm_tanggal" value="{{ $bbmTanggal ?? '' }}" class="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm">
+                            <input type="date" name="bbm_tanggal" value="{{ $bbmTanggal ?? '' }}" onchange="applyFilter(this.form)" class="w-full sm:w-auto bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold text-xs outline-none focus:border-blue-500 shadow-sm cursor-pointer">
                         </label>
-
-                        <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors text-center">Terapkan</button>
                     </form>
 
                     <div class="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -440,81 +433,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="overflow-x-auto -mx-3.5 sm:mx-0 px-3.5 sm:px-0">
-                    <table class="min-w-[1250px] w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
-                                <th class="pb-4 pr-4">Tanggal</th>
-                                <th class="pb-4 pr-4">Kecamatan</th>
-                                <th class="pb-4 pr-4">SPBU</th>
-                                <th class="pb-4 pr-4">Jenis BBM</th>
-                                <th class="pb-4 px-3 text-right">Stok (KL)</th>
-                                <th class="pb-4 px-3">Nelayan</th>
-                                <th class="pb-4 px-3">Pertanian</th>
-                                <th class="pb-4 px-3">Antrean</th>
-                                <th class="pb-4 px-3">Ketersediaan</th>
-                                <th class="pb-4 px-3 text-right">Harga Eceran</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm font-semibold">
-                            @forelse($dataBbm as $d)
-                            <tr class="hover:bg-slate-50/50 transition">
-                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->tanggal_input?->format('d/m/Y') }}</td>
-                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->kecamatan?->nama_kecamatan ?? $d->spbu?->kecamatan?->nama_kecamatan ?? '-' }}</td>
-                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->spbu?->nama_spbu ?? '-' }}</td>
-                                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->jenis_bbm }}</td>
-                                <td class="py-4 px-3 text-right">{{ $d->stok_tersedia_kl !== null ? number_format((float) $d->stok_tersedia_kl, 3, ',', '.') : '-' }}</td>
-                                <td class="py-4 px-3">
-                                    @if($d->distribusi_nelayan)
-                                        <div class="space-y-1">
-                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200 whitespace-nowrap">
-                                                <input type="checkbox" disabled checked class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600">
-                                                Ya
-                                            </span>
-                                            <div class="text-[11px] text-slate-600 space-y-0.5 whitespace-nowrap bg-slate-50/70 p-1.5 rounded-lg border border-slate-200/60">
-                                                <div>Distribusi Masuk: <span class="font-extrabold text-slate-800">{{ ($d->distribusi_masuk_nelayan_kl ?? $d->kuota_nelayan_harian_kl) !== null ? number_format((float) ($d->distribusi_masuk_nelayan_kl ?? $d->kuota_nelayan_harian_kl), 3, ',', '.') . ' KL' : '-' }}</span></div>
-                                                <div>Distribusi Keluar: <span class="font-extrabold text-slate-800">{{ ($d->distribusi_keluar_nelayan_kl ?? $d->realisasi_nelayan_kl) !== null ? number_format((float) ($d->distribusi_keluar_nelayan_kl ?? $d->realisasi_nelayan_kl), 3, ',', '.') . ' KL' : '-' }}</span></div>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <label class="inline-flex items-center gap-1.5 whitespace-nowrap text-slate-400 font-normal">
-                                            <input type="checkbox" disabled class="w-3.5 h-3.5 rounded border-slate-300 text-slate-400">
-                                            Tidak
-                                        </label>
-                                    @endif
-                                </td>
-                                <td class="py-4 px-3">
-                                    @if($d->distribusi_pertanian)
-                                        <div class="space-y-1">
-                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 whitespace-nowrap">
-                                                <input type="checkbox" disabled checked class="w-3.5 h-3.5 rounded border-slate-300 text-emerald-600">
-                                                Ya
-                                            </span>
-                                            <div class="text-[11px] text-slate-600 space-y-0.5 whitespace-nowrap bg-slate-50/70 p-1.5 rounded-lg border border-slate-200/60">
-                                                <div>Distribusi Masuk: <span class="font-extrabold text-slate-800">{{ ($d->distribusi_masuk_pertanian_kl ?? $d->kuota_pertanian_harian_kl) !== null ? number_format((float) ($d->distribusi_masuk_pertanian_kl ?? $d->kuota_pertanian_harian_kl), 3, ',', '.') . ' KL' : '-' }}</span></div>
-                                                <div>Distribusi Keluar: <span class="font-extrabold text-slate-800">{{ ($d->distribusi_keluar_pertanian_kl ?? $d->realisasi_pertanian_kl) !== null ? number_format((float) ($d->distribusi_keluar_pertanian_kl ?? $d->realisasi_pertanian_kl), 3, ',', '.') . ' KL' : '-' }}</span></div>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <label class="inline-flex items-center gap-1.5 whitespace-nowrap text-slate-400 font-normal">
-                                            <input type="checkbox" disabled class="w-3.5 h-3.5 rounded border-slate-300 text-slate-400">
-                                            Tidak
-                                        </label>
-                                    @endif
-                                </td>
-                                <td class="py-4 px-3 whitespace-nowrap">
-                                    <span class="inline-flex px-2 py-1 rounded-md text-[10px] font-bold uppercase {{ in_array($d->status_antrean, ['panjang', 'sangat_panjang'], true) ? 'bg-rose-100 text-rose-700' : ($d->status_antrean === 'pendek' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700') }}">{{ str_replace('_', ' ', $d->status_antrean) }}</span>
-                                </td>
-                                <td class="py-4 px-3 whitespace-nowrap">{{ ucfirst($d->status_ketersediaan) }}</td>
-                                <td class="py-4 px-3 text-right whitespace-nowrap">{{ $d->harga_jual_per_liter !== null ? 'Rp '.number_format((float) $d->harga_jual_per_liter, 0, ',', '.') : '-' }}</td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="10" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data untuk BBM dan tanggal ini.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div id="bbm-table-wrapper">
+                    @include('dashboard.partials.bbm-table')
                 </div>
             </div>
         </div>
@@ -531,7 +451,16 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+    let currentActiveTab = new URLSearchParams(window.location.search).get('tab') || 'iph-mingguan';
+    let leafletMap = null;
+    let markersLayer = null;
+    let chartMingguanInstance = null;
+    let chartBulananInstance = null;
+    let chartMingguanDetails = @json($chartMingguanDetails ?? []);
+    let chartBulananDetails = @json($chartBulananDetails ?? []);
+
     function switchTab(tabName) {
+        currentActiveTab = tabName;
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.add('hidden');
         });
@@ -539,11 +468,252 @@
             btn.classList.remove('text-blue-600', 'font-bold', 'border-blue-600');
             btn.classList.add('text-slate-400', 'font-semibold', 'border-transparent');
         });
-        document.getElementById(`content-${tabName}`).classList.remove('hidden');
+        const content = document.getElementById(`content-${tabName}`);
+        if (content) content.classList.remove('hidden');
         const activeBtn = document.getElementById(`btn-${tabName}`);
-        activeBtn.classList.add('text-blue-600', 'font-bold', 'border-blue-600');
-        activeBtn.classList.remove('text-slate-400', 'font-semibold', 'border-transparent');
+        if (activeBtn) {
+            activeBtn.classList.add('text-blue-600', 'font-bold', 'border-blue-600');
+            activeBtn.classList.remove('text-slate-400', 'font-semibold', 'border-transparent');
+        }
+
+        // Update URL tanpa reload
+        const params = new URLSearchParams(window.location.search);
+        params.set('tab', tabName);
+        window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
+
+        // Tutup popup grafik saat berganti tab
+        if (typeof closePopup === 'function') {
+            closePopup('iphMingguanPopup');
+            closePopup('iphBulananPopup');
+        }
     }
+
+    window.closePopup = function(popupId) {
+        const el = document.getElementById(popupId);
+        if (el) el.classList.add('hidden');
+    };
+
+    window.syncAndApplyMingguanBulan = function(val) {
+        const leftDariBulan = document.querySelector('#iph-mingguan-form [name="iph_mingguan_dari_bulan"]');
+        if (leftDariBulan) {
+            leftDariBulan.value = val;
+        }
+        const form = document.getElementById('iph-mingguan-form');
+        if (form) {
+            applyFilter(form);
+        }
+    };
+
+    const statusColorMap = {
+        tidak_ada: '#cbd5e1', // Slate 300
+        aman: '#10b981',
+        waspada: '#f59e0b',
+        kritis: '#ef4444'
+    };
+    const statusLabelMap = {
+        tidak_ada: 'Belum Ada Data',
+        aman: 'Aman',
+        waspada: 'Waspada',
+        kritis: 'Kritis'
+    };
+
+    const popupHtml = (point) => {
+        const rows = (point.detail_items || []).map((item) => {
+            const lines = (item.baris || []).map((line) => `<li style="margin-top:2px;">${line}</li>`).join('');
+            return `
+                <div style="padding:8px 0;border-top:1px solid #e2e8f0;">
+                    <div style="font-weight:700;color:#0f172a;">${item.judul}</div>
+                    <ul style="margin:6px 0 0 18px;padding:0;color:#475569;font-size:12px;">
+                        ${lines}
+                    </ul>
+                </div>
+            `;
+        }).join('');
+
+        const status = statusLabelMap[point.status_ketersediaan] || point.status_ketersediaan || '-';
+
+        return `
+            <div style="min-width:240px;max-width:320px;">
+                <div style="font-weight:800;color:#0f172a;font-size:14px;">${point.kecamatan}</div>
+                <div style="font-size:12px;color:#64748b;margin-top:2px;">${point.kategori}</div>
+                <div style="font-size:12px;color:#334155;margin-top:6px;"><strong>Status:</strong> ${status}</div>
+                ${rows}
+            </div>
+        `;
+    };
+
+    window.applyFilter = function(formElement) {
+        if (!formElement) return;
+
+        if (formElement.id === 'map-filter-form') {
+            const typeEl = document.getElementById('map_filter_type');
+            const wrapEl = document.getElementById('map-komoditas-wrapper');
+            if (typeEl && wrapEl) {
+                wrapEl.classList.toggle('hidden', typeEl.value !== 'pangan');
+            }
+        }
+
+        const formData = new FormData(formElement);
+        const params = new URLSearchParams(window.location.search);
+
+        for (const [key, value] of formData.entries()) {
+            if (value !== '' && value !== null) {
+                params.set(key, value);
+            } else {
+                params.delete(key);
+            }
+        }
+
+        if (currentActiveTab) {
+            params.set('tab', currentActiveTab);
+        }
+
+        const url = `${window.location.pathname}?${params.toString()}`;
+        window.history.replaceState(null, '', url);
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network error');
+            return response.json();
+        })
+        .then(data => {
+            if (data.status !== 'success') return;
+
+            // 1. Update Map Markers
+            if (data.mapPoints && markersLayer && leafletMap) {
+                markersLayer.clearLayers();
+                const bounds = [];
+                data.mapPoints.forEach(function(point) {
+                    if (!point.latitude || !point.longitude) return;
+
+                    const statusKey = (point.status_ketersediaan || '').toLowerCase();
+                    const color = statusColorMap[statusKey] || '#94a3b8';
+
+                    L.circleMarker([parseFloat(point.latitude), parseFloat(point.longitude)], {
+                        radius: 12,
+                        fillColor: color,
+                        color: '#ffffff',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.9
+                    }).addTo(markersLayer).bindPopup(popupHtml(point));
+
+                    bounds.push([parseFloat(point.latitude), parseFloat(point.longitude)]);
+                });
+
+                if (bounds.length > 0) {
+                    leafletMap.fitBounds(bounds, { padding: [45, 45] });
+                }
+
+                // Update sidebar info
+                const activeTypeEl = document.getElementById('map-active-type');
+                if (activeTypeEl) {
+                    activeTypeEl.textContent = data.mapFilterType === 'pangan' ? 'Pangan Strategis' : (data.mapFilterType === 'lpg' ? 'LPG 3 KG' : 'BBM Subsidi');
+                }
+                const activeKomoditasEl = document.getElementById('map-active-komoditas');
+                if (activeKomoditasEl) {
+                    if (data.mapFilterType === 'pangan') {
+                        activeKomoditasEl.classList.remove('hidden');
+                        activeKomoditasEl.textContent = 'Komoditas: ' + (data.mapFilterKomoditas || 'Semua komoditas strategis');
+                    } else {
+                        activeKomoditasEl.classList.add('hidden');
+                    }
+                }
+                const activeCountEl = document.getElementById('map-active-count');
+                if (activeCountEl) {
+                    activeCountEl.textContent = data.activePointsCount;
+                }
+                const activeSourceEl = document.getElementById('map-active-source');
+                if (activeSourceEl) {
+                    activeSourceEl.textContent = data.mapFilterType === 'pangan' ? 'Data Pangan' : (data.mapFilterType === 'lpg' ? 'Data LPG' : 'Data BBM');
+                }
+            }
+
+            // 2. Update IPH Mingguan Chart & Card
+            if (data.chartMingguan && chartMingguanInstance) {
+                chartMingguanInstance.data.labels = data.chartMingguan.labels;
+                chartMingguanInstance.data.datasets[0].data = data.chartMingguan.values;
+                chartMingguanDetails = data.chartMingguan.details;
+                chartMingguanInstance.update();
+
+                const mingguanValEl = document.getElementById('iph-mingguan-val');
+                if (mingguanValEl) mingguanValEl.textContent = data.chartMingguan.valFormatted;
+                const mingguanPeriodeEl = document.getElementById('iph-mingguan-periode');
+                if (mingguanPeriodeEl) mingguanPeriodeEl.textContent = data.chartMingguan.periode;
+                const mingguanStatusEl = document.getElementById('iph-mingguan-status');
+                if (mingguanStatusEl) {
+                    mingguanStatusEl.textContent = 'Status: ' + data.chartMingguan.status;
+                    const s = data.chartMingguan.status;
+                    const cardEl = document.getElementById('iph-mingguan-card');
+                    if (cardEl) {
+                        cardEl.className = (s === 'Tinggi' ? 'bg-rose-600 shadow-rose-600/20' : (s === 'Waspada' ? 'bg-amber-600 shadow-amber-600/20' : 'bg-emerald-600 shadow-emerald-600/20')) + ' rounded-2xl p-4 sm:p-5 text-white shadow-lg transition';
+                    }
+                    mingguanStatusEl.className = 'inline-block ' + (s === 'Tinggi' ? 'bg-rose-500/50 border-rose-400/30' : (s === 'Waspada' ? 'bg-amber-500/50 border-amber-400/30' : 'bg-emerald-500/50 border-emerald-400/30')) + ' backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border';
+                }
+
+                // Sync filter bulan select above chart if filtered from left form
+                const chartFilterBulan = document.getElementById('chart_filter_bulan');
+                const leftDariBulan = document.querySelector('#iph-mingguan-form [name="iph_mingguan_dari_bulan"]');
+                if (chartFilterBulan && leftDariBulan && chartFilterBulan !== document.activeElement) {
+                    chartFilterBulan.value = leftDariBulan.value;
+                }
+                const badgeContainer = document.getElementById('iph-mingguan-badge-wrapper');
+                if (badgeContainer) {
+                    if (data.chartMingguan.labelDari) {
+                        const txt = data.chartMingguan.labelDari + (data.chartMingguan.labelSampai && data.chartMingguan.labelSampai !== data.chartMingguan.labelDari ? ' - ' + data.chartMingguan.labelSampai : '');
+                        badgeContainer.innerHTML = `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">${txt}</span>`;
+                    } else {
+                        badgeContainer.innerHTML = '';
+                    }
+                }
+            }
+
+            // 3. Update IPH Bulanan Chart & Card
+            if (data.chartBulanan && chartBulananInstance) {
+                chartBulananInstance.data.labels = data.chartBulanan.labels;
+                chartBulananInstance.data.datasets[0].data = data.chartBulanan.values;
+                chartBulananDetails = data.chartBulanan.details;
+                chartBulananInstance.update();
+
+                const bulananValEl = document.getElementById('iph-bulanan-val');
+                if (bulananValEl) bulananValEl.textContent = data.chartBulanan.valFormatted;
+                const bulananPeriodeEl = document.getElementById('iph-bulanan-periode');
+                if (bulananPeriodeEl) bulananPeriodeEl.textContent = data.chartBulanan.periode;
+                const bulananStatusEl = document.getElementById('iph-bulanan-status');
+                if (bulananStatusEl) {
+                    bulananStatusEl.textContent = 'Status: ' + data.chartBulanan.status;
+                    const s = data.chartBulanan.status;
+                    const cardEl = document.getElementById('iph-bulanan-card');
+                    if (cardEl) {
+                        cardEl.className = (s === 'Tinggi' ? 'bg-rose-600 shadow-rose-600/20' : (s === 'Waspada' ? 'bg-amber-600 shadow-amber-600/20' : 'bg-blue-600 shadow-blue-600/20')) + ' rounded-2xl p-4 sm:p-5 text-white shadow-lg transition';
+                    }
+                    bulananStatusEl.className = 'inline-block ' + (s === 'Tinggi' ? 'bg-rose-500/50 border-rose-400/30' : (s === 'Waspada' ? 'bg-amber-500/50 border-amber-400/30' : 'bg-blue-500/50 border-blue-400/30')) + ' backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-lg border';
+                }
+            }
+
+            // 4. Update Tables
+            const panganTableWrapper = document.getElementById('pangan-table-wrapper');
+            if (panganTableWrapper && data.htmlPanganTable) {
+                panganTableWrapper.innerHTML = data.htmlPanganTable;
+            }
+            const lpgTableWrapper = document.getElementById('lpg-table-wrapper');
+            if (lpgTableWrapper && data.htmlLpgTable) {
+                lpgTableWrapper.innerHTML = data.htmlLpgTable;
+            }
+            const bbmTableWrapper = document.getElementById('bbm-table-wrapper');
+            if (bbmTableWrapper && data.htmlBbmTable) {
+                bbmTableWrapper.innerHTML = data.htmlBbmTable;
+            }
+        })
+        .catch(err => {
+            console.error('Filter AJAX error:', err);
+        });
+    };
 
     document.addEventListener("DOMContentLoaded", function () {
         const requestedTab = new URLSearchParams(window.location.search).get('tab');
@@ -563,6 +733,115 @@
             mapFilterType.addEventListener('change', toggleKomoditasFilter);
         }
 
+        function showChartPopup(popupId, contentId, tipId, wrapperId, detailsList, index, pointX, pointY, categoryTitle) {
+            const detail = detailsList[index];
+            if (!detail) return;
+
+            const popupEl = document.getElementById(popupId);
+            const contentEl = document.getElementById(contentId);
+            const tipEl = document.getElementById(tipId);
+            const wrapperEl = document.getElementById(wrapperId);
+            if (!popupEl || !contentEl || !wrapperEl) return;
+
+            const val = Number(detail.iph);
+            const valFormatted = (!isNaN(val) ? val.toFixed(2).replace('.', ',') : detail.iph) + '%';
+            const status = val > 3.5 || val < -2.5 ? 'Tinggi' : (val >= 2.5 ? 'Waspada' : 'Terkendali');
+            const statusColor = status === 'Tinggi' ? '#ef4444' : (status === 'Waspada' ? '#f59e0b' : '#10b981');
+
+            const items = detail.komoditas_list || [];
+            let itemsHtml = '';
+            if (items.length === 0) {
+                itemsHtml = `
+                    <div style="padding:6px 0;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;font-style:italic;">
+                        Belum ada rincian komoditas andil.
+                    </div>
+                `;
+            } else {
+                itemsHtml = items.map((item) => {
+                    let andilVal = item.andil || '-';
+                    let andilColor = '#475569';
+                    if (item.raw_val !== null && item.raw_val !== undefined) {
+                        const num = Number(item.raw_val);
+                        if (!isNaN(num)) {
+                            andilColor = num > 0 ? '#ef4444' : (num < 0 ? '#10b981' : '#475569');
+                            andilVal = (num > 0 ? '+' : '') + num.toFixed(2).replace('.', ',') + '%';
+                        }
+                    }
+                    return `
+                        <div style="padding:6px 0;border-top:1px solid #e2e8f0;">
+                            <div style="font-weight:700;color:#0f172a;font-size:12px;">${item.nama}</div>
+                            <ul style="margin:4px 0 0 16px;padding:0;color:#475569;font-size:11px;">
+                                <li style="margin-top:1px;">Andil: <strong style="color:${andilColor};">${andilVal}</strong></li>
+                            </ul>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const rankHtml = (detail.ranking !== null && detail.ranking !== undefined && detail.ranking !== '')
+                ? `<div style="font-size:12px;color:#334155;margin-top:2px;"><strong>Ranking:</strong> #${detail.ranking}</div>`
+                : '';
+
+            contentEl.innerHTML = `
+                <div style="min-width:210px;max-width:280px;padding-right:12px;">
+                    <div style="font-weight:800;color:#0f172a;font-size:13px;line-height:1.2;">${detail.periode || '-'}</div>
+                    <div style="font-size:11px;color:#64748b;margin-top:2px;">${categoryTitle}</div>
+                    <div style="font-size:12px;color:#334155;margin-top:5px;"><strong>Status:</strong> <span style="font-weight:700;color:${statusColor};">${status}</span></div>
+                    <div style="font-size:12px;color:#334155;margin-top:2px;"><strong>Nilai IPH:</strong> <strong>${valFormatted}</strong></div>
+                    ${rankHtml}
+                    <div style="margin-top:4px;">
+                        ${itemsHtml}
+                    </div>
+                </div>
+            `;
+
+            popupEl.classList.remove('hidden');
+
+            const wrapperWidth = wrapperEl.clientWidth;
+            const wrapperHeight = wrapperEl.clientHeight;
+            const popupWidth = popupEl.offsetWidth || 260;
+            const popupHeight = popupEl.offsetHeight || 180;
+
+            let left = pointX - (popupWidth / 2);
+            if (left < 10) left = 10;
+            if (left + popupWidth > wrapperWidth - 10) {
+                left = wrapperWidth - popupWidth - 10;
+            }
+
+            let top = pointY - popupHeight - 12;
+            let isAbove = true;
+            if (top < 10) {
+                top = pointY + 12;
+                isAbove = false;
+            }
+            if (top + popupHeight > wrapperHeight - 10) {
+                top = Math.max(10, wrapperHeight - popupHeight - 10);
+            }
+
+            if (tipEl) {
+                const tipX = Math.max(12, Math.min(popupWidth - 20, pointX - left - 5));
+                tipEl.style.left = `${tipX}px`;
+                if (isAbove) {
+                    tipEl.style.top = '';
+                    tipEl.style.bottom = '-5px';
+                    tipEl.style.borderTop = 'none';
+                    tipEl.style.borderLeft = 'none';
+                    tipEl.style.borderBottom = '1px solid #cbd5e1';
+                    tipEl.style.borderRight = '1px solid #cbd5e1';
+                } else {
+                    tipEl.style.bottom = '';
+                    tipEl.style.top = '-5px';
+                    tipEl.style.borderBottom = 'none';
+                    tipEl.style.borderRight = 'none';
+                    tipEl.style.borderTop = '1px solid #cbd5e1';
+                    tipEl.style.borderLeft = '1px solid #cbd5e1';
+                }
+            }
+
+            popupEl.style.left = `${left}px`;
+            popupEl.style.top = `${top}px`;
+        }
+
         // --- 1. GRAFIK IPH MINGGUAN ---
         const ctxMingguan = document.getElementById('iphChartMingguan');
         if (ctxMingguan) {
@@ -571,7 +850,7 @@
             gradient.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
             gradient.addColorStop(1, 'rgba(16, 185, 129, 0.01)');
 
-            new Chart(ctx2d, {
+            chartMingguanInstance = new Chart(ctx2d, {
                 type: 'line',
                 data: {
                     labels: @json($chartMingguanLabels),
@@ -592,12 +871,24 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: (evt, activeEls) => {
+                        if (activeEls && activeEls.length > 0) {
+                            const dataIndex = activeEls[0].index;
+                            const el = activeEls[0].element;
+                            showChartPopup('iphMingguanPopup', 'iphMingguanPopupContent', 'iphMingguanPopupTip', 'iphMingguanChartWrapper', chartMingguanDetails, dataIndex, el.x, el.y, 'IPH Mingguan');
+                        }
+                    },
+                    onHover: (event, chartElement) => {
+                        if (event && event.native && event.native.target) {
+                            event.native.target.style.cursor = (chartElement && chartElement.length > 0) ? 'pointer' : 'default';
+                        }
+                    },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return 'IPH: ' + context.parsed.y.toFixed(2).replace('.', ',') + '%';
+                                    return 'IPH: ' + context.parsed.y.toFixed(2).replace('.', ',') + '% (Klik untuk rincian)';
                                 }
                             }
                         }
@@ -628,7 +919,7 @@
             gradientBulanan.addColorStop(0, 'rgba(37, 99, 235, 0.25)');
             gradientBulanan.addColorStop(1, 'rgba(37, 99, 235, 0.01)');
 
-            new Chart(ctxBulanan2d, {
+            chartBulananInstance = new Chart(ctxBulanan2d, {
                 type: 'line',
                 data: {
                     labels: @json($chartBulananLabels),
@@ -649,12 +940,24 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: (evt, activeEls) => {
+                        if (activeEls && activeEls.length > 0) {
+                            const dataIndex = activeEls[0].index;
+                            const el = activeEls[0].element;
+                            showChartPopup('iphBulananPopup', 'iphBulananPopupContent', 'iphBulananPopupTip', 'iphBulananChartWrapper', chartBulananDetails, dataIndex, el.x, el.y, 'IPH Bulanan');
+                        }
+                    },
+                    onHover: (event, chartElement) => {
+                        if (event && event.native && event.native.target) {
+                            event.native.target.style.cursor = (chartElement && chartElement.length > 0) ? 'pointer' : 'default';
+                        }
+                    },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return 'IPH Bulanan: ' + context.parsed.y.toFixed(2).replace('.', ',') + '%';
+                                    return 'IPH Bulanan: ' + context.parsed.y.toFixed(2).replace('.', ',') + '% (Klik untuk rincian)';
                                 }
                             }
                         }
@@ -680,51 +983,15 @@
         // --- 3. INISIALISASI LEAFLET GIS ---
         const gisMapEl = document.getElementById('gisMap');
         if (gisMapEl) {
-            const map = L.map('gisMap').setView([0.88, 122.75], 10);
+            leafletMap = L.map('gisMap').setView([0.88, 122.75], 10);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors',
                 maxZoom: 18
-            }).addTo(map);
+            }).addTo(leafletMap);
+
+            markersLayer = L.layerGroup().addTo(leafletMap);
 
             const mapPoints = @json($mapPoints ?? []);
-            const statusColorMap = {
-                tidak_ada: '#cbd5e1', // Slate 300
-                aman: '#10b981',
-                waspada: '#f59e0b',
-                kritis: '#ef4444'
-            };
-            const statusLabelMap = {
-                tidak_ada: 'Belum Ada Data',
-                aman: 'Aman',
-                waspada: 'Waspada',
-                kritis: 'Kritis'
-            };
-
-            const popupHtml = (point) => {
-                const rows = (point.detail_items || []).map((item) => {
-                    const lines = (item.baris || []).map((line) => `<li style="margin-top:2px;">${line}</li>`).join('');
-                    return `
-                        <div style="padding:8px 0;border-top:1px solid #e2e8f0;">
-                            <div style="font-weight:700;color:#0f172a;">${item.judul}</div>
-                            <ul style="margin:6px 0 0 18px;padding:0;color:#475569;font-size:12px;">
-                                ${lines}
-                            </ul>
-                        </div>
-                    `;
-                }).join('');
-
-                const status = statusLabelMap[point.status_ketersediaan] || point.status_ketersediaan || '-';
-
-                return `
-                    <div style="min-width:240px;max-width:320px;">
-                        <div style="font-weight:800;color:#0f172a;font-size:14px;">${point.kecamatan}</div>
-                        <div style="font-size:12px;color:#64748b;margin-top:2px;">${point.kategori}</div>
-                        <div style="font-size:12px;color:#334155;margin-top:6px;"><strong>Status:</strong> ${status}</div>
-                        ${rows}
-                    </div>
-                `;
-            };
-
             const bounds = [];
             mapPoints.forEach(function(point) {
                 if (!point.latitude || !point.longitude) {
@@ -741,14 +1008,26 @@
                     weight: 2,
                     opacity: 1,
                     fillOpacity: 0.9
-                }).addTo(map).bindPopup(popupHtml(point));
+                }).addTo(markersLayer).bindPopup(popupHtml(point));
 
                 bounds.push([parseFloat(point.latitude), parseFloat(point.longitude)]);
             });
 
             if (bounds.length > 0) {
-                map.fitBounds(bounds, { padding: [25, 25] });
+                leafletMap.fitBounds(bounds, { padding: [45, 45] });
             }
+
+            const refreshMapSize = () => {
+                leafletMap.invalidateSize();
+                if (bounds.length > 0) {
+                    leafletMap.fitBounds(bounds, { padding: [45, 45] });
+                }
+            };
+
+            setTimeout(refreshMapSize, 150);
+            setTimeout(refreshMapSize, 400);
+
+            window.addEventListener('resize', refreshMapSize);
         }
     });
 </script>

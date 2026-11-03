@@ -137,8 +137,7 @@
                         <th class="px-3 py-1 border-r border-slate-300">D</th>
                         <th class="px-3 py-1 border-r border-slate-300">E</th>
                         <th class="px-3 py-1 border-r border-slate-300">F</th>
-                        <th class="px-3 py-1 border-r border-slate-300">G</th>
-                        <th class="px-3 py-1 text-center">H</th>
+                        <th class="px-3 py-1 text-center">G</th>
                     </tr>
                     {{-- Column Headers --}}
                     <tr class="bg-slate-100 text-slate-700 font-extrabold uppercase tracking-wider text-[11px] border-b border-slate-300">
@@ -146,7 +145,6 @@
                         <th class="px-3 py-2.5 border-r border-slate-300">Tahun</th>
                         <th class="px-3 py-2.5 border-r border-slate-300">Bulan</th>
                         <th class="px-3 py-2.5 border-r border-slate-300 text-right">IPH Bulanan (%)</th>
-                        <th class="px-3 py-2.5 border-r border-slate-300 text-center">Status</th>
                         <th class="px-3 py-2.5 border-r border-slate-300 text-center">Ranking</th>
                         <th class="px-3 py-2.5 border-r border-slate-300">Komoditas Andil Utama</th>
                         <th class="px-3 py-2.5 border-r border-slate-300">Catatan BPS</th>
@@ -157,12 +155,6 @@
                     @forelse($records as $index => $row)
                         @php
                             $val = (float) $row->iph_bulanan;
-                            $status = $val > 3.5 || $val < -2.5 ? 'Tinggi' : ($val >= 2.5 ? 'Waspada' : 'Terkendali');
-                            $badgeColor = match ($status) {
-                                'Tinggi' => 'bg-rose-100 text-rose-700 border-rose-200',
-                                'Waspada' => 'bg-amber-100 text-amber-800 border-amber-200',
-                                default => 'bg-emerald-100 text-emerald-800 border-emerald-200',
-                            };
                         @endphp
                         <tr class="hover:bg-emerald-50/40 transition group">
                             {{-- Row Number --}}
@@ -176,12 +168,6 @@
                             {{-- IPH Bulanan Value --}}
                             <td class="px-3 py-3 border-r border-slate-200 text-right font-mono font-black text-sm {{ $val < 0 ? 'text-emerald-600' : ($val > 3.5 ? 'text-rose-600' : 'text-slate-800') }}">
                                 {{ number_format($val, 2, ',', '.') }}%
-                            </td>
-                            {{-- Status --}}
-                            <td class="px-3 py-3 border-r border-slate-200 text-center">
-                                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border {{ $badgeColor }}">
-                                    {{ $status }}
-                                </span>
                             </td>
                             {{-- Ranking --}}
                             <td class="px-3 py-3 border-r border-slate-200 text-center font-mono font-bold">
@@ -208,7 +194,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="px-4 py-12 text-center text-slate-400">
+                            <td colspan="8" class="px-4 py-12 text-center text-slate-400">
                                 <svg class="w-12 h-12 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776"/></svg>
                                 Belum ada data IPH Bulanan untuk tahun yang dipilih. Silakan input pada baris formulir di atas.
                             </td>

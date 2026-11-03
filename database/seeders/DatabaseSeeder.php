@@ -33,18 +33,21 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        // Hapus data duplikat lawas kecamatan jika ada
+        Kecamatan::whereIn('kode_kecamatan', ['7505021', '7505031', '7505041'])->delete();
+
         $kecamatans = [
-            ['kode' => '7505010', 'nama' => 'Atinggola', 'lat' => 0.8524, 'lng' => 123.1706, 'zona' => 'merah'],
+            ['kode' => '7505010', 'nama' => 'Atinggola', 'lat' => 0.8991, 'lng' => 123.1166, 'zona' => 'merah'],
             ['kode' => '7505020', 'nama' => 'Kwandang', 'lat' => 0.8351, 'lng' => 122.9197, 'zona' => 'merah'],
-            ['kode' => '7505030', 'nama' => 'Sumalata', 'lat' => 0.9575, 'lng' => 122.5033, 'zona' => 'kuning'],
-            ['kode' => '7505040', 'nama' => 'Gentuma Raya', 'lat' => 0.8791, 'lng' => 123.0805, 'zona' => 'kuning'],
-            ['kode' => '7505050', 'nama' => 'Anggrek', 'lat' => 0.8252, 'lng' => 122.8161, 'zona' => 'hijau'],
-            ['kode' => '7505060', 'nama' => 'Ponelo Kepulauan', 'lat' => 0.8950, 'lng' => 122.9500, 'zona' => 'merah'],
-            ['kode' => '7505070', 'nama' => 'Biau', 'lat' => 0.9250, 'lng' => 122.6500, 'zona' => 'hijau'],
-            ['kode' => '7505080', 'nama' => 'Tolinggula', 'lat' => 0.9650, 'lng' => 122.3500, 'zona' => 'hijau'],
-            ['kode' => '7505090', 'nama' => 'Monano', 'lat' => 0.8350, 'lng' => 122.7500, 'zona' => 'kuning'],
-            ['kode' => '7505100', 'nama' => 'Sumalata Timur', 'lat' => 0.9600, 'lng' => 122.5500, 'zona' => 'hijau'],
-            ['kode' => '7505110', 'nama' => 'Tomilito', 'lat' => 0.8650, 'lng' => 122.9800, 'zona' => 'hijau'],
+            ['kode' => '7505030', 'nama' => 'Sumalata', 'lat' => 0.9405, 'lng' => 122.3935, 'zona' => 'kuning'],
+            ['kode' => '7505040', 'nama' => 'Gentuma Raya', 'lat' => 0.8722, 'lng' => 123.0243, 'zona' => 'kuning'],
+            ['kode' => '7505050', 'nama' => 'Anggrek', 'lat' => 0.8455, 'lng' => 122.7792, 'zona' => 'hijau'],
+            ['kode' => '7505060', 'nama' => 'Ponelo Kepulauan', 'lat' => 0.8766, 'lng' => 122.8866, 'zona' => 'merah'],
+            ['kode' => '7505070', 'nama' => 'Biau', 'lat' => 0.9833, 'lng' => 122.2500, 'zona' => 'hijau'],
+            ['kode' => '7505080', 'nama' => 'Tolinggula', 'lat' => 0.9946, 'lng' => 122.1894, 'zona' => 'hijau'],
+            ['kode' => '7505090', 'nama' => 'Monano', 'lat' => 0.8687, 'lng' => 122.6679, 'zona' => 'kuning'],
+            ['kode' => '7505100', 'nama' => 'Sumalata Timur', 'lat' => 0.9301, 'lng' => 122.4958, 'zona' => 'hijau'],
+            ['kode' => '7505110', 'nama' => 'Tomilito', 'lat' => 0.8742, 'lng' => 122.9615, 'zona' => 'hijau'],
         ];
 
         $kecamatanIds = [];
@@ -64,12 +67,12 @@ class DatabaseSeeder extends Seeder
         }
 
         $desaData = [
-            ['Kwandang', 'Molingkapoto', 0.7210, 123.0510],
-            ['Kwandang', 'Titidu', 0.7250, 123.0550],
-            ['Kwandang', 'Pontolo', 0.7230, 123.0530],
-            ['Atinggola', 'Kota Jin', 0.7450, 123.1200],
-            ['Anggrek', 'Ilangata', 0.6200, 123.1000],
-            ['Tolinggula', 'Tolite Jaya', 0.5500, 123.2000],
+            ['Kwandang', 'Molingkapoto', 0.7721, 122.8721],
+            ['Kwandang', 'Titidu', 0.8361, 122.9592],
+            ['Kwandang', 'Pontolo', 0.7732, 122.8315],
+            ['Atinggola', 'Kota Jin', 0.9079, 123.1040],
+            ['Anggrek', 'Ilangata', 0.8010, 122.7644],
+            ['Tolinggula', 'Tolite Jaya', 0.9946, 122.1894],
         ];
 
         $desaIds = [];

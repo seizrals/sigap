@@ -23,7 +23,7 @@ class InputDataController extends Controller
     public function pangan()
     {
         $kecamatan = Kecamatan::where('is_active', true)->orderBy('nama_kecamatan')->get();
-        $komoditas = Komoditas::orderBy('nama_komoditas')->get();
+        $komoditas = Komoditas::where('is_active', true)->orderBy('nama_komoditas')->get();
         $dataPangan = DataPangan::with(['kecamatan', 'komoditas'])
             ->orderByDesc('tanggal_input')
             ->orderByDesc('created_at')
@@ -32,23 +32,85 @@ class InputDataController extends Controller
         return view('input.pangan', compact('kecamatan', 'komoditas', 'dataPangan'));
     }
 
+    public function previousPricesPangan(Request $request)
+    {
+        $kecamatanId = (int) $request->input('kecamatan_id');
+        $tanggalInput = $request->input('tanggal_input') ?? $request->input('periode_saat_ini') ?? now()->toDateString();
+
+        if (! $kecamatanId) {
+            return response()->json([]);
+        }
+
+        $sub = DataPangan::selectRaw('komoditas_id, MAX(tanggal_input) as max_date')
+            ->where('kecamatan_id', $kecamatanId)
+            ->where('tanggal_input', '<', $tanggalInput)
+            ->groupBy('komoditas_id');
+
+        $records = DataPangan::joinSub($sub, 'latest_pangan', function ($join) {
+            $join->on('data_pangan.komoditas_id', '=', 'latest_pangan.komoditas_id')
+                ->on('data_pangan.tanggal_input', '=', 'latest_pangan.max_date');
+        })
+        ->where('data_pangan.kecamatan_id', $kecamatanId)
+        ->orderByDesc('data_pangan.id')
+        ->get(['data_pangan.komoditas_id', 'data_pangan.harga_hari_ini', 'data_pangan.tanggal_input'])
+        ->unique('komoditas_id');
+
+        $result = [];
+        foreach ($records as $r) {
+            $result[$r->komoditas_id] = [
+                'harga' => (float) $r->harga_hari_ini,
+                'tanggal' => $r->tanggal_input?->format('d/m/Y'),
+                'tanggal_raw' => $r->tanggal_input?->toDateString(),
+            ];
+        }
+
+        return response()->json($result);
+    }
+
     public function storePangan(Request $request)
     {
         $entries = $this->validatePanganEntries($request);
-        $periodeSebelumnya = $request->input('periode_sebelumnya');
-        $periodeSaatIni = $request->input('periode_saat_ini');
+        $tanggalInput = $request->input('tanggal_input') ?? $request->input('periode_saat_ini') ?? now()->toDateString();
+        $periodeSebelumnyaInput = $request->input('periode_sebelumnya');
 
-        DB::transaction(function () use ($entries, $periodeSebelumnya, $periodeSaatIni): void {
+        DB::transaction(function () use ($entries, $tanggalInput, $periodeSebelumnyaInput): void {
             foreach ($entries as $entry) {
+                $kecId = (int) $entry['kecamatan_id'];
+                $komId = (int) $entry['komoditas_id'];
+                $hargaHariIni = (float) $entry['harga_hari_ini'];
+
+                // Otomatis cari harga dan tanggal sebelumnya dari database
+                $prev = $this->resolvePreviousPanganData($kecId, $komId, $tanggalInput);
+                $hargaSebelumnya = $prev['harga_hari_sebelumnya'];
+                $tanggalSebelumnya = $prev['tanggal_input_sebelumnya'] ?? $periodeSebelumnyaInput;
+
+                // Jika data sebelumnya belum ada tapi diinput manual/test bernilai > 0
+                if ($hargaSebelumnya == 0 && isset($entry['harga_hari_sebelumnya']) && $entry['harga_hari_sebelumnya'] !== null && $entry['harga_hari_sebelumnya'] !== '') {
+                    $hargaSebelumnya = (float) $entry['harga_hari_sebelumnya'];
+                }
+
+                $changes = $this->calculatePanganChanges($hargaHariIni, $hargaSebelumnya);
+
                 DataPangan::create([
-                    ...$entry,
-                    'tanggal_input' => $periodeSaatIni,
-                    'tanggal_input_sebelumnya' => $periodeSebelumnya,
-                    ...$this->calculatePanganChanges($entry),
+                    'komoditas_id' => $komId,
+                    'kecamatan_id' => $kecId,
+                    'tanggal_input' => $tanggalInput,
+                    'tanggal_input_sebelumnya' => $tanggalSebelumnya,
+                    'harga_hari_ini' => $hargaHariIni,
+                    'harga_hari_sebelumnya' => $hargaSebelumnya,
+                    'perubahan_harga_nominal' => $changes['perubahan_harga_nominal'],
+                    'perubahan_harga_persen' => $changes['perubahan_harga_persen'],
+                    'status_harga' => $changes['status_harga'],
+                    'stok_tersedia' => filled($entry['stok_tersedia'] ?? null) ? (float) $entry['stok_tersedia'] : null,
+                    'satuan_stok' => $entry['satuan_stok'] ?? null,
+                    'sumber_distribusi_masuk' => $entry['sumber_distribusi_masuk'] ?? null,
+                    'status_ketersediaan' => $entry['status_ketersediaan'] ?? 'aman',
                     'user_id' => Auth::id() ?? 1,
                     'status_verifikasi' => 'pending',
                     'keterangan_lapangan' => null,
                 ]);
+
+                $this->syncSubsequentPanganRecord($kecId, $komId, $tanggalInput);
             }
         });
 
@@ -71,12 +133,36 @@ class InputDataController extends Controller
             ]);
         }
 
-        $entry['tanggal_input'] = $request->input('periode_saat_ini');
-        $entry['tanggal_input_sebelumnya'] = $request->input('periode_sebelumnya');
+        $tanggalInput = $request->input('tanggal_input') ?? $request->input('periode_saat_ini') ?? $dataPangan->tanggal_input?->toDateString() ?? now()->toDateString();
+        $periodeSebelumnyaInput = $request->input('periode_sebelumnya');
+
+        $kecId = (int) ($entry['kecamatan_id'] ?? $dataPangan->kecamatan_id);
+        $komId = (int) $dataPangan->komoditas_id;
+        $hargaHariIni = (float) $entry['harga_hari_ini'];
+
+        $prev = $this->resolvePreviousPanganData($kecId, $komId, $tanggalInput, $dataPangan->id);
+        $hargaSebelumnya = $prev['harga_hari_sebelumnya'];
+        $tanggalSebelumnya = $prev['tanggal_input_sebelumnya'] ?? $periodeSebelumnyaInput ?? $dataPangan->tanggal_input_sebelumnya?->toDateString();
+
+        if ($hargaSebelumnya == 0 && isset($entry['harga_hari_sebelumnya']) && $entry['harga_hari_sebelumnya'] !== null && $entry['harga_hari_sebelumnya'] !== '') {
+            $hargaSebelumnya = (float) $entry['harga_hari_sebelumnya'];
+        }
+
+        $changes = $this->calculatePanganChanges($hargaHariIni, $hargaSebelumnya);
 
         $dataPangan->update([
-            ...$entry,
-            ...$this->calculatePanganChanges($entry),
+            'kecamatan_id' => $kecId,
+            'tanggal_input' => $tanggalInput,
+            'tanggal_input_sebelumnya' => $tanggalSebelumnya,
+            'harga_hari_ini' => $hargaHariIni,
+            'harga_hari_sebelumnya' => $hargaSebelumnya,
+            'perubahan_harga_nominal' => $changes['perubahan_harga_nominal'],
+            'perubahan_harga_persen' => $changes['perubahan_harga_persen'],
+            'status_harga' => $changes['status_harga'],
+            'stok_tersedia' => filled($entry['stok_tersedia'] ?? null) ? (float) $entry['stok_tersedia'] : null,
+            'satuan_stok' => $entry['satuan_stok'] ?? null,
+            'sumber_distribusi_masuk' => $entry['sumber_distribusi_masuk'] ?? null,
+            'status_ketersediaan' => $entry['status_ketersediaan'] ?? 'aman',
             'status_verifikasi' => 'pending',
             'verified_by' => null,
             'verified_at' => null,
@@ -84,7 +170,57 @@ class InputDataController extends Controller
             'keterangan_lapangan' => null,
         ]);
 
+        $this->syncSubsequentPanganRecord($kecId, $komId, $tanggalInput);
+
         return redirect()->route('input.pangan')->with('success', 'Data pangan berhasil diperbarui dan menunggu validasi ulang.');
+    }
+
+    private function resolvePreviousPanganData(int $kecamatanId, int $komoditasId, string $tanggalInput, ?int $excludeId = null): array
+    {
+        $previous = DataPangan::where('kecamatan_id', $kecamatanId)
+            ->where('komoditas_id', $komoditasId)
+            ->where('tanggal_input', '<', $tanggalInput)
+            ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
+            ->orderByDesc('tanggal_input')
+            ->orderByDesc('id')
+            ->first();
+
+        if ($previous) {
+            return [
+                'harga_hari_sebelumnya' => (float) $previous->harga_hari_ini,
+                'tanggal_input_sebelumnya' => $previous->tanggal_input?->toDateString(),
+            ];
+        }
+
+        return [
+            'harga_hari_sebelumnya' => 0.0,
+            'tanggal_input_sebelumnya' => null,
+        ];
+    }
+
+    private function syncSubsequentPanganRecord(int $kecamatanId, int $komoditasId, string $tanggalInput): void
+    {
+        $next = DataPangan::where('kecamatan_id', $kecamatanId)
+            ->where('komoditas_id', $komoditasId)
+            ->where('tanggal_input', '>', $tanggalInput)
+            ->orderBy('tanggal_input')
+            ->orderBy('id')
+            ->first();
+
+        if ($next) {
+            $prev = $this->resolvePreviousPanganData($kecamatanId, $komoditasId, $next->tanggal_input->toDateString(), $next->id);
+            $hargaSebelumnya = $prev['harga_hari_sebelumnya'];
+            $hargaHariIni = (float) $next->harga_hari_ini;
+            $changes = $this->calculatePanganChanges($hargaHariIni, $hargaSebelumnya);
+
+            $next->update([
+                'harga_hari_sebelumnya' => $hargaSebelumnya,
+                'tanggal_input_sebelumnya' => $prev['tanggal_input_sebelumnya'],
+                'perubahan_harga_nominal' => $changes['perubahan_harga_nominal'],
+                'perubahan_harga_persen' => $changes['perubahan_harga_persen'],
+                'status_harga' => $changes['status_harga'],
+            ]);
+        }
     }
 
     private function validatePanganEntries(Request $request): array
@@ -93,6 +229,8 @@ class InputDataController extends Controller
         if (! is_array($entries)) {
             $entries = [];
         }
+
+        $topKecamatanId = $request->input('kecamatan_id');
 
         $entries = array_filter($entries, function (mixed $entry): bool {
             if (! is_array($entry)) {
@@ -114,11 +252,22 @@ class InputDataController extends Controller
             ]);
         }
 
+        // Jika row belum terisi kecamatan_id tapi ada pilihan kecamatan di atas
+        if ($topKecamatanId) {
+            foreach ($entries as $k => $e) {
+                if (empty($e['kecamatan_id'])) {
+                    $entries[$k]['kecamatan_id'] = $topKecamatanId;
+                }
+            }
+        }
+
         $request->merge(['entries' => $entries]);
 
         $validated = $request->validate([
-            'periode_sebelumnya' => ['required', 'date'],
-            'periode_saat_ini' => ['required', 'date', 'after_or_equal:periode_sebelumnya'],
+            'tanggal_input' => ['nullable', 'date'],
+            'periode_saat_ini' => ['nullable', 'date'],
+            'periode_sebelumnya' => ['nullable', 'date'],
+            'kecamatan_id' => ['nullable', 'exists:kecamatan,id'],
             'entries' => ['required', 'array', 'min:1'],
             'entries.*' => ['required', 'array:komoditas_id,kecamatan_id,harga_hari_sebelumnya,harga_hari_ini,stok_tersedia,satuan_stok,sumber_distribusi_masuk,status_ketersediaan'],
             'entries.*.komoditas_id' => [
@@ -138,19 +287,23 @@ class InputDataController extends Controller
         return $validated['entries'];
     }
 
-    private function calculatePanganChanges(array $validated): array
+    private function calculatePanganChanges(float $hargaHariIni, float $hargaSebelumnya): array
     {
-        $hargaSebelumnya = (float) ($validated['harga_hari_sebelumnya'] ?? $validated['harga_hari_ini']);
-        $perubahanNominal = (float) $validated['harga_hari_ini'] - $hargaSebelumnya;
-        $perubahanPersen = $hargaSebelumnya > 0 ? ($perubahanNominal / $hargaSebelumnya) * 100 : 0;
-
-        $statusHarga = match (true) {
-            $perubahanPersen > 25 => 'harga_tinggi',
-            $perubahanPersen > 10 => 'naik_tinggi',
-            $perubahanPersen > 0 => 'naik_wajar',
-            $perubahanPersen < 0 => 'turun',
-            default => 'stabil',
-        };
+        if ($hargaSebelumnya > 0) {
+            $perubahanNominal = $hargaHariIni - $hargaSebelumnya;
+            $perubahanPersen = ($perubahanNominal / $hargaSebelumnya) * 100;
+            $statusHarga = match (true) {
+                $perubahanPersen > 25 => 'harga_tinggi',
+                $perubahanPersen > 10 => 'naik_tinggi',
+                $perubahanPersen > 0 => 'naik_wajar',
+                $perubahanPersen < 0 => 'turun',
+                default => 'stabil',
+            };
+        } else {
+            $perubahanNominal = 0.0;
+            $perubahanPersen = 0.0;
+            $statusHarga = 'stabil';
+        }
 
         return [
             'harga_hari_sebelumnya' => $hargaSebelumnya,
@@ -358,18 +511,28 @@ class InputDataController extends Controller
 
     public function iph(Request $request)
     {
-        $tahun = $request->query('tahun', date('Y'));
+        $daftarTahun = IphMingguan::query()
+            ->select('tahun')
+            ->distinct()
+            ->whereNotNull('tahun')
+            ->pluck('tahun')
+            ->map(fn ($t) => (int) $t)
+            ->unique()
+            ->sortDesc()
+            ->values()
+            ->all();
+
+        if (empty($daftarTahun)) {
+            $daftarTahun = [(int) date('Y')];
+        }
+
+        $tahun = $request->query('tahun', (string) ($daftarTahun[0] ?? date('Y')));
         $records = IphMingguan::query()
             ->when($tahun, fn ($q) => $q->where('tahun', $tahun))
             ->orderBy('tahun', 'desc')
             ->orderBy('bulan', 'desc')
             ->orderBy('minggu_ke', 'desc')
             ->get();
-
-        $daftarTahun = IphMingguan::select('tahun')->distinct()->orderByDesc('tahun')->pluck('tahun')->all();
-        if (!in_array((int) date('Y'), $daftarTahun, true)) {
-            array_unshift($daftarTahun, (int) date('Y'));
-        }
 
         return view('input.iph-mingguan', compact('records', 'tahun', 'daftarTahun'));
     }
@@ -447,14 +610,12 @@ class InputDataController extends Controller
             'Nilai IPH (%)',
             'Ranking Nasional',
             'Komoditas Andil',
-            'Status',
         ];
 
         $rows = [];
         foreach ($records as $idx => $r) {
             [, $namaBulan] = self::parseBulan($r->bulan);
             $val = (float) $r->iph_kabupaten;
-            $status = $val > 3.5 || $val < -2.5 ? 'Tinggi' : ($val >= 2.5 ? 'Waspada' : 'Terkendali');
 
             $rows[] = [
                 $idx + 1,
@@ -466,7 +627,6 @@ class InputDataController extends Controller
                 $val,
                 $r->ranking ?? '-',
                 $r->komoditas_andil ?? $r->komoditas_penyumbang_inflasi ?? '-',
-                $status,
             ];
         }
 
@@ -480,17 +640,27 @@ class InputDataController extends Controller
 
     public function iph_bulanan(Request $request)
     {
-        $tahun = $request->query('tahun', date('Y'));
+        $daftarTahun = IphBulanan::query()
+            ->select('tahun')
+            ->distinct()
+            ->whereNotNull('tahun')
+            ->pluck('tahun')
+            ->map(fn ($t) => (int) $t)
+            ->unique()
+            ->sortDesc()
+            ->values()
+            ->all();
+
+        if (empty($daftarTahun)) {
+            $daftarTahun = [(int) date('Y')];
+        }
+
+        $tahun = $request->query('tahun', (string) ($daftarTahun[0] ?? date('Y')));
         $records = IphBulanan::query()
             ->when($tahun, fn ($q) => $q->where('tahun', $tahun))
             ->orderBy('tahun', 'desc')
             ->orderBy('bulan', 'desc')
             ->get();
-
-        $daftarTahun = IphBulanan::select('tahun')->distinct()->orderByDesc('tahun')->pluck('tahun')->all();
-        if (!in_array((int) date('Y'), $daftarTahun, true)) {
-            array_unshift($daftarTahun, (int) date('Y'));
-        }
 
         return view('input.iph-bulanan', compact('records', 'tahun', 'daftarTahun'));
     }
@@ -560,7 +730,6 @@ class InputDataController extends Controller
             'Nilai IPH Bulanan (%)',
             'Ranking Nasional',
             'Komoditas Andil',
-            'Status Kategori',
             'Catatan BPS',
         ];
 
@@ -574,7 +743,6 @@ class InputDataController extends Controller
                 (float) $r->iph_bulanan,
                 $r->ranking ?? '-',
                 $r->komoditas_andil ?? '-',
-                ucfirst($r->status_kategori ?? 'Terkendali'),
                 $r->catatan ?? '-',
             ];
         }

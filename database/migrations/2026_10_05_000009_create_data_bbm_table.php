@@ -32,7 +32,7 @@ return new class extends Migration
 
             $table->enum('status_antrean', ['tidak_ada', 'pendek', 'panjang', 'sangat_panjang'])->default('tidak_ada');
             $table->integer('estimasi_waktu_tunggu_menit')->nullable();
-            $table->enum('status_ketersediaan', ['aman', 'waspada', 'menipis', 'kosong'])->default('aman');
+            $table->enum('status_ketersediaan', ['aman', 'waspada', 'kritis'])->default('aman');
             $table->enum('status_verifikasi', ['draft', 'pending', 'disetujui', 'ditolak'])->default('draft');
 
             $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();

@@ -18,6 +18,7 @@
                         Peta GIS Kerawanan Wilayah
                     </h3>
                     <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Visualisasi zona risiko inflasi per kecamatan di Kabupaten Gorontalo Utara</p>
+                    <p class="text-sm text-slate-500 mt-1">Titik peta ditampilkan dari data {{ $mapFilterType === 'pangan' ? 'pangan strategis' : ($mapFilterType === 'lpg' ? 'LPG 3 KG' : 'BBM subsidi') }} per kecamatan.</p>
                 </div>
                 <div class="flex items-center gap-3 text-xs shrink-0">
                     <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500"></span><span class="font-semibold text-slate-600">Aman</span></div>
@@ -28,17 +29,16 @@
             <div id="gisMap" class="h-[280px] sm:h-[360px] lg:h-[440px] 2xl:h-[580px] w-full relative z-0 isolate"></div>
         </div>
 
-        {{-- Widget Rekomendasi Strategis Otomatis --}}
-        <div class="lg:col-span-4 2xl:col-span-4 bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-            <div class="p-4 sm:p-6 border-b border-slate-100">
+        <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100">
                 <div class="flex items-center gap-2 mb-1">
-                    <svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    <svg class="w-5 h-5 text-fuchsia-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M3.75 6h.75m-.75 6h.75m-.75 6h.75m6-6h9.75m-9.75 6h9.75M6 5.625a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 6a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 6a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
                     </svg>
-                    <h3 class="text-sm sm:text-base font-bold text-slate-900">Rekomendasi Strategis</h3>
+                    <h3 class="text-base font-bold text-slate-900">Filter Tampilan Peta</h3>
                 </div>
                 <p class="text-xs text-slate-500 leading-relaxed">
-                    Rekomendasi pasar yang diterbitkan dan tindakan otomatis berdasarkan data peringatan.
+                    Pilih jenis data yang ingin ditampilkan pada peta. Klik titik kecamatan untuk melihat detail hasil filter.
                 </p>
             </div>
             <div class="p-3.5 sm:p-4 space-y-3 max-h-[300px] sm:max-h-[360px] lg:max-h-[440px] 2xl:max-h-[580px] overflow-y-auto">
@@ -60,19 +60,74 @@
                             @else
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
                             @endif
+            <div class="p-4 space-y-4 max-h-[400px] overflow-y-auto">
+                <form method="GET" action="{{ route('dashboard') }}" class="space-y-4" id="map-filter-form">
+                    @if(request('tab'))
+                        <input type="hidden" name="tab" value="{{ request('tab') }}">
+                    @endif
+                    <div>
+                        <label for="map_filter_type" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Data Peta</label>
+                        <select id="map_filter_type" name="map_filter_type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500 shadow-sm">
+                            <option value="pangan" @selected($mapFilterType === 'pangan')>Pangan Strategis</option>
+                            <option value="lpg" @selected($mapFilterType === 'lpg')>LPG 3 KG</option>
+                            <option value="bbm" @selected($mapFilterType === 'bbm')>BBM Subsidi</option>
+                        </select>
+                    </div>
+
+                    <div id="map-komoditas-wrapper" class="{{ $mapFilterType === 'pangan' ? '' : 'hidden' }}">
+                        <label for="map_komoditas_id" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Komoditas Pangan</label>
+                        <select id="map_komoditas_id" name="map_komoditas_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500 shadow-sm">
+                            <option value="">Semua Komoditas</option>
+                            @foreach($komoditasPangan as $item)
+                                <option value="{{ $item->id }}" @selected((string) $mapKomoditasId === (string) $item->id)>{{ $item->nama_komoditas }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition shadow-sm">
+                        Terapkan Filter Peta
+                    </button>
+                </form>
+
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                    <div>
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Filter Aktif</p>
+                        <p class="text-sm font-bold text-slate-800 mt-1">
+                            {{ $mapFilterType === 'pangan' ? 'Pangan Strategis' : ($mapFilterType === 'lpg' ? 'LPG 3 KG' : 'BBM Subsidi') }}
+                        </p>
+                        @if($mapFilterType === 'pangan' && $mapFilterKomoditas)
+                            <p class="text-xs text-slate-500 mt-1">Komoditas: {{ $mapFilterKomoditas->nama_komoditas }}</p>
+                        @elseif($mapFilterType === 'pangan')
+                            <p class="text-xs text-slate-500 mt-1">Komoditas: Semua komoditas strategis</p>
+                        @endif
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="rounded-xl bg-white border border-slate-200 px-3 py-3">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Titik Aktif</p>
+                            <p class="text-2xl font-extrabold text-slate-900 mt-1">{{ $activePointsCount }}</p>
                         </div>
-                        <div class="min-w-0">
-                            <p class="text-xs font-bold text-slate-900 leading-snug">{{ $rek['judul'] }}</p>
-                            <p class="text-[11px] font-semibold {{ $rek['zona'] == 'merah' ? 'text-red-600' : ($rek['zona'] == 'kuning' ? 'text-amber-600' : 'text-emerald-600') }} mb-1">Kec. {{ $rek['kecamatan'] }}</p>
-                            <p class="text-[11px] text-slate-500 leading-relaxed">{{ $rek['detail'] }}</p>
+                        <div class="rounded-xl bg-white border border-slate-200 px-3 py-3">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Sumber Data</p>
+                            <p class="text-sm font-bold text-slate-900 mt-2">{{ $mapFilterType === 'pangan' ? 'Data Pangan' : ($mapFilterType === 'lpg' ? 'Data LPG' : 'Data BBM') }}</p>
                         </div>
                     </div>
+
+                    <div class="rounded-xl bg-white border border-slate-200 px-3 py-3">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Petunjuk</p>
+                        <ul class="space-y-1 text-xs text-slate-600">
+                            <li>Klik marker kecamatan untuk melihat detail.</li>
+                            <li>Warna marker mengikuti status ketersediaan data terbaru.</li>
+                            <li>Data ditarik langsung dari tabel sesuai filter aktif.</li>
+                        </ul>
+                    </div>
                 </div>
-                @empty
-                <div class="text-center text-slate-400 text-xs py-4">
-                    Tidak ada rekomendasi saat ini.
-                </div>
-                @endforelse
+
+                @if($mapPoints->isEmpty())
+                    <div class="rounded-2xl border border-dashed border-slate-200 px-4 py-6 text-center text-xs text-slate-400">
+                        Belum ada titik peta yang bisa ditampilkan untuk filter ini.
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -296,7 +351,7 @@
                                     {{ $d['perubahan_persen'] === null ? '-' : (($d['perubahan_persen'] > 0 ? '+' : '').number_format((float) $d['perubahan_persen'], 1, ',', '.').'%') }}
                                 </td>
                                 <td class="py-4 pl-4 text-right whitespace-nowrap">
-                                    <span class="inline-block text-[11px] font-bold px-3 py-1 rounded-full uppercase {{ $d['status_ketersediaan'] === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($d['status_ketersediaan'] === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-600') }}">{{ $d['status_ketersediaan'] ? ($d['status_ketersediaan'] === 'kosong' ? 'Kritis' : $d['status_ketersediaan']) : '-' }}</span>
+                                    <span class="inline-block text-[11px] font-bold px-3 py-1 rounded-full uppercase {{ $d['status_ketersediaan'] === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($d['status_ketersediaan'] === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-600') }}">{{ $d['status_ketersediaan'] ? ucfirst($d['status_ketersediaan']) : '-' }}</span>
                                 </td>
                             </tr>
                             @empty
@@ -515,6 +570,18 @@
             switchTab(requestedTab);
         }
 
+        const mapFilterType = document.getElementById('map_filter_type');
+        const mapKomoditasWrapper = document.getElementById('map-komoditas-wrapper');
+
+        if (mapFilterType && mapKomoditasWrapper) {
+            const toggleKomoditasFilter = () => {
+                mapKomoditasWrapper.classList.toggle('hidden', mapFilterType.value !== 'pangan');
+            };
+
+            toggleKomoditasFilter();
+            mapFilterType.addEventListener('change', toggleKomoditasFilter);
+        }
+
         // --- 1. GRAFIK IPH MINGGUAN ---
         const ctxMingguan = document.getElementById('iphChartMingguan');
         if (ctxMingguan) {
@@ -632,148 +699,75 @@
         // --- 3. INISIALISASI LEAFLET GIS ---
         const gisMapEl = document.getElementById('gisMap');
         if (gisMapEl) {
-            const map = L.map('gisMap', {
-                scrollWheelZoom: false
-            }).setView([0.72, 123.05], 10);
+            const map = L.map('gisMap').setView([0.85, 122.9], 10);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors',
                 maxZoom: 18
             }).addTo(map);
 
-            const kecamatanData = @json($kecamatan ?? []);
-            const marketRecommendations = @json($rekomendasiPeta ?? []);
-
-            const colorMap = {
-                'hijau': '#10b981',
-                'kuning': '#f59e0b',
-                'merah': '#ef4444'
+            const mapPoints = @json($mapPoints ?? []);
+            const statusColorMap = {
+                tidak_ada: '#cbd5e1', // Slate 300
+                aman: '#10b981',
+                waspada: '#f59e0b',
+                kritis: '#ef4444'
+            };
+            const statusLabelMap = {
+                tidak_ada: 'Belum Ada Data',
+                aman: 'Aman',
+                waspada: 'Waspada',
+                kritis: 'Kritis'
             };
 
-            const allPoints = [];
+            const popupHtml = (point) => {
+                const rows = (point.detail_items || []).map((item) => {
+                    const lines = (item.baris || []).map((line) => `<li style="margin-top:2px;">${line}</li>`).join('');
+                    return `
+                        <div style="padding:8px 0;border-top:1px solid #e2e8f0;">
+                            <div style="font-weight:700;color:#0f172a;">${item.judul}</div>
+                            <ul style="margin:6px 0 0 18px;padding:0;color:#475569;font-size:12px;">
+                                ${lines}
+                            </ul>
+                        </div>
+                    `;
+                }).join('');
 
-            if (kecamatanData.length > 0) {
-                kecamatanData.forEach(function(kec) {
-                    if (kec.latitude && kec.longitude) {
-                        const lat = parseFloat(kec.latitude);
-                        const lng = parseFloat(kec.longitude);
-                        allPoints.push([lat, lng]);
-                        const color = colorMap[kec.zona_risiko] || '#94a3b8';
-                        L.circleMarker([lat, lng], {
-                            radius: 12,
-                            fillColor: color,
-                            color: '#ffffff',
-                            weight: 2,
-                            opacity: 1,
-                            fillOpacity: 0.85
-                        }).addTo(map)
-                        .bindPopup('<strong>' + kec.nama_kecamatan + '</strong><br>Zona: ' + (kec.zona_risiko || 'hijau'));
-                    }
-                });
-            } else {
-                const fallback = [
-                    { nama: 'Kwandang', lat: 0.7210, lng: 123.0510, zona: 'merah' },
-                    { nama: 'Atinggola', lat: 0.7450, lng: 123.1200, zona: 'merah' },
-                    { nama: 'Sumalata', lat: 0.6800, lng: 123.1800, zona: 'kuning' },
-                    { nama: 'Gentuma Raya', lat: 0.6500, lng: 123.2200, zona: 'kuning' },
-                    { nama: 'Anggrek', lat: 0.6200, lng: 123.1000, zona: 'hijau' }
-                ];
-                fallback.forEach(function(kec) {
-                    allPoints.push([kec.lat, kec.lng]);
-                    const color = colorMap[kec.zona];
-                    L.circleMarker([kec.lat, kec.lng], {
-                        radius: 12,
-                        fillColor: color,
-                        color: '#ffffff',
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 0.85
-                    }).addTo(map)
-                    .bindPopup('<strong>' + kec.nama + '</strong><br>Zona: ' + kec.zona);
-                });
-            }
+                const status = statusLabelMap[point.status_ketersediaan] || point.status_ketersediaan || '-';
 
-            marketRecommendations.forEach(function(rekomendasi) {
-                const lat = parseFloat(rekomendasi.latitude);
-                const lng = parseFloat(rekomendasi.longitude);
-                allPoints.push([lat, lng]);
-                const color = colorMap[rekomendasi.zona] || '#ef4444';
-                const popup = document.createElement('div');
-                const title = document.createElement('strong');
-                const alertTitle = document.createElement('p');
-                const location = document.createElement('p');
-                const detail = document.createElement('p');
+                return `
+                    <div style="min-width:240px;max-width:320px;">
+                        <div style="font-weight:800;color:#0f172a;font-size:14px;">${point.kecamatan}</div>
+                        <div style="font-size:12px;color:#64748b;margin-top:2px;">${point.kategori}</div>
+                        <div style="font-size:12px;color:#334155;margin-top:6px;"><strong>Status:</strong> ${status}</div>
+                        ${rows}
+                    </div>
+                `;
+            };
 
-                title.textContent = rekomendasi.judul;
-                alertTitle.textContent = 'Peringatan: ' + rekomendasi.alert;
-                location.textContent = 'Kec. ' + rekomendasi.kecamatan + ' | Zona: ' + rekomendasi.zona;
-                detail.textContent = rekomendasi.detail;
-                popup.append(title, alertTitle, location, detail);
+            const bounds = [];
+            mapPoints.forEach(function(point) {
+                if (!point.latitude || !point.longitude) {
+                    return;
+                }
 
-                L.circleMarker([lat, lng], {
-                    radius: 9,
+                const statusKey = (point.status_ketersediaan || '').toLowerCase();
+                const color = statusColorMap[statusKey] || '#94a3b8';
+
+                L.circleMarker([parseFloat(point.latitude), parseFloat(point.longitude)], {
+                    radius: 12,
                     fillColor: color,
                     color: '#ffffff',
                     weight: 2,
                     opacity: 1,
-                    fillOpacity: 0.95
-                }).addTo(map).bindPopup(popup);
+                    fillOpacity: 0.9
+                }).addTo(map).bindPopup(popupHtml(point));
+
+                bounds.push([parseFloat(point.latitude), parseFloat(point.longitude)]);
             });
 
-            let userHasInteracted = false;
-            map.on('zoomstart dragstart', function() {
-                userHasInteracted = true;
-            });
-
-            // Sinkronkan view dan bounds peta agar mencakup seluruh Gorontalo Utara
-            function syncMapBounds() {
-                if (allPoints.length > 0) {
-                    map.fitBounds(allPoints, {
-                        padding: [25, 25],
-                        maxZoom: window.innerWidth < 640 ? 10 : 11
-                    });
-                }
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [25, 25] });
             }
-            syncMapBounds();
-
-            // Fungsi invalidateSize agar posisi tile tidak bergeser/abu-abu saat sidebar berubah
-            function invalidateGisMap(shouldFit = false) {
-                map.invalidateSize({ pan: false });
-                if (shouldFit && !userHasInteracted) {
-                    syncMapBounds();
-                }
-            }
-
-            // Panggilan berkala saat render awal dan transisi CSS
-            [100, 250, 400, 700].forEach(delay => {
-                setTimeout(() => invalidateGisMap(false), delay);
-            });
-
-            // ResizeObserver pada kontainer peta
-            if (window.ResizeObserver) {
-                let roTimer;
-                const ro = new ResizeObserver(() => {
-                    invalidateGisMap(false);
-                    clearTimeout(roTimer);
-                    roTimer = setTimeout(() => invalidateGisMap(!userHasInteracted), 150);
-                });
-                ro.observe(gisMapEl);
-            }
-
-            // Event listener saat window di-resize atau sidebar ditoggle
-            let resizeTimer;
-            window.addEventListener('resize', function () {
-                invalidateGisMap(false);
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(() => {
-                    invalidateGisMap(!userHasInteracted);
-                }, 200);
-            });
-
-            window.addEventListener('orientationchange', () => {
-                setTimeout(() => {
-                    invalidateGisMap(true);
-                }, 300);
-            });
         }
     });
 </script>

@@ -31,7 +31,7 @@ return new class extends Migration
             $table->decimal('persentase_kenaikan_harga', 8, 2)->nullable();
 
             $table->enum('status_harga', ['sesuai_het', 'melampaui_het_ringan', 'melampaui_het_tinggi'])->default('sesuai_het');
-            $table->enum('status_ketersediaan', ['aman', 'waspada', 'menipis', 'kosong'])->default('aman');
+            $table->enum('status_ketersediaan', ['aman', 'waspada', 'kritis'])->default('aman');
             $table->enum('status_distribusi', ['lancar', 'terhambat', 'macet', 'panic_buying'])->default('lancar');
             $table->enum('status_verifikasi', ['draft', 'pending', 'disetujui', 'ditolak'])->default('draft');
 

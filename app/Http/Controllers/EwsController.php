@@ -12,99 +12,135 @@ class EwsController extends Controller
 {
     public function index()
     {
-        $alerts = EwsAlert::with(['kecamatan', 'rekomendasi'])
+        $manualAlerts = EwsAlert::with(['kecamatan'])
             ->whereIn('status', ['terbuka', 'diproses'])
             ->orderBy('waktu_terdeteksi', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($alert) {
+                return (object) [
+                    'id' => $alert->id,
+                    'is_manual' => true,
+                    'judul_alert' => $alert->judul_alert,
+                    'wilayah' => $alert->kecamatan?->nama_kecamatan ?? 'Gorontalo Utara',
+                    'kategori' => ucfirst($alert->kategori),
+                    'status_ketersediaan' => $alert->status_ketersediaan,
+                    'waktu_terdeteksi' => $alert->waktu_terdeteksi,
+                    'analisis_sistem' => $alert->analisis_sistem,
+                    'foto_laporan_path' => $alert->foto_laporan_path,
+                ];
+            });
 
-        $kecamatanList = Kecamatan::where('is_active', true)
-            ->select('id', 'nama_kecamatan', 'zona_risiko')
+        $automaticAlerts = $this->getAutomaticAlerts();
+        
+        $alerts = $manualAlerts->concat($automaticAlerts)->sortByDesc('waktu_terdeteksi');
+
+        $kecamatanOptions = Kecamatan::where('is_active', true)
+            ->select('id', 'nama_kecamatan')
             ->orderBy('nama_kecamatan')
             ->get();
 
-        $kecamatanOptions = $kecamatanList;
-
-        $rekomendasiStrategis = $this->generateRekomendasiStrategis($kecamatanList, $alerts);
-
-        return view('ews.index', compact('alerts', 'kecamatanList', 'kecamatanOptions', 'rekomendasiStrategis'));
+        return view('ews.index', compact('alerts', 'kecamatanOptions'));
     }
 
-    private function generateRekomendasiStrategis($kecamatanList, $alerts)
+    private function getAutomaticAlerts()
     {
-        $rekomendasi = [];
+        $alerts = collect();
 
-        foreach ($kecamatanList as $kec) {
-            if ($kec->zona_risiko == 'merah') {
-                $rekomendasi[] = [
-                    'kecamatan' => $kec->nama_kecamatan,
-                    'zona' => 'merah',
-                    'judul' => 'Operasi Pasar Murah',
-                    'detail' => 'Segera koordinasikan operasi pasar murah di Kec. '.$kec->nama_kecamatan.' karena harga pada zona merah. Libatkan Dinas Perdagangan dan pasokan dari wilayah surplus.',
-                    'ikon' => 'store',
-                    'warna' => 'red',
-                ];
-                $rekomendasi[] = [
-                    'kecamatan' => $kec->nama_kecamatan,
-                    'zona' => 'merah',
-                    'judul' => 'Intervensi Distribusi Stok',
-                    'detail' => 'Alihkan stok dari kecamatan surplus (zona hijau) menuju Kec. '.$kec->nama_kecamatan.' untuk menekan kelangkaan dan harga tinggi.',
-                    'ikon' => 'truck',
-                    'warna' => 'red',
-                ];
-            } elseif ($kec->zona_risiko == 'kuning') {
-                $rekomendasi[] = [
-                    'kecamatan' => $kec->nama_kecamatan,
-                    'zona' => 'kuning',
-                    'judul' => 'Sidak Lapangan',
-                    'detail' => 'Lakukan sidak lapangan di Kec. '.$kec->nama_kecamatan.' untuk memverifikasi kenaikan harga atau penurunan stok yang terindikasi.',
-                    'ikon' => 'clipboard',
-                    'warna' => 'amber',
-                ];
-                $rekomendasi[] = [
-                    'kecamatan' => $kec->nama_kecamatan,
-                    'zona' => 'kuning',
-                    'judul' => 'Pantau Pasar Terarah',
-                    'detail' => 'Fokuskan pemantauan harga harian di pasar utama Kec. '.$kec->nama_kecamatan.' untuk mencegah masuk zona merah.',
-                    'ikon' => 'eye',
-                    'warna' => 'amber',
-                ];
-            }
+        // Ambil ID yang sudah diselesaikan untuk menghindari duplikasi
+        $resolvedIds = EwsAlert::where('sumber_deteksi', 'otomatis_sistem')
+            ->where('status', 'selesai')
+            ->get()
+            ->map(function ($alert) {
+                return ($alert->data_pemicu['source_type'] ?? '') . '-' . ($alert->data_pemicu['source_id'] ?? '');
+            })
+            ->toArray();
+
+        // 1. Data Pangan
+        $pangan = \App\Models\DataPangan::with(['kecamatan', 'komoditas'])
+            ->where('status_ketersediaan', '!=', 'aman')
+            ->orderByDesc('tanggal_input')
+            ->orderByDesc('created_at')
+            ->get()
+            ->filter(fn ($p) => !in_array('pangan-' . $p->id, $resolvedIds))
+            ->groupBy(fn ($item) => $item->kecamatan_id . '-' . $item->komoditas_id)
+            ->map(fn ($group) => $group->first());
+
+        foreach ($pangan as $p) {
+            $alerts->push((object) [
+                'id' => 'pangan-' . $p->id,
+                'is_manual' => false,
+                'judul_alert' => 'Anomali Stok: ' . ($p->komoditas?->nama_komoditas ?? 'Komoditas'),
+                'wilayah' => $p->kecamatan?->nama_kecamatan ?? '-',
+                'kategori' => 'Pangan Strategis',
+                'status_ketersediaan' => $p->status_ketersediaan,
+                'waktu_terdeteksi' => $p->tanggal_input,
+                'analisis_sistem' => "Terdeteksi status ketersediaan '{$p->status_ketersediaan}' untuk komoditas {$p->komoditas?->nama_komoditas} di wilayah {$p->kecamatan?->nama_kecamatan}. Stok saat ini: " . number_format($p->stok_tersedia, 0, ',', '.') . " " . ($p->komoditas?->satuan ?? ''),
+                'foto_laporan_path' => null,
+            ]);
         }
 
-        foreach ($alerts as $alert) {
-            $kec = $alert->kecamatan?->nama_kecamatan ?? 'Gorontalo Utara';
-            $rekomendasi[] = [
-                'kecamatan' => $kec,
-                'zona' => $alert->tingkat_risiko == 'tinggi' ? 'merah' : ($alert->tingkat_risiko == 'sedang' ? 'kuning' : 'hijau'),
-                'judul' => 'Tindak Lanjut Alert: '.$alert->judul_alert,
-                'detail' => 'Berikan respon cepat terhadap alert di '.$kec.'. '.($alert->analisis_sistem ?? 'Verifikasi data dan koordinasikan dengan pihak terkait.'),
-                'ikon' => 'bell',
-                'warna' => $alert->tingkat_risiko == 'tinggi' ? 'red' : ($alert->tingkat_risiko == 'sedang' ? 'amber' : 'emerald'),
-            ];
+        // 2. Data LPG
+        $lpg = \App\Models\DataLpg::with(['kecamatan'])
+            ->where('status_ketersediaan', '!=', 'aman')
+            ->orderByDesc('tanggal_input')
+            ->orderByDesc('created_at')
+            ->get()
+            ->filter(fn ($l) => !in_array('lpg-' . $l->id, $resolvedIds))
+            ->groupBy(fn ($item) => $item->kecamatan_id . '-' . $item->jenis_lpg)
+            ->map(fn ($group) => $group->first());
+
+        foreach ($lpg as $l) {
+            $alerts->push((object) [
+                'id' => 'lpg-' . $l->id,
+                'is_manual' => false,
+                'judul_alert' => 'Anomali Stok: ' . $l->jenis_lpg,
+                'wilayah' => $l->kecamatan?->nama_kecamatan ?? '-',
+                'kategori' => 'LPG',
+                'status_ketersediaan' => $l->status_ketersediaan,
+                'waktu_terdeteksi' => $l->tanggal_input,
+                'analisis_sistem' => "Terdeteksi status ketersediaan '{$l->status_ketersediaan}' untuk {$l->jenis_lpg} di wilayah {$l->kecamatan?->nama_kecamatan}. Stok saat ini: " . number_format($l->stok_tersedia_tabung, 0, ',', '.') . " tabung.",
+                'foto_laporan_path' => null,
+            ]);
         }
 
-        return $rekomendasi;
+        // 3. Data BBM
+        $bbm = \App\Models\DataBbm::with(['kecamatan', 'spbu'])
+            ->where('status_ketersediaan', '!=', 'aman')
+            ->orderByDesc('tanggal_input')
+            ->orderByDesc('created_at')
+            ->get()
+            ->filter(fn ($b) => !in_array('bbm-' . $b->id, $resolvedIds))
+            ->groupBy(fn ($item) => $item->spbu_id . '-' . $item->jenis_bbm)
+            ->map(fn ($group) => $group->first());
+
+        foreach ($bbm as $b) {
+            $alerts->push((object) [
+                'id' => 'bbm-' . $b->id,
+                'is_manual' => false,
+                'judul_alert' => 'Anomali Stok: ' . $b->jenis_bbm,
+                'wilayah' => $b->kecamatan?->nama_kecamatan ?? '-',
+                'kategori' => 'BBM',
+                'status_ketersediaan' => $b->status_ketersediaan,
+                'waktu_terdeteksi' => $b->tanggal_input,
+                'analisis_sistem' => "Terdeteksi status ketersediaan '{$b->status_ketersediaan}' untuk {$b->jenis_bbm} di SPBU " . ($b->spbu?->nama_spbu ?? '-') . " ({$b->kecamatan?->nama_kecamatan}). Stok saat ini: " . number_format($b->stok_tersedia_kl, 3, ',', '.') . " KL.",
+                'foto_laporan_path' => null,
+            ]);
+        }
+
+        return $alerts;
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'kategori' => 'required|in:pangan,lpg,bbm,multikomoditas',
-            'tingkat_risiko' => 'required|in:rendah,sedang,tinggi,kritis',
+            'status_ketersediaan' => 'required|in:aman,waspada,kritis',
             'kecamatan_id' => 'required|exists:kecamatan,id',
             'judul_alert' => 'required|string|max:200',
             'analisis_sistem' => 'required|string',
-            'latitude' => 'required|numeric|between:-90,90',
-            'longitude' => 'required|numeric|between:-180,180',
             'fotos' => 'nullable|array|max:3',
             'fotos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
-
-        if (! $this->isInsideGorontalo((float) $validated['latitude'], (float) $validated['longitude'])) {
-            throw ValidationException::withMessages([
-                'latitude' => 'Titik lokasi harus berada di dalam Provinsi Gorontalo.',
-            ]);
-        }
 
         $fotoPaths = collect($request->file('fotos', []))
             ->map(fn ($foto): string => $foto->store('ews-alerts', 'public'))
@@ -114,11 +150,9 @@ class EwsController extends Controller
             'kode_alert' => 'EWS-'.date('Ymd').'-'.str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT),
             'sumber_deteksi' => 'manual_admin',
             'kategori' => $validated['kategori'],
-            'tingkat_risiko' => $validated['tingkat_risiko'],
+            'status_ketersediaan' => $validated['status_ketersediaan'],
             'status' => 'terbuka',
             'kecamatan_id' => $validated['kecamatan_id'],
-            'latitude' => $validated['latitude'],
-            'longitude' => $validated['longitude'],
             'judul_alert' => $validated['judul_alert'],
             'analisis_sistem' => $validated['analisis_sistem'],
             'foto_laporan_path' => $fotoPaths,
@@ -130,80 +164,77 @@ class EwsController extends Controller
             ->with('success', 'Peringatan baru berhasil dibuat.');
     }
 
-    public function storeRekomendasi(EwsAlert $alert)
+    public function resolve(Request $request, $id)
     {
-        $alert->rekomendasi()->firstOrCreate(
-            ['tipe_rekomendasi' => 'operasi_pasar'],
-            [
-                'judul_rekomendasi' => 'Operasi Pasar: '.$alert->judul_alert,
-                'detail_rekomendasi' => $alert->analisis_sistem,
-                'target_pelaksana' => 'TPID Kabupaten Gorontalo Utara',
-                'dibuat_oleh' => Auth::id(),
-            ]
-        );
+        $validated = $request->validate([
+            'tindak_lanjut' => 'required|string',
+            'bukti_penanganan' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+        ]);
+
+        $fotoPath = $request->file('bukti_penanganan')->store('ews-resolutions', 'public');
+
+        if (is_numeric($id)) {
+            // Manual Alert
+            $alert = EwsAlert::findOrFail($id);
+            $alert->update([
+                'status' => 'selesai',
+                'tindak_lanjut' => $validated['tindak_lanjut'],
+                'bukti_penanganan_path' => $fotoPath,
+                'ditangani_oleh' => Auth::id(),
+                'waktu_penanganan' => now(),
+            ]);
+        } else {
+            // Automatic Alert (pangan-ID, lpg-ID, bbm-ID)
+            [$type, $sourceId] = explode('-', $id);
+            
+            $sourceData = null;
+            $kategori = '';
+            $kecamatanId = null;
+            $judulAlert = '';
+            $analisisSistem = '';
+
+            if ($type === 'pangan') {
+                $sourceData = \App\Models\DataPangan::with(['kecamatan', 'komoditas'])->findOrFail($sourceId);
+                $kategori = 'pangan';
+                $kecamatanId = $sourceData->kecamatan_id;
+                $judulAlert = 'Anomali Stok: ' . ($sourceData->komoditas?->nama_komoditas ?? 'Komoditas');
+                $analisisSistem = "Terdeteksi status ketersediaan '{$sourceData->status_ketersediaan}' untuk komoditas {$sourceData->komoditas?->nama_komoditas} di wilayah {$sourceData->kecamatan?->nama_kecamatan}.";
+            } elseif ($type === 'lpg') {
+                $sourceData = \App\Models\DataLpg::with(['kecamatan'])->findOrFail($sourceId);
+                $kategori = 'lpg';
+                $kecamatanId = $sourceData->kecamatan_id;
+                $judulAlert = 'Anomali Stok: ' . $sourceData->jenis_lpg;
+                $analisisSistem = "Terdeteksi status ketersediaan '{$sourceData->status_ketersediaan}' untuk {$sourceData->jenis_lpg} di wilayah {$sourceData->kecamatan?->nama_kecamatan}.";
+            } elseif ($type === 'bbm') {
+                $sourceData = \App\Models\DataBbm::with(['kecamatan', 'spbu'])->findOrFail($sourceId);
+                $kategori = 'bbm';
+                $kecamatanId = $sourceData->kecamatan_id;
+                $judulAlert = 'Anomali Stok: ' . $sourceData->jenis_bbm;
+                $analisisSistem = "Terdeteksi status ketersediaan '{$sourceData->status_ketersediaan}' untuk {$sourceData->jenis_bbm} di SPBU " . ($sourceData->spbu?->nama_spbu ?? '-') . ".";
+            }
+
+            EwsAlert::create([
+                'kode_alert' => 'EWS-AUTO-'.date('Ymd').'-'.str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT),
+                'sumber_deteksi' => 'otomatis_sistem',
+                'kategori' => $kategori,
+                'status_ketersediaan' => $sourceData->status_ketersediaan,
+                'status' => 'selesai',
+                'kecamatan_id' => $kecamatanId,
+                'komoditas_id' => $type === 'pangan' ? $sourceData->komoditas_id : null,
+                'pangkalan_lpg_id' => $type === 'lpg' ? $sourceData->pangkalan_lpg_id : null,
+                'spbu_id' => $type === 'bbm' ? $sourceData->spbu_id : null,
+                'judul_alert' => $judulAlert,
+                'analisis_sistem' => $analisisSistem,
+                'data_pemicu' => ['source_type' => $type, 'source_id' => (int)$sourceId],
+                'tindak_lanjut' => $validated['tindak_lanjut'],
+                'bukti_penanganan_path' => $fotoPath,
+                'ditangani_oleh' => Auth::id(),
+                'waktu_penanganan' => now(),
+                'waktu_terdeteksi' => $sourceData->tanggal_input ?? now(),
+            ]);
+        }
 
         return redirect()->route('ews.index')
-            ->with('success', 'Rekomendasi strategis berhasil ditambahkan ke dashboard dan peta GIS.');
-    }
-
-    private function isInsideGorontalo(float $latitude, float $longitude): bool
-    {
-        $boundary = json_decode(
-            file_get_contents(public_path('data/gorontalo-boundary.geojson')),
-            true,
-            512,
-            JSON_THROW_ON_ERROR
-        );
-
-        foreach ($boundary['geometry']['coordinates'] as $polygon) {
-            if (! $this->isPointInsideRing($longitude, $latitude, $polygon[0])) {
-                continue;
-            }
-
-            foreach (array_slice($polygon, 1) as $hole) {
-                if ($this->isPointInsideRing($longitude, $latitude, $hole)) {
-                    continue 2;
-                }
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private function isPointInsideRing(float $longitude, float $latitude, array $ring): bool
-    {
-        $isInside = false;
-        $lastIndex = count($ring) - 1;
-
-        for ($index = 0; $index < count($ring); $index++) {
-            [$currentLongitude, $currentLatitude] = $ring[$index];
-            [$previousLongitude, $previousLatitude] = $ring[$lastIndex];
-
-            $crossesLatitude = ($currentLatitude > $latitude) !== ($previousLatitude > $latitude);
-            $crossingLongitude = ($previousLongitude - $currentLongitude)
-                * ($latitude - $currentLatitude)
-                / (($previousLatitude - $currentLatitude) ?: 0.0000000001)
-                + $currentLongitude;
-
-            if ($crossesLatitude && $longitude < $crossingLongitude) {
-                $isInside = ! $isInside;
-            }
-
-            $lastIndex = $index;
-        }
-
-        return $isInside;
-    }
-
-    public function monitorKabupaten()
-    {
-        $kecamatan = Kecamatan::where('is_active', true)
-            ->select('id', 'nama_kecamatan', 'latitude', 'longitude', 'zona_risiko')
-            ->orderBy('nama_kecamatan')
-            ->get();
-
-        return view('ews.monitor-kabupaten', compact('kecamatan'));
+            ->with('success', 'Peringatan telah berhasil ditindaklanjuti.');
     }
 }

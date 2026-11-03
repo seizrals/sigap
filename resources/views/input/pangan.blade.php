@@ -49,7 +49,7 @@
                             <td class="px-3 py-3 text-right whitespace-nowrap">Rp {{ number_format((float) $record->harga_hari_sebelumnya, 0, ',', '.') }}</td>
                             <td class="px-3 py-3 text-right whitespace-nowrap {{ $record->perubahan_harga_persen > 0 ? 'text-rose-600' : ($record->perubahan_harga_persen < 0 ? 'text-emerald-600' : 'text-slate-500') }}">{{ $record->perubahan_harga_persen > 0 ? '+' : '' }}{{ number_format((float) $record->perubahan_harga_persen, 2, ',', '.') }}%</td>
                             <td class="px-3 py-3 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 rounded-md font-semibold {{ $record->status_ketersediaan === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($record->status_ketersediaan === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700') }}">{{ $record->status_ketersediaan === 'kosong' ? 'Kritis' : ucfirst($record->status_ketersediaan) }}</span>
+                                <span class="inline-flex px-2 py-1 rounded-md font-semibold {{ $record->status_ketersediaan === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($record->status_ketersediaan === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700') }}">{{ ucfirst($record->status_ketersediaan) }}</span>
                             </td>
                             <td class="px-3 py-3 text-right whitespace-nowrap">{{ $record->stok_tersedia !== null ? number_format((float) $record->stok_tersedia, 0, ',', '.') : '-' }} {{ $record->satuan_stok }}</td>
                             <td class="px-3 py-3 max-w-48 truncate" title="{{ $record->sumber_distribusi_masuk }}">{{ $record->sumber_distribusi_masuk ?: '-' }}</td>
@@ -145,8 +145,7 @@
                                         <option value="">Pilih status</option>
                                         <option value="aman" @selected(old('entries.'.$item->id.'.status_ketersediaan') === 'aman')>Aman</option>
                                         <option value="waspada" @selected(old('entries.'.$item->id.'.status_ketersediaan') === 'waspada')>Waspada</option>
-                                        <option value="kurang" @selected(old('entries.'.$item->id.'.status_ketersediaan') === 'kurang')>Kurang</option>
-                                        <option value="kosong" @selected(old('entries.'.$item->id.'.status_ketersediaan') === 'kosong')>Kritis</option>
+                                        <option value="kritis" @selected(old('entries.'.$item->id.'.status_ketersediaan') === 'kritis')>Kritis</option>
                                     </select>
                                 </td>
                                 <td class="px-2 py-2">

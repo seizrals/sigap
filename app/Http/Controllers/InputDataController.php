@@ -23,10 +23,7 @@ class InputDataController extends Controller
     public function pangan()
     {
         $kecamatan = Kecamatan::where('is_active', true)->orderBy('nama_kecamatan')->get();
-        $komoditas = Komoditas::where('is_active', true)
-            ->where('is_strategis', true)
-            ->orderBy('nama_komoditas')
-            ->get();
+        $komoditas = Komoditas::orderBy('nama_komoditas')->get();
         $dataPangan = DataPangan::with(['kecamatan', 'komoditas'])
             ->orderByDesc('tanggal_input')
             ->orderByDesc('created_at')
@@ -127,7 +124,7 @@ class InputDataController extends Controller
             'entries.*.komoditas_id' => [
                 'required',
                 'distinct',
-                Rule::exists('komoditas', 'id')->where('is_active', true)->where('is_strategis', true),
+                Rule::exists('komoditas', 'id'),
             ],
             'entries.*.kecamatan_id' => ['required', 'exists:kecamatan,id'],
             'entries.*.harga_hari_sebelumnya' => ['nullable', 'numeric', 'min:0'],
@@ -135,7 +132,7 @@ class InputDataController extends Controller
             'entries.*.stok_tersedia' => ['nullable', 'numeric', 'min:0'],
             'entries.*.satuan_stok' => ['nullable', 'string', 'max:30'],
             'entries.*.sumber_distribusi_masuk' => ['nullable', 'string', 'max:255'],
-            'entries.*.status_ketersediaan' => ['required', 'in:aman,waspada,kurang,kosong'],
+            'entries.*.status_ketersediaan' => ['required', 'in:aman,waspada,kritis'],
         ]);
 
         return $validated['entries'];
@@ -186,7 +183,7 @@ class InputDataController extends Controller
             'harga_pangkalan' => 'nullable|numeric',
             'harga_het_pemerintah' => 'nullable|numeric',
             'harga_eceran_lapangan' => 'nullable|numeric',
-            'status_ketersediaan' => 'required|in:aman,waspada,menipis,kosong',
+            'status_ketersediaan' => 'required|in:aman,waspada,kritis',
             'status_distribusi' => 'required|in:lancar,terhambat,macet,panic_buying',
         ]);
 
@@ -232,7 +229,6 @@ class InputDataController extends Controller
     public function bbm()
     {
         $spbu = Spbu::with('kecamatan')
-            ->where('is_active', true)
             ->orderBy('nama_spbu')
             ->get();
         $kecamatan = $spbu->pluck('kecamatan')->filter()->unique('id')->sortBy('nama_kecamatan')->values();
@@ -248,7 +244,6 @@ class InputDataController extends Controller
             'spbu_id' => [
                 'required',
                 Rule::exists('spbu', 'id')
-                    ->where('is_active', true)
                     ->where('kecamatan_id', $request->input('kecamatan_id')),
             ],
             'jenis_bbm' => 'required|in:Pertalite (JBKP),Pertamax,Pertamax Turbo,Solar (JBT),Dexlite,Pertamina Dex,Bio Solar',
@@ -268,7 +263,7 @@ class InputDataController extends Controller
             'distribusi_keluar_pertanian_kl' => 'nullable|numeric',
             'status_antrean' => 'required|in:tidak_ada,pendek,panjang,sangat_panjang',
             'estimasi_waktu_tunggu_menit' => 'nullable|integer',
-            'status_ketersediaan' => 'required|in:aman,waspada,menipis,kosong',
+            'status_ketersediaan' => 'required|in:aman,waspada,kritis',
             'harga_jual_per_liter' => 'nullable|numeric',
         ]);
 

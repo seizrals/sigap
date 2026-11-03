@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('kode_alert', 30)->unique();
             $table->enum('sumber_deteksi', ['otomatis_sistem', 'manual_operator', 'laporan_masyarakat', 'manual_admin'])->default('otomatis_sistem');
             $table->enum('kategori', ['pangan', 'lpg', 'bbm', 'multikomoditas']);
-            $table->enum('tingkat_risiko', ['rendah', 'sedang', 'tinggi', 'kritis'])->default('sedang');
+            $table->enum('status_ketersediaan', ['aman', 'waspada', 'kritis'])->default('waspada');
             $table->enum('status', ['terbuka', 'diproses', 'selesai', 'diabaikan'])->default('terbuka');
 
             $table->foreignId('kecamatan_id')->constrained('kecamatan')->cascadeOnDelete();
@@ -47,7 +47,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index('kategori');
-            $table->index('tingkat_risiko');
+            $table->index('status_ketersediaan');
             $table->index('status');
             $table->index('kecamatan_id');
             $table->index('waktu_terdeteksi');

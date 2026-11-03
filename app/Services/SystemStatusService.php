@@ -39,8 +39,8 @@ class SystemStatusService
                         ->whereIn('status', ['terbuka', 'diproses'])
                         ->get();
 
-                    $hasCriticalAlert = $alerts->contains(fn ($a) => in_array($a->tingkat_risiko, ['kritis', 'tinggi']));
-                    $hasWarningAlert = $alerts->contains(fn ($a) => $a->tingkat_risiko === 'sedang');
+                    $hasCriticalAlert = $alerts->contains(fn ($a) => $a->status_ketersediaan === 'kritis');
+                    $hasWarningAlert = $alerts->contains(fn ($a) => $a->status_ketersediaan === 'waspada');
                 }
 
                 // Ambil entri terbaru per komoditas
@@ -50,13 +50,13 @@ class SystemStatusService
                     ->unique('komoditas_id');
 
                 $hasCriticalData = $latestRecords->contains(function ($r) {
-                    return $r->status_ketersediaan === 'kosong'
+                    return $r->status_ketersediaan === 'kritis'
                         || $r->status_harga === 'harga_tinggi'
                         || (float) $r->perubahan_harga_persen >= 25;
                 });
 
                 $hasWarningData = $latestRecords->contains(function ($r) {
-                    return in_array($r->status_ketersediaan, ['kurang', 'waspada'])
+                    return $r->status_ketersediaan === 'waspada'
                         || $r->status_harga === 'naik_tinggi'
                         || (float) $r->perubahan_harga_persen >= 10;
                 });
@@ -88,8 +88,8 @@ class SystemStatusService
                         ->whereIn('status', ['terbuka', 'diproses'])
                         ->get();
 
-                    $hasCriticalAlert = $alerts->contains(fn ($a) => in_array($a->tingkat_risiko, ['kritis', 'tinggi']));
-                    $hasWarningAlert = $alerts->contains(fn ($a) => $a->tingkat_risiko === 'sedang');
+                    $hasCriticalAlert = $alerts->contains(fn ($a) => $a->status_ketersediaan === 'kritis');
+                    $hasWarningAlert = $alerts->contains(fn ($a) => $a->status_ketersediaan === 'waspada');
                 }
 
                 // Ambil entri terbaru per pangkalan & jenis
@@ -99,13 +99,13 @@ class SystemStatusService
                     ->unique(fn ($r) => $r->pangkalan_lpg_id . '-' . $r->jenis_lpg);
 
                 $hasCriticalData = $latestRecords->contains(function ($r) {
-                    return $r->status_ketersediaan === 'kosong'
+                    return $r->status_ketersediaan === 'kritis'
                         || $r->status_harga === 'melampaui_het_tinggi'
                         || in_array($r->status_distribusi, ['macet', 'panic_buying']);
                 });
 
                 $hasWarningData = $latestRecords->contains(function ($r) {
-                    return in_array($r->status_ketersediaan, ['menipis', 'waspada'])
+                    return $r->status_ketersediaan === 'waspada'
                         || $r->status_harga === 'melampaui_het_ringan'
                         || $r->status_distribusi === 'terhambat';
                 });
@@ -137,8 +137,8 @@ class SystemStatusService
                         ->whereIn('status', ['terbuka', 'diproses'])
                         ->get();
 
-                    $hasCriticalAlert = $alerts->contains(fn ($a) => in_array($a->tingkat_risiko, ['kritis', 'tinggi']));
-                    $hasWarningAlert = $alerts->contains(fn ($a) => $a->tingkat_risiko === 'sedang');
+                    $hasCriticalAlert = $alerts->contains(fn ($a) => $a->status_ketersediaan === 'kritis');
+                    $hasWarningAlert = $alerts->contains(fn ($a) => $a->status_ketersediaan === 'waspada');
                 }
 
                 // Ambil entri terbaru per SPBU & jenis BBM
@@ -148,12 +148,12 @@ class SystemStatusService
                     ->unique(fn ($r) => $r->spbu_id . '-' . $r->jenis_bbm);
 
                 $hasCriticalData = $latestRecords->contains(function ($r) {
-                    return $r->status_ketersediaan === 'kosong'
+                    return $r->status_ketersediaan === 'kritis'
                         || $r->status_antrean === 'sangat_panjang';
                 });
 
                 $hasWarningData = $latestRecords->contains(function ($r) {
-                    return in_array($r->status_ketersediaan, ['menipis', 'waspada'])
+                    return $r->status_ketersediaan === 'waspada'
                         || $r->status_antrean === 'panjang';
                 });
 
@@ -197,4 +197,3 @@ class SystemStatusService
         };
     }
 }
-

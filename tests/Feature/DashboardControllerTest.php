@@ -2,11 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\DataBbm;
+use App\Models\DataLpg;
 use App\Models\DataPangan;
-use App\Models\EwsAlert;
-use App\Models\EwsRekomendasi;
 use App\Models\Kecamatan;
 use App\Models\Komoditas;
+use App\Models\Spbu;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -15,7 +16,7 @@ class DashboardControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_published_market_recommendation_is_visible_in_dashboard_and_gis_data(): void
+    public function test_dashboard_map_uses_filtered_pangan_records_from_database(): void
     {
         $user = User::factory()->create([
             'username' => 'dashboard-operator',
@@ -24,37 +25,136 @@ class DashboardControllerTest extends TestCase
         $kecamatan = Kecamatan::create([
             'kode_kecamatan' => '7505020',
             'nama_kecamatan' => 'Kwandang',
-        ]);
-        $alert = EwsAlert::create([
-            'kode_alert' => 'EWS-20261028-0003',
-            'sumber_deteksi' => 'manual_admin',
-            'kategori' => 'pangan',
-            'tingkat_risiko' => 'tinggi',
-            'status' => 'terbuka',
-            'kecamatan_id' => $kecamatan->id,
             'latitude' => 0.72,
             'longitude' => 123.05,
-            'judul_alert' => 'Peringatan pasar',
-            'analisis_sistem' => 'Keterangan rekomendasi di peta.',
         ]);
-        EwsRekomendasi::create([
-            'ews_alert_id' => $alert->id,
-            'tipe_rekomendasi' => 'operasi_pasar',
-            'judul_rekomendasi' => 'Operasi Pasar: Peringatan pasar',
-            'detail_rekomendasi' => 'Keterangan rekomendasi di peta.',
-            'dibuat_oleh' => $user->id,
+        $komoditasTerpilih = Komoditas::create([
+            'kode_komoditas' => 'CBI-RWT',
+            'nama_komoditas' => 'Cabai Rawit',
+            'kategori' => 'pangan',
+            'satuan' => 'Kg',
+            'is_strategis' => true,
+            'is_active' => true,
+        ]);
+        $komoditasLain = Komoditas::create([
+            'kode_komoditas' => 'BRS-PRM',
+            'nama_komoditas' => 'Beras Premium',
+            'kategori' => 'pangan',
+            'satuan' => 'Kg',
+            'is_strategis' => true,
+            'is_active' => true,
         ]);
 
-        $response = $this->actingAs($user)->get(route('dashboard'));
+        DataPangan::create([
+            'tanggal_input' => '2026-11-01',
+            'kecamatan_id' => $kecamatan->id,
+            'komoditas_id' => $komoditasTerpilih->id,
+            'user_id' => $user->id,
+            'harga_hari_ini' => 84000,
+            'stok_tersedia' => 15,
+            'status_ketersediaan' => 'waspada',
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        DataPangan::create([
+            'tanggal_input' => '2026-11-01',
+            'kecamatan_id' => $kecamatan->id,
+            'komoditas_id' => $komoditasLain->id,
+            'user_id' => $user->id,
+            'harga_hari_ini' => 15000,
+            'stok_tersedia' => 120,
+            'status_ketersediaan' => 'aman',
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('dashboard', [
+            'map_filter_type' => 'pangan',
+            'map_komoditas_id' => $komoditasTerpilih->id,
+        ]));
 
         $response->assertOk();
-        $response->assertSee('Operasi Pasar: Peringatan pasar');
-        $response->assertSee('Keterangan rekomendasi di peta.');
-        $response->assertViewHas('rekomendasiPeta', function ($rekomendasiPeta): bool {
-            return $rekomendasiPeta->contains(fn (array $point): bool => $point['latitude'] === 0.72
-                && $point['longitude'] === 123.05
-                && $point['zona'] === 'merah'
-                && $point['detail'] === 'Keterangan rekomendasi di peta.'
+        $response->assertSee('Filter Tampilan Peta');
+        $response->assertSee('name="map_filter_type"', false);
+        $response->assertSee('name="map_komoditas_id"', false);
+        $response->assertViewHas('mapPoints', function ($mapPoints) use ($komoditasTerpilih): bool {
+            return $mapPoints->contains(function (array $point) use ($komoditasTerpilih): bool {
+                return $point['latitude'] === 0.72
+                    && $point['longitude'] === 123.05
+                    && $point['status_ketersediaan'] === 'waspada'
+                    && $point['kategori'] === 'Pangan Strategis'
+                    && $point['detail_items'][0]['judul'] === $komoditasTerpilih->nama_komoditas;
+            });
+        });
+    }
+
+    public function test_dashboard_map_uses_lpg_and_bbm_records_from_database(): void
+    {
+        $user = User::factory()->create([
+            'username' => 'dashboard-map-db',
+            'role' => 'admin_kabupaten',
+        ]);
+        $kecamatan = Kecamatan::create([
+            'kode_kecamatan' => '7505010',
+            'nama_kecamatan' => 'Atinggola',
+            'latitude' => 0.74,
+            'longitude' => 123.12,
+        ]);
+
+        DataLpg::create([
+            'tanggal_input' => '2026-11-02',
+            'kecamatan_id' => $kecamatan->id,
+            'user_id' => $user->id,
+            'jenis_lpg' => 'LPG 3 Kg (Subsidi)',
+            'stok_tersedia_tabung' => 8,
+            'distribusi_masuk_tabung' => 100,
+            'distribusi_keluar_tabung' => 92,
+            'harga_eceran_lapangan' => 22000,
+            'status_ketersediaan' => 'waspada',
+            'status_distribusi' => 'terhambat',
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        $spbu = Spbu::create([
+            'kecamatan_id' => $kecamatan->id,
+            'kode_spbu' => 'SPBU-ATINGGOLA-01',
+            'nama_spbu' => 'SPBU Atinggola',
+            'is_active' => true,
+        ]);
+
+        DataBbm::create([
+            'tanggal_input' => '2026-11-02',
+            'kecamatan_id' => $kecamatan->id,
+            'spbu_id' => $spbu->id,
+            'user_id' => $user->id,
+            'jenis_bbm' => 'Pertalite (JBKP)',
+            'stok_tersedia_kl' => 2.5,
+            'status_antrean' => 'panjang',
+            'status_ketersediaan' => 'kritis',
+            'harga_jual_per_liter' => 10000,
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        $lpgResponse = $this->actingAs($user)->get(route('dashboard', [
+            'map_filter_type' => 'lpg',
+        ]));
+        $lpgResponse->assertOk();
+        $lpgResponse->assertViewHas('mapPoints', function ($mapPoints): bool {
+            return $mapPoints->contains(fn (array $point): bool => $point['kecamatan'] === 'Atinggola'
+                && $point['kategori'] === 'LPG 3 KG'
+                && $point['status_ketersediaan'] === 'waspada'
+                && $point['detail_items'][0]['judul'] === 'LPG 3 Kg (Subsidi)'
+            );
+        });
+
+        $bbmResponse = $this->actingAs($user)->get(route('dashboard', [
+            'map_filter_type' => 'bbm',
+        ]));
+        $bbmResponse->assertOk();
+        $bbmResponse->assertViewHas('mapPoints', function ($mapPoints): bool {
+            return $mapPoints->contains(fn (array $point): bool => $point['kecamatan'] === 'Atinggola'
+                && $point['kategori'] === 'BBM Subsidi'
+                && $point['status_ketersediaan'] === 'kritis'
+                && str_contains($point['detail_items'][0]['judul'], 'Pertalite (JBKP)')
             );
         });
     }

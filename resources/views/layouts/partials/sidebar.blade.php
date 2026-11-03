@@ -1,3 +1,7 @@
+@php
+    $authUser = auth()->user();
+@endphp
+
 <aside id="app-sidebar" class="w-64 sm:w-72 lg:w-64 bg-sigap-primary text-slate-100 flex flex-col shrink-0 border-r border-slate-800 h-full overflow-hidden select-none z-[9999] lg:z-auto">
     <div class="h-16 sm:h-20 lg:h-24 flex items-center justify-between px-4 sm:px-5 border-b border-slate-800 shrink-0">
         <div class="flex items-center gap-3 min-w-0">
@@ -92,16 +96,45 @@
                 </li>
             </ul>
         </div>
+
+        @if($authUser?->canManageUsers())
+            <div>
+                <p class="px-3 mb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-[0.15em]">Administrasi</p>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="{{ route('master-data.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('master-data.*') ? 'bg-sigap-accent text-white shadow-lg shadow-blue-900/40' : 'text-slate-300 hover:bg-sigap-primary-light hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.125 16.556 18 12 18s-8.25-1.875-8.25-4.125v-3.75m16.5 0v3.75"/>
+                            </svg>
+                            <span>Master Data</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('users.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('users.*') ? 'bg-sigap-accent text-white shadow-lg shadow-blue-900/40' : 'text-slate-300 hover:bg-sigap-primary-light hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0 text-fuchsia-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a8.966 8.966 0 01-6 2.28 8.966 8.966 0 01-6-2.28m12 0a9 9 0 10-12 0m12 0A13.493 13.493 0 0112 15.75a13.493 13.493 0 01-6 2.97M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span>Manajemen Pengguna</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        @endif
     </nav>
 
     <div class="p-4 border-t border-slate-800 bg-sigap-primary-light/50">
         <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-500 to-slate-700 flex items-center justify-center font-bold text-sm text-white ring-2 ring-slate-700">
-                A
+                {{ strtoupper(substr($authUser?->name ?? 'A', 0, 1)) }}
             </div>
             <div class="min-w-0">
-                <p class="text-sm font-semibold truncate">Admin Kabupaten</p>
-                <p class="text-[11px] text-slate-400 truncate">TPID Gorut</p>
+                <p class="text-sm font-semibold truncate">{{ $authUser?->name ?? 'Admin Kabupaten' }}</p>
+                <p class="text-[11px] text-slate-400 truncate">
+                    {{ $authUser?->role_label ?? 'TPID Gorut' }}
+                    @if($authUser?->kecamatan?->nama_kecamatan)
+                        - {{ $authUser->kecamatan->nama_kecamatan }}
+                    @endif
+                </p>
             </div>
         </div>
         <form method="POST" action="{{ route('logout') }}" class="hidden" id="logout-form">@csrf</form>

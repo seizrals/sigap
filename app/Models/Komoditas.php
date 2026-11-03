@@ -30,8 +30,6 @@ class Komoditas extends Model
     protected function casts(): array
     {
         return [
-            'is_strategis' => 'boolean',
-            'is_active' => 'boolean',
             'harga_het' => 'decimal:2',
             'harga_rata_rata_kabupaten' => 'decimal:2',
         ];

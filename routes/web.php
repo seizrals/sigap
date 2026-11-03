@@ -5,7 +5,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EwsController;
 use App\Http\Controllers\InputDataController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\SaranPublikController;
+use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\ValidasiController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,12 +43,22 @@ Route::middleware('auth')->group(function () {
     Route::prefix('ews')->name('ews.')->group(function () {
         Route::get('/', [EwsController::class, 'index'])->name('index');
         Route::post('/store', [EwsController::class, 'store'])->name('store');
-        Route::post('/{alert}/rekomendasi', [EwsController::class, 'storeRekomendasi'])->name('rekomendasi.store');
-        Route::get('/monitor-kabupaten', [EwsController::class, 'monitorKabupaten'])->name('monitor-kabupaten');
+        Route::post('/{id}/resolve', [EwsController::class, 'resolve'])->name('resolve');
     });
 
     Route::resource('saran-publik', SaranPublikController::class)->names('saran-publik')->except(['store']);
     Route::resource('validasi', ValidasiController::class)->names('validasi');
+    Route::resource('users', UserManagementController::class)->names('users')->except(['show', 'create']);
+
+    Route::prefix('master-data')->name('master-data.')->group(function () {
+        Route::get('/', [MasterDataController::class, 'index'])->name('index');
+        Route::post('/komoditas', [MasterDataController::class, 'storeKomoditas'])->name('komoditas.store');
+        Route::put('/komoditas/{komoditas}', [MasterDataController::class, 'updateKomoditas'])->name('komoditas.update');
+        Route::delete('/komoditas/{komoditas}', [MasterDataController::class, 'destroyKomoditas'])->name('komoditas.destroy');
+        Route::post('/spbu', [MasterDataController::class, 'storeSpbu'])->name('spbu.store');
+        Route::put('/spbu/{spbu}', [MasterDataController::class, 'updateSpbu'])->name('spbu.update');
+        Route::delete('/spbu/{spbu}', [MasterDataController::class, 'destroySpbu'])->name('spbu.destroy');
+    });
 
     Route::get('/pdf/laporan-monitor', [LaporanController::class, 'cetakLaporan'])
         ->name('pdf.laporan-monitor');

@@ -38,12 +38,12 @@ class Spbu extends Model
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
+            'jenis_bbm_tersedia' => 'array',
             'melayani_nelayan' => 'boolean',
             'melayani_pertanian' => 'boolean',
+            'is_active' => 'boolean',
             'latitude' => 'decimal:7',
             'longitude' => 'decimal:7',
-            'jenis_bbm_tersedia' => 'array',
         ];
     }
 

@@ -162,9 +162,8 @@ class DatabaseSeeder extends Seeder
         $komoditasIds = [];
         foreach ($komoditasData as $k) {
             $kom = Komoditas::firstOrCreate(
-                ['kode_komoditas' => $k[0]],
+                ['nama_komoditas' => $k[1]],
                 [
-                    'nama_komoditas' => $k[1],
                     'kategori' => $k[2],
                     'satuan' => $k[3],
                     'harga_het' => $k[4],

@@ -66,6 +66,10 @@ class MasterDataController extends Controller
             'nama_spbu' => 'required|string',
         ]);
 
+        if (empty($validated['kode_spbu'])) {
+            $validated['kode_spbu'] = 'SPBU-' . str_pad((string) ((Spbu::max('id') ?? 0) + 1), 3, '0', STR_PAD_LEFT);
+        }
+
         Spbu::create($validated);
 
         return redirect()->route('master-data.index', ['tab' => 'spbu'])

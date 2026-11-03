@@ -78,10 +78,12 @@ return new class extends Migration
         foreach ($sp2kpItems as $item) {
             [$kode, $nama, $satuan, $het, $bawah, $atas] = $item;
 
-            // Cari berdasarkan nama terlebih dahulu, lalu kode
-            $existing = Komoditas::where('nama_komoditas', $nama)
-                ->orWhere('kode_komoditas', $kode)
-                ->first();
+            // Cari berdasarkan nama terlebih dahulu
+            $existingQuery = Komoditas::where('nama_komoditas', $nama);
+            if (Schema::hasColumn('komoditas', 'kode_komoditas')) {
+                $existingQuery->orWhere('kode_komoditas', $kode);
+            }
+            $existing = $existingQuery->first();
 
             if ($existing) {
                 $existing->update([
@@ -91,8 +93,7 @@ return new class extends Migration
                     'is_active' => true,
                 ]);
             } else {
-                Komoditas::create([
-                    'kode_komoditas' => $kode,
+                $payload = [
                     'nama_komoditas' => $nama,
                     'kategori' => 'pangan',
                     'satuan' => $satuan,
@@ -104,7 +105,11 @@ return new class extends Migration
                     'persentase_kenaikan_bahaya' => 25,
                     'is_strategis' => true,
                     'is_active' => true,
-                ]);
+                ];
+                if (Schema::hasColumn('komoditas', 'kode_komoditas')) {
+                    $payload['kode_komoditas'] = $kode;
+                }
+                Komoditas::create($payload);
             }
         }
     }

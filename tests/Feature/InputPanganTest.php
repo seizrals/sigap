@@ -25,7 +25,6 @@ class InputPanganTest extends TestCase
             'is_active' => true,
         ]);
         $komoditas = Komoditas::create([
-            'kode_komoditas' => 'CBI-RWT',
             'nama_komoditas' => 'Cabai Rawit',
             'kategori' => 'pangan',
             'satuan' => 'Kg',
@@ -33,7 +32,6 @@ class InputPanganTest extends TestCase
             'is_active' => true,
         ]);
         Komoditas::create([
-            'kode_komoditas' => 'BRG-MDY',
             'nama_komoditas' => 'Beras Medium',
             'kategori' => 'pangan',
             'satuan' => 'Kg',
@@ -67,7 +65,6 @@ class InputPanganTest extends TestCase
             'is_active' => true,
         ]);
         $komoditas = Komoditas::create([
-            'kode_komoditas' => 'CBI-RWT',
             'nama_komoditas' => 'Cabai Rawit',
             'kategori' => 'pangan',
             'satuan' => 'Kg',
@@ -161,7 +158,6 @@ class InputPanganTest extends TestCase
             'is_active' => true,
         ]);
         $komoditas = Komoditas::create([
-            'kode_komoditas' => 'CBI-RWT',
             'nama_komoditas' => 'Cabai Rawit',
             'kategori' => 'pangan',
             'satuan' => 'Kg',
@@ -192,5 +188,106 @@ class InputPanganTest extends TestCase
                 'tanggal_raw' => '2026-11-03',
             ],
         ]);
+    }
+
+    public function test_can_submit_only_one_commodity_when_multiple_commodities_exist(): void
+    {
+        $user = User::factory()->create([
+            'username' => 'operator_partial',
+            'role' => 'admin_kabupaten',
+        ]);
+        $kecamatan = Kecamatan::create([
+            'kode_kecamatan' => '7505020',
+            'nama_kecamatan' => 'Kwandang',
+            'is_active' => true,
+        ]);
+        $komoditas1 = Komoditas::create([
+            'nama_komoditas' => 'Cabai Rawit',
+            'kategori' => 'pangan',
+            'satuan' => 'Kg',
+            'is_strategis' => true,
+            'is_active' => true,
+        ]);
+        $komoditas2 = Komoditas::create([
+            'nama_komoditas' => 'Beras Medium',
+            'kategori' => 'pangan',
+            'satuan' => 'Kg',
+            'is_strategis' => true,
+            'is_active' => true,
+        ]);
+
+        // Kirim payload di mana komoditas1 diisi, sedangkan komoditas2 kosong
+        $payload = [
+            'tanggal_input' => '2026-11-03',
+            'kecamatan_id' => $kecamatan->id,
+            'entries' => [
+                $komoditas1->id => [
+                    'komoditas_id' => $komoditas1->id,
+                    'kecamatan_id' => $kecamatan->id,
+                    'harga_hari_ini' => 75000,
+                    'stok_tersedia' => 50,
+                    'satuan_stok' => 'Kg',
+                    'status_ketersediaan' => 'aman',
+                ],
+                $komoditas2->id => [
+                    'komoditas_id' => $komoditas2->id,
+                    'kecamatan_id' => $kecamatan->id,
+                    'harga_hari_ini' => '',
+                    'stok_tersedia' => '',
+                    'satuan_stok' => 'Kg',
+                    'status_ketersediaan' => 'aman',
+                ],
+            ],
+        ];
+
+        $response = $this->actingAs($user)->post(route('input.pangan.store'), $payload);
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect(route('input.pangan'));
+
+        // Pastikan hanya 1 record yang tersimpan (Cabai Rawit)
+        $this->assertDatabaseHas('data_pangan', [
+            'komoditas_id' => $komoditas1->id,
+            'kecamatan_id' => $kecamatan->id,
+            'harga_hari_ini' => 75000,
+        ]);
+        $this->assertDatabaseMissing('data_pangan', [
+            'komoditas_id' => $komoditas2->id,
+        ]);
+    }
+
+    public function test_submitting_empty_commodities_fails_validation(): void
+    {
+        $user = User::factory()->create([
+            'username' => 'operator_empty',
+            'role' => 'admin_kabupaten',
+        ]);
+        $kecamatan = Kecamatan::create([
+            'kode_kecamatan' => '7505020',
+            'nama_kecamatan' => 'Kwandang',
+            'is_active' => true,
+        ]);
+        $komoditas = Komoditas::create([
+            'nama_komoditas' => 'Cabai Rawit',
+            'kategori' => 'pangan',
+            'satuan' => 'Kg',
+            'is_strategis' => true,
+            'is_active' => true,
+        ]);
+
+        $payload = [
+            'tanggal_input' => '2026-11-03',
+            'kecamatan_id' => $kecamatan->id,
+            'entries' => [
+                $komoditas->id => [
+                    'komoditas_id' => $komoditas->id,
+                    'kecamatan_id' => $kecamatan->id,
+                    'harga_hari_ini' => '',
+                    'status_ketersediaan' => 'aman',
+                ],
+            ],
+        ];
+
+        $response = $this->actingAs($user)->post(route('input.pangan.store'), $payload);
+        $response->assertSessionHasErrors('entries');
     }
 }

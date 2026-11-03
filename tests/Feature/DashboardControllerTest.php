@@ -29,7 +29,6 @@ class DashboardControllerTest extends TestCase
             'longitude' => 123.05,
         ]);
         $komoditasTerpilih = Komoditas::create([
-            'kode_komoditas' => 'CBI-RWT',
             'nama_komoditas' => 'Cabai Rawit',
             'kategori' => 'pangan',
             'satuan' => 'Kg',
@@ -37,7 +36,6 @@ class DashboardControllerTest extends TestCase
             'is_active' => true,
         ]);
         $komoditasLain = Komoditas::create([
-            'kode_komoditas' => 'BRS-PRM',
             'nama_komoditas' => 'Beras Premium',
             'kategori' => 'pangan',
             'satuan' => 'Kg',
@@ -174,7 +172,6 @@ class DashboardControllerTest extends TestCase
             'nama_kecamatan' => 'Atinggola',
         ]);
         $cabai = Komoditas::create([
-            'kode_komoditas' => 'CBI-RWT',
             'nama_komoditas' => 'Cabai Rawit',
             'kategori' => 'pangan',
             'satuan' => 'Kg',
@@ -182,7 +179,6 @@ class DashboardControllerTest extends TestCase
             'is_active' => true,
         ]);
         $beras = Komoditas::create([
-            'kode_komoditas' => 'BRG-MDY',
             'nama_komoditas' => 'Beras Medium',
             'kategori' => 'pangan',
             'satuan' => 'Kg',

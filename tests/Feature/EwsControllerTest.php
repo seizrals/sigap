@@ -128,7 +128,6 @@ class EwsControllerTest extends TestCase
             'nama_kecamatan' => 'Kwandang',
         ]);
         $komoditas = Komoditas::create([
-            'kode_komoditas' => 'CBI-RWT',
             'nama_komoditas' => 'Cabai Rawit',
             'kategori' => 'pangan',
             'satuan' => 'Kg',

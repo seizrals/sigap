@@ -38,6 +38,7 @@ class DashboardController extends Controller
         $legacyPreviousPeriodFallbackAllowed = Carbon::parse($periodeSaatIni)->subDay()->toDateString() === $periodeSebelumnya;
 
         $kecamatan = Kecamatan::select('id', 'nama_kecamatan', 'latitude', 'longitude', 'zona_risiko')
+            ->where('is_active', true)
             ->get();
 
         $komoditasPangan = Komoditas::select('id', 'nama_komoditas', 'satuan')
@@ -54,7 +55,7 @@ class DashboardController extends Controller
                 ->count('komoditas_id');
         }
 
-        $kecamatanZonaMerah = Kecamatan::where('zona_risiko', 'merah')->count();
+        $kecamatanZonaMerah = Kecamatan::where('is_active', true)->where('zona_risiko', 'merah')->count();
 
         $dataPangan = DataPangan::with([
             'komoditas:id,nama_komoditas,satuan',
@@ -144,12 +145,64 @@ class DashboardController extends Controller
             ->orderBy('minggu_ke', 'desc')
             ->first();
 
+        // Daftar tahun yang ada di database (hanya tahun yang diinputkan)
+        $daftarTahunMingguan = IphMingguan::query()
+            ->select('tahun')
+            ->distinct()
+            ->whereNotNull('tahun')
+            ->pluck('tahun')
+            ->map(fn ($t) => (int) $t)
+            ->unique()
+            ->sortDesc()
+            ->values()
+            ->all();
+
+        if (empty($daftarTahunMingguan)) {
+            $daftarTahunMingguan = [(int) date('Y')];
+        }
+
+        $daftarTahunBulanan = IphBulanan::query()
+            ->select('tahun')
+            ->distinct()
+            ->whereNotNull('tahun')
+            ->pluck('tahun')
+            ->map(fn ($t) => (int) $t)
+            ->unique()
+            ->sortDesc()
+            ->values()
+            ->all();
+
+        if (empty($daftarTahunBulanan)) {
+            $daftarTahunBulanan = [(int) date('Y')];
+        }
+
         // Data IPH Mingguan untuk Monitoring & Grafik
-        $filterTahunMingguan = $request->query('iph_mingguan_tahun', (string) date('Y'));
+        $filterTahunMingguan = $request->query('iph_mingguan_tahun', (string) ($daftarTahunMingguan[0] ?? date('Y')));
         $filterBulanMingguan = $request->query('iph_mingguan_bulan');
+        $filterDariBulanMingguan = $request->query('iph_mingguan_dari_bulan');
+        $filterSampaiBulanMingguan = $request->query('iph_mingguan_sampai_bulan');
         $filterDariMinggu = $request->query('iph_mingguan_dari_minggu', $request->query('iph_mingguan_minggu'));
         $filterSampaiMinggu = $request->query('iph_mingguan_sampai_minggu', $request->query('iph_mingguan_minggu'));
         $filterMingguMingguan = $request->query('iph_mingguan_minggu');
+
+        $toMonthInt = function ($m) {
+            if ($m === null || $m === '') return null;
+            if (is_numeric($m)) return max(1, min(12, (int) $m));
+            [$num] = InputDataController::parseBulan($m);
+            return $num;
+        };
+
+        $mDariMingguan = $toMonthInt($filterDariBulanMingguan);
+        $mSampaiMingguan = $toMonthInt($filterSampaiBulanMingguan);
+
+        if ($filterBulanMingguan !== null && $filterBulanMingguan !== '' && $mDariMingguan === null && $mSampaiMingguan === null) {
+            $mDariMingguan = $toMonthInt($filterBulanMingguan);
+            $mSampaiMingguan = $mDariMingguan;
+        }
+
+        if ($mDariMingguan !== null && $mSampaiMingguan !== null && $mDariMingguan > $mSampaiMingguan) {
+            [$mDariMingguan, $mSampaiMingguan] = [$mSampaiMingguan, $mDariMingguan];
+        }
 
         $toWeekInt = function ($w) {
             if ($w === null || $w === '') return null;
@@ -185,14 +238,9 @@ class DashboardController extends Controller
 
         $iphMingguanQuery = IphMingguan::query()
             ->when($filterTahunMingguan, fn ($q) => $q->where('tahun', $filterTahunMingguan))
-            ->when($filterBulanMingguan, function ($q) use ($filterBulanMingguan) {
-                if (is_numeric($filterBulanMingguan)) {
-                    $q->where('bulan', (int) $filterBulanMingguan);
-                } else {
-                    [$bNum] = InputDataController::parseBulan($filterBulanMingguan);
-                    $q->where('bulan', $bNum);
-                }
-            })
+            ->when($mDariMingguan !== null && $mSampaiMingguan !== null, fn ($q) => $q->whereBetween('bulan', [$mDariMingguan, $mSampaiMingguan]))
+            ->when($mDariMingguan !== null && $mSampaiMingguan === null, fn ($q) => $q->where('bulan', '>=', $mDariMingguan))
+            ->when($mDariMingguan === null && $mSampaiMingguan !== null, fn ($q) => $q->where('bulan', '<=', $mSampaiMingguan))
             ->when(!empty($validWeeks), fn ($q) => $q->whereIn('minggu_ke', $validWeeks))
             ->orderBy('tahun', 'asc')
             ->orderBy('bulan', 'asc')
@@ -201,31 +249,49 @@ class DashboardController extends Controller
 
         $chartMingguanLabels = [];
         $chartMingguanValues = [];
+        $chartMingguanDetails = [];
         foreach ($iphMingguanList as $row) {
             [, $namaBln] = InputDataController::parseBulan($row->bulan);
+            $val = (float) $row->iph_kabupaten;
             $chartMingguanLabels[] = 'M-' . $row->minggu_ke . ' ' . substr($namaBln, 0, 3);
-            $chartMingguanValues[] = (float) $row->iph_kabupaten;
+            $chartMingguanValues[] = $val;
+            $rawAndil = $row->komoditas_andil ?? $row->komoditas_penyumbang_inflasi ?? '';
+            $chartMingguanDetails[] = [
+                'periode' => 'Minggu ' . $row->minggu_ke . ' ' . $namaBln . ' ' . $row->tahun,
+                'iph' => $val,
+                'ranking' => $row->ranking,
+                'komoditas_raw' => $rawAndil,
+                'komoditas_list' => $this->parseKomoditasAndil($rawAndil),
+            ];
         }
 
         if (empty($chartMingguanLabels)) {
-            $chartMingguanLabels = ['Minggu III', 'Minggu IV', 'Minggu I', 'Minggu II'];
+            $chartMingguanLabels = ['M-III Apr', 'M-IV Apr', 'M-I Mei', 'M-II Mei'];
             $chartMingguanValues = [1.85, 2.10, 1.95, 2.33];
+            $dummyMingguan = [
+                ['periode' => 'Minggu III April 2026', 'iph' => 1.85, 'ranking' => 17, 'raw' => 'Beras (0.22), Minyak Goreng (0.15)'],
+                ['periode' => 'Minggu IV April 2026', 'iph' => 2.10, 'ranking' => 15, 'raw' => 'Bawang Merah (0.31), Minyak Goreng (0.14)'],
+                ['periode' => 'Minggu I Mei 2026', 'iph' => 1.95, 'ranking' => 16, 'raw' => 'Cabai Rawit (0.22), Daging Ayam (0.18)'],
+                ['periode' => 'Minggu II Mei 2026', 'iph' => 2.33, 'ranking' => 14, 'raw' => 'Cabai Rawit (0.38), Bawang Merah (0.25)'],
+            ];
+            foreach ($dummyMingguan as $d) {
+                $chartMingguanDetails[] = [
+                    'periode' => $d['periode'],
+                    'iph' => $d['iph'],
+                    'ranking' => $d['ranking'],
+                    'komoditas_raw' => $d['raw'],
+                    'komoditas_list' => $this->parseKomoditasAndil($d['raw']),
+                ];
+            }
         }
 
         $iphMingguanTerbaru = $iphMingguanList->last() ?? $iphTerbaru;
 
         // Data IPH Bulanan untuk Monitoring & Grafik
-        $filterTahunBulanan = $request->query('iph_bulanan_tahun', (string) date('Y'));
+        $filterTahunBulanan = $request->query('iph_bulanan_tahun', (string) ($daftarTahunBulanan[0] ?? date('Y')));
         $filterBulanBulanan = $request->query('iph_bulanan_bulan');
         $filterDariBulan = $request->query('iph_bulanan_dari_bulan');
         $filterSampaiBulan = $request->query('iph_bulanan_sampai_bulan');
-
-        $toMonthInt = function ($m) {
-            if ($m === null || $m === '') return null;
-            if (is_numeric($m)) return max(1, min(12, (int) $m));
-            [$num] = InputDataController::parseBulan($m);
-            return $num;
-        };
 
         $mDari = $toMonthInt($filterDariBulan);
         $mSampai = $toMonthInt($filterSampaiBulan);
@@ -250,27 +316,86 @@ class DashboardController extends Controller
 
         $chartBulananLabels = [];
         $chartBulananValues = [];
+        $chartBulananDetails = [];
         foreach ($iphBulananList as $row) {
+            $val = (float) $row->iph_bulanan;
             $chartBulananLabels[] = $row->nama_bulan;
-            $chartBulananValues[] = (float) $row->iph_bulanan;
+            $chartBulananValues[] = $val;
+            $rawAndilBln = $row->komoditas_andil ?? '';
+            $chartBulananDetails[] = [
+                'periode' => $row->nama_bulan . ' ' . $row->tahun,
+                'iph' => $val,
+                'ranking' => $row->ranking,
+                'catatan' => $row->catatan ?? '',
+                'komoditas_raw' => $rawAndilBln,
+                'komoditas_list' => $this->parseKomoditasAndil($rawAndilBln),
+            ];
         }
 
         if (empty($chartBulananLabels)) {
             $chartBulananLabels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'];
             $chartBulananValues = [1.20, 1.45, 1.80, 2.10, 1.85, 1.60];
+            $dummyBln = [
+                ['periode' => 'Januari 2026', 'iph' => 1.20, 'ranking' => 22, 'raw' => 'Beras (0.25), Ikan (0.15)'],
+                ['periode' => 'Februari 2026', 'iph' => 1.45, 'ranking' => 20, 'raw' => 'Cabai Merah (0.30), Telur (0.12)'],
+                ['periode' => 'Maret 2026', 'iph' => 1.80, 'ranking' => 17, 'raw' => 'Daging Sapi (0.40), Bawang Putih (0.18)'],
+                ['periode' => 'April 2026', 'iph' => 2.10, 'ranking' => 15, 'raw' => 'Minyak Goreng (0.35), Gula Pasir (0.20)'],
+                ['periode' => 'Mei 2026', 'iph' => 1.85, 'ranking' => 16, 'raw' => 'Cabai Rawit (0.28), Beras (0.19)'],
+                ['periode' => 'Juni 2026', 'iph' => 1.60, 'ranking' => 19, 'raw' => 'Bawang Merah (0.22), Cabai Merah (0.15)'],
+            ];
+            foreach ($dummyBln as $d) {
+                $chartBulananDetails[] = [
+                    'periode' => $d['periode'],
+                    'iph' => $d['iph'],
+                    'ranking' => $d['ranking'],
+                    'catatan' => '',
+                    'komoditas_raw' => $d['raw'],
+                    'komoditas_list' => $this->parseKomoditasAndil($d['raw']),
+                ];
+            }
         }
 
         $iphBulananTerbaru = $iphBulananList->last()
             ?? IphBulanan::orderBy('tahun', 'desc')->orderBy('bulan', 'desc')->first();
 
-        $daftarTahunMingguan = IphMingguan::select('tahun')->distinct()->orderByDesc('tahun')->pluck('tahun')->all();
-        if (!in_array((int) date('Y'), $daftarTahunMingguan, true)) {
-            array_unshift($daftarTahunMingguan, (int) date('Y'));
-        }
+        $valMingguan = $iphMingguanTerbaru ? (float) $iphMingguanTerbaru->iph_kabupaten : 2.33;
+        $statusMingguan = $valMingguan > 3.5 || $valMingguan < -2.5 ? 'Tinggi' : ($valMingguan >= 2.5 ? 'Waspada' : 'Terkendali');
 
-        $daftarTahunBulanan = IphBulanan::select('tahun')->distinct()->orderByDesc('tahun')->pluck('tahun')->all();
-        if (!in_array((int) date('Y'), $daftarTahunBulanan, true)) {
-            array_unshift($daftarTahunBulanan, (int) date('Y'));
+        $valBulanan = $iphBulananTerbaru ? (float) $iphBulananTerbaru->iph_bulanan : 1.85;
+        $statusBulanan = $valBulanan > 3.5 || $valBulanan < -2.5 ? 'Tinggi' : ($valBulanan >= 2.5 ? 'Waspada' : 'Terkendali');
+
+        if ($request->ajax() || $request->wantsJson()) {
+            [, $labelDari] = !empty($filterDariBulanMingguan) ? \App\Http\Controllers\InputDataController::parseBulan($filterDariBulanMingguan) : [null, null];
+            $labelSampai = !empty($filterSampaiBulanMingguan) ? \App\Http\Controllers\InputDataController::parseBulan($filterSampaiBulanMingguan)[1] : null;
+
+            return response()->json([
+                'status' => 'success',
+                'mapPoints' => $mapPoints,
+                'activePointsCount' => $activePointsCount,
+                'mapFilterType' => $mapFilterType,
+                'mapFilterKomoditas' => $mapFilterKomoditas ? $mapFilterKomoditas->nama_komoditas : null,
+                'chartMingguan' => [
+                    'labels' => $chartMingguanLabels,
+                    'values' => $chartMingguanValues,
+                    'details' => $chartMingguanDetails,
+                    'valFormatted' => number_format($valMingguan, 2, ',', '.').'%',
+                    'status' => $statusMingguan,
+                    'periode' => $iphMingguanTerbaru?->periode_label ?? 'IPH Minggu II Mei',
+                    'labelDari' => $labelDari,
+                    'labelSampai' => $labelSampai,
+                ],
+                'chartBulanan' => [
+                    'labels' => $chartBulananLabels,
+                    'values' => $chartBulananValues,
+                    'details' => $chartBulananDetails,
+                    'valFormatted' => number_format($valBulanan, 2, ',', '.').'%',
+                    'status' => $statusBulanan,
+                    'periode' => $iphBulananTerbaru ? ($iphBulananTerbaru->nama_bulan . ' ' . $iphBulananTerbaru->tahun) : 'Mei 2026',
+                ],
+                'htmlPanganTable' => view('dashboard.partials.pangan-table', compact('dataPangan', 'periodeSebelumnya', 'periodeSaatIni'))->render(),
+                'htmlLpgTable' => view('dashboard.partials.lpg-table', compact('dataLpg'))->render(),
+                'htmlBbmTable' => view('dashboard.partials.bbm-table', compact('dataBbm'))->render(),
+            ]);
         }
 
         return view('dashboard.index', compact(
@@ -287,12 +412,20 @@ class DashboardController extends Controller
             'iphTerbaru',
             'iphMingguanTerbaru',
             'iphBulananTerbaru',
+            'valMingguan',
+            'statusMingguan',
+            'valBulanan',
+            'statusBulanan',
             'chartMingguanLabels',
             'chartMingguanValues',
+            'chartMingguanDetails',
             'chartBulananLabels',
             'chartBulananValues',
+            'chartBulananDetails',
             'filterTahunMingguan',
             'filterBulanMingguan',
+            'filterDariBulanMingguan',
+            'filterSampaiBulanMingguan',
             'filterDariMinggu',
             'filterSampaiMinggu',
             'filterMingguMingguan',
@@ -317,6 +450,7 @@ class DashboardController extends Controller
     {
         $allKecamatan = Kecamatan::whereNotNull('latitude')
             ->whereNotNull('longitude')
+            ->where('is_active', true)
             ->get();
 
         $records = DataPangan::with(['komoditas:id,nama_komoditas,satuan'])
@@ -372,6 +506,7 @@ class DashboardController extends Controller
     {
         $allKecamatan = Kecamatan::whereNotNull('latitude')
             ->whereNotNull('longitude')
+            ->where('is_active', true)
             ->get();
 
         $records = DataLpg::orderByDesc('tanggal_input')
@@ -426,6 +561,7 @@ class DashboardController extends Controller
     {
         $allKecamatan = Kecamatan::whereNotNull('latitude')
             ->whereNotNull('longitude')
+            ->where('is_active', true)
             ->get();
 
         $records = DataBbm::with(['spbu:id,nama_spbu'])
@@ -510,5 +646,37 @@ class DashboardController extends Controller
             '' => '-',
             default => ucwords(str_replace('_', ' ', (string) $status)),
         };
+    }
+
+    private function parseKomoditasAndil(?string $raw): array
+    {
+        if (empty($raw)) {
+            return [];
+        }
+
+        $parts = array_map('trim', explode(',', $raw));
+        $items = [];
+
+        foreach ($parts as $part) {
+            if ($part === '') continue;
+
+            if (preg_match('/^(.*?)(?:\(([-+]?[0-9.,]+)%?\)|:\s*([-+]?[0-9.,]+)%?)$/u', $part, $matches)) {
+                $nama = trim($matches[1]);
+                $nilai = trim(!empty($matches[2]) ? $matches[2] : ($matches[3] ?? ''));
+                $items[] = [
+                    'nama' => $nama,
+                    'andil' => $nilai !== '' ? str_replace(',', '.', $nilai) . '%' : '-',
+                    'raw_val' => $nilai !== '' ? (float) str_replace(',', '.', $nilai) : null,
+                ];
+            } else {
+                $items[] = [
+                    'nama' => $part,
+                    'andil' => '-',
+                    'raw_val' => null,
+                ];
+            }
+        }
+
+        return $items;
     }
 }

@@ -272,4 +272,82 @@ class DashboardControllerTest extends TestCase
         $response->assertSee('id="sidebar-hide-btn"', false);
         $response->assertDontSee('Cetak Laporan');
     }
+
+    public function test_dashboard_map_points_include_all_active_kecamatan_with_accurate_coordinates(): void
+    {
+        $user = User::factory()->create([
+            'username' => 'admin-map-test',
+            'role' => 'admin_kabupaten',
+        ]);
+
+        $ponelo = Kecamatan::create([
+            'kode_kecamatan' => '7505060',
+            'nama_kecamatan' => 'Ponelo Kepulauan',
+            'latitude' => 0.8766,
+            'longitude' => 122.8866,
+            'is_active' => true,
+        ]);
+
+        $inactiveKecamatan = Kecamatan::create([
+            'kode_kecamatan' => '7505999',
+            'nama_kecamatan' => 'Kecamatan Nonaktif',
+            'latitude' => 0.8800,
+            'longitude' => 122.9000,
+            'is_active' => false,
+        ]);
+
+        $response = $this->actingAs($user)->get(route('dashboard'));
+
+        $response->assertOk();
+        $mapPoints = $response->viewData('mapPoints');
+
+        $poneloPoint = $mapPoints->firstWhere('kecamatan', 'Ponelo Kepulauan');
+        $this->assertNotNull($poneloPoint);
+        $this->assertEqualsWithDelta(0.8766, $poneloPoint['latitude'], 0.01);
+        $this->assertEqualsWithDelta(122.8866, $poneloPoint['longitude'], 0.01);
+
+        $inactivePoint = $mapPoints->firstWhere('kecamatan', 'Kecamatan Nonaktif');
+        $this->assertNull($inactivePoint);
+    }
+
+    public function test_dashboard_returns_json_for_ajax_filter_requests(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'admin_kabupaten',
+        ]);
+
+        $response = $this->actingAs($user)->getJson(route('dashboard', [
+            'map_filter_type' => 'pangan',
+            'tab' => 'pangan',
+        ]));
+
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'status',
+            'mapPoints',
+            'activePointsCount',
+            'mapFilterType',
+            'chartMingguan' => [
+                'labels',
+                'values',
+                'details',
+                'valFormatted',
+                'status',
+                'periode',
+            ],
+            'chartBulanan' => [
+                'labels',
+                'values',
+                'details',
+                'valFormatted',
+                'status',
+                'periode',
+            ],
+            'htmlPanganTable',
+            'htmlLpgTable',
+            'htmlBbmTable',
+        ]);
+        $this->assertEquals('success', $response->json('status'));
+        $this->assertEquals('pangan', $response->json('mapFilterType'));
+    }
 }

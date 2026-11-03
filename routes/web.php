@@ -24,6 +24,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('input')->name('input.')->group(function () {
         Route::get('/pangan-strategis', [InputDataController::class, 'pangan'])->name('pangan');
+        Route::get('/pangan-strategis/previous-prices', [InputDataController::class, 'previousPricesPangan'])->name('pangan.previous-prices');
         Route::post('/pangan-strategis', [InputDataController::class, 'storePangan'])->name('pangan.store');
         Route::put('/pangan-strategis/{dataPangan}', [InputDataController::class, 'updatePangan'])->name('pangan.update');
         Route::get('/lpg', [InputDataController::class, 'lpg'])->name('lpg');

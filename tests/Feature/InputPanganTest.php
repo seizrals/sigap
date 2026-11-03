@@ -13,7 +13,7 @@ class InputPanganTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_pangan_page_lists_saved_records_and_request_modal(): void
+    public function test_pangan_page_renders_direct_input_form_without_popup_or_history_table(): void
     {
         $user = User::factory()->create([
             'username' => 'pangan-operator',
@@ -22,6 +22,7 @@ class InputPanganTest extends TestCase
         $kecamatan = Kecamatan::create([
             'kode_kecamatan' => '7505020',
             'nama_kecamatan' => 'Kwandang',
+            'is_active' => true,
         ]);
         $komoditas = Komoditas::create([
             'kode_komoditas' => 'CBI-RWT',
@@ -39,35 +40,22 @@ class InputPanganTest extends TestCase
             'is_strategis' => true,
             'is_active' => true,
         ]);
-        DataPangan::create([
-            'tanggal_input' => '2026-10-28',
-            'tanggal_input_sebelumnya' => '2026-10-27',
-            'kecamatan_id' => $kecamatan->id,
-            'komoditas_id' => $komoditas->id,
-            'user_id' => $user->id,
-            'harga_hari_ini' => 65000,
-            'harga_hari_sebelumnya' => 60000,
-            'status_ketersediaan' => 'waspada',
-            'status_verifikasi' => 'pending',
-        ]);
 
         $response = $this->actingAs($user)->get(route('input.pangan'));
 
         $response->assertOk();
-        $response->assertSee('Tambah Permintaan');
+        $response->assertSee('Form Input Pangan Strategis');
         $response->assertSee('Cabai Rawit');
         $response->assertSee('Beras Medium');
-        $response->assertSee('data-edit-pangan', false);
-        $response->assertDontSee('Verifikasi');
         $response->assertSee('Harga Sebelumnya');
-        $response->assertSee('Periode Sebelumnya');
-        $response->assertSee('Periode Saat Ini');
-        $response->assertSee('Distribusi Dari Luar');
-        $response->assertDontSee('Keterangan / Kendala Lapangan');
-        $response->assertDontSee('Jenis Komoditas');
+        $response->assertSee('opacity-60');
+        $response->assertSee('Tanggal Input');
+        $response->assertDontSee('Periode Sebelumnya'); // tanggal sebelumnya dihapus
+        $response->assertDontSee('pangan-modal'); // tidak popup saja
+        $response->assertDontSee('Tambah Permintaan'); // tombol modal dihapus
     }
 
-    public function test_pangan_request_can_be_created_and_edited(): void
+    public function test_pangan_auto_resolves_previous_price_and_date_sequence(): void
     {
         $user = User::factory()->create([
             'username' => 'pangan-operator',
@@ -76,6 +64,7 @@ class InputPanganTest extends TestCase
         $kecamatan = Kecamatan::create([
             'kode_kecamatan' => '7505020',
             'nama_kecamatan' => 'Kwandang',
+            'is_active' => true,
         ]);
         $komoditas = Komoditas::create([
             'kode_komoditas' => 'CBI-RWT',
@@ -85,105 +74,123 @@ class InputPanganTest extends TestCase
             'is_strategis' => true,
             'is_active' => true,
         ]);
-        $komoditasLain = Komoditas::create([
-            'kode_komoditas' => 'BRG-MDY',
-            'nama_komoditas' => 'Beras Medium',
+
+        // Langkah 1: Input tanggal 3 saat belum ada data sama sekali -> harga sebelumnya masih 0
+        $payloadTgl3 = [
+            'tanggal_input' => '2026-11-03',
+            'kecamatan_id' => $kecamatan->id,
+            'entries' => [
+                $komoditas->id => [
+                    'komoditas_id' => $komoditas->id,
+                    'kecamatan_id' => $kecamatan->id,
+                    'harga_hari_ini' => 50000,
+                    'stok_tersedia' => 100,
+                    'satuan_stok' => 'Kg',
+                    'status_ketersediaan' => 'aman',
+                ],
+            ],
+        ];
+
+        $res1 = $this->actingAs($user)->post(route('input.pangan.store'), $payloadTgl3);
+        $res1->assertSessionHasNoErrors();
+        $res1->assertRedirect(route('input.pangan'));
+
+        $recordTgl3 = DataPangan::whereDate('tanggal_input', '2026-11-03')->firstOrFail();
+        $this->assertEquals(50000, (float) $recordTgl3->harga_hari_ini);
+        $this->assertEquals(0, (float) $recordTgl3->harga_hari_sebelumnya);
+        $this->assertNull($recordTgl3->tanggal_input_sebelumnya);
+        $this->assertSame('stabil', $recordTgl3->status_harga);
+
+        // Langkah 2: Input tanggal 4 -> harga tgl 3 (50000) otomatis masuk di harga sebelumnya tgl 4
+        $payloadTgl4 = [
+            'tanggal_input' => '2026-11-04',
+            'kecamatan_id' => $kecamatan->id,
+            'entries' => [
+                $komoditas->id => [
+                    'komoditas_id' => $komoditas->id,
+                    'kecamatan_id' => $kecamatan->id,
+                    'harga_hari_ini' => 52000,
+                    'status_ketersediaan' => 'aman',
+                ],
+            ],
+        ];
+
+        $res2 = $this->actingAs($user)->post(route('input.pangan.store'), $payloadTgl4);
+        $res2->assertRedirect(route('input.pangan'));
+
+        $recordTgl4 = DataPangan::whereDate('tanggal_input', '2026-11-04')->firstOrFail();
+        $this->assertEquals(52000, (float) $recordTgl4->harga_hari_ini);
+        $this->assertEquals(50000, (float) $recordTgl4->harga_hari_sebelumnya);
+        $this->assertSame('2026-11-03', $recordTgl4->tanggal_input_sebelumnya?->format('Y-m-d'));
+        $this->assertEquals(2000, (float) $recordTgl4->perubahan_harga_nominal);
+        $this->assertEquals(4.0, (float) $recordTgl4->perubahan_harga_persen);
+
+        // Langkah 3: Input tanggal 5 -> harga tgl 4 (52000) otomatis masuk di harga sebelumnya tgl 5
+        $payloadTgl5 = [
+            'tanggal_input' => '2026-11-05',
+            'kecamatan_id' => $kecamatan->id,
+            'entries' => [
+                $komoditas->id => [
+                    'komoditas_id' => $komoditas->id,
+                    'kecamatan_id' => $kecamatan->id,
+                    'harga_hari_ini' => 55000,
+                    'status_ketersediaan' => 'aman',
+                ],
+            ],
+        ];
+
+        $res3 = $this->actingAs($user)->post(route('input.pangan.store'), $payloadTgl5);
+        $res3->assertRedirect(route('input.pangan'));
+
+        $recordTgl5 = DataPangan::whereDate('tanggal_input', '2026-11-05')->firstOrFail();
+        $this->assertEquals(55000, (float) $recordTgl5->harga_hari_ini);
+        $this->assertEquals(52000, (float) $recordTgl5->harga_hari_sebelumnya);
+        $this->assertSame('2026-11-04', $recordTgl5->tanggal_input_sebelumnya?->format('Y-m-d'));
+        $this->assertEquals(3000, (float) $recordTgl5->perubahan_harga_nominal);
+    }
+
+    public function test_pangan_previous_prices_endpoint_returns_json(): void
+    {
+        $user = User::factory()->create([
+            'username' => 'pangan-operator',
+            'role' => 'admin_kabupaten',
+        ]);
+        $kecamatan = Kecamatan::create([
+            'kode_kecamatan' => '7505020',
+            'nama_kecamatan' => 'Kwandang',
+            'is_active' => true,
+        ]);
+        $komoditas = Komoditas::create([
+            'kode_komoditas' => 'CBI-RWT',
+            'nama_komoditas' => 'Cabai Rawit',
             'kategori' => 'pangan',
             'satuan' => 'Kg',
             'is_strategis' => true,
             'is_active' => true,
         ]);
-        $komoditasKosong = Komoditas::create([
-            'kode_komoditas' => 'MNY-GRM',
-            'nama_komoditas' => 'Minyak Goreng',
-            'kategori' => 'pangan',
-            'satuan' => 'Liter',
-            'is_strategis' => true,
-            'is_active' => true,
-        ]);
-        $payload = [
-            'periode_sebelumnya' => '2026-10-27',
-            'periode_saat_ini' => '2026-10-28',
-            'entries' => [
-                $komoditas->id => [
-                    'komoditas_id' => $komoditas->id,
-                    'kecamatan_id' => $kecamatan->id,
-                    'harga_hari_ini' => 22000,
-                    'harga_hari_sebelumnya' => 20000,
-                    'stok_tersedia' => 120,
-                    'satuan_stok' => 'Kg',
-                    'sumber_distribusi_masuk' => '2 ton dari Gorontalo',
-                    'status_ketersediaan' => 'aman',
-                ],
-                $komoditasLain->id => [
-                    'komoditas_id' => $komoditasLain->id,
-                    'kecamatan_id' => $kecamatan->id,
-                    'harga_hari_ini' => 15000,
-                    'harga_hari_sebelumnya' => 14500,
-                    'status_ketersediaan' => 'aman',
-                ],
-                $komoditasKosong->id => [
-                    'komoditas_id' => $komoditasKosong->id,
-                    'satuan_stok' => 'Liter',
-                ],
-            ],
-        ];
 
-        $response = $this->actingAs($user)->post(route('input.pangan.store'), $payload);
-
-        $response->assertRedirect(route('input.pangan'));
-        $this->assertDatabaseHas('data_pangan', [
+        DataPangan::create([
+            'tanggal_input' => '2026-11-03',
+            'kecamatan_id' => $kecamatan->id,
             'komoditas_id' => $komoditas->id,
-            'harga_hari_ini' => 22000,
-            'perubahan_harga_nominal' => 2000,
-            'perubahan_harga_persen' => 10,
-            'status_verifikasi' => 'pending',
-            'keterangan_lapangan' => null,
+            'user_id' => $user->id,
+            'harga_hari_ini' => 48000,
+            'harga_hari_sebelumnya' => 0,
+            'status_ketersediaan' => 'aman',
         ]);
-        $this->assertDatabaseHas('data_pangan', [
-            'komoditas_id' => $komoditasLain->id,
-            'harga_hari_ini' => 15000,
-            'status_verifikasi' => 'pending',
-        ]);
-        $recordKomoditasLain = DataPangan::where('komoditas_id', $komoditasLain->id)->firstOrFail();
-        $this->assertSame('2026-10-28', $recordKomoditasLain->tanggal_input->toDateString());
-        $this->assertSame('2026-10-27', $recordKomoditasLain->tanggal_input_sebelumnya->toDateString());
-        $this->assertDatabaseCount('data_pangan', 2);
 
-        $record = DataPangan::where('komoditas_id', $komoditas->id)->firstOrFail();
-        $this->assertSame('2026-10-28', $record->tanggal_input->toDateString());
-        $this->assertSame('2026-10-27', $record->tanggal_input_sebelumnya->toDateString());
-        $payload = [
-            'periode_sebelumnya' => '2026-10-27',
-            'periode_saat_ini' => '2026-10-28',
-            'entries' => [
-                $komoditas->id => [
-                    'komoditas_id' => $komoditas->id,
-                    'kecamatan_id' => $kecamatan->id,
-                    'harga_hari_ini' => 24000,
-                    'harga_hari_sebelumnya' => 20000,
-                    'stok_tersedia' => 120,
-                    'satuan_stok' => 'Kg',
-                    'sumber_distribusi_masuk' => '2 ton dari Gorontalo',
-                    'status_ketersediaan' => 'waspada',
-                ],
+        $response = $this->actingAs($user)->getJson(route('input.pangan.previous-prices', [
+            'kecamatan_id' => $kecamatan->id,
+            'tanggal_input' => '2026-11-04',
+        ]));
+
+        $response->assertOk();
+        $response->assertJson([
+            $komoditas->id => [
+                'harga' => 48000,
+                'tanggal' => '03/11/2026',
+                'tanggal_raw' => '2026-11-03',
             ],
-        ];
-
-        $response = $this->put(route('input.pangan.update', $record), $payload);
-
-        $response->assertRedirect(route('input.pangan'));
-        $this->assertDatabaseHas('data_pangan', [
-            'id' => $record->id,
-            'harga_hari_ini' => 24000,
-            'perubahan_harga_nominal' => 4000,
-            'perubahan_harga_persen' => 20,
-            'status_harga' => 'naik_tinggi',
-            'status_ketersediaan' => 'waspada',
-            'status_verifikasi' => 'pending',
         ]);
-        $record->refresh();
-        $this->assertSame('2026-10-28', $record->tanggal_input->toDateString());
-        $this->assertSame('2026-10-27', $record->tanggal_input_sebelumnya->toDateString());
     }
 }

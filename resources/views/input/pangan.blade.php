@@ -1,300 +1,323 @@
 @extends('layouts.app')
 
-@section('title', 'Pangan Strategis')
-@section('page-title', 'Pangan Strategis')
+@section('title', 'Input Data Pangan Strategis')
+@section('page-title', 'Input Data Pangan Strategis')
 
 @section('content')
-<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-    <div class="bg-gradient-to-r from-amber-400 to-amber-500 p-4 sm:p-6 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <h2 class="text-base sm:text-lg font-bold">Data Pangan Strategis</h2>
-            <p class="text-xs sm:text-sm opacity-90 mt-0.5">Harga dan ketersediaan pangan per kecamatan.</p>
+<div class="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 p-4 sm:p-6 text-white flex items-center gap-3 sm:gap-4">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-16.5-.52c-1.01.143-2.01.317-3 .52m16.5 0a48.667 48.667 0 01-3 10.5m-10.5-10.5a48.667 48.667 0 00-3 10.5m16.5 0a48.667 48.667 0 01-10.5 0"/>
+            </svg>
         </div>
-        <button type="button" id="open-pangan-modal" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-amber-700 font-bold text-sm shadow-sm hover:bg-amber-50 transition-colors w-full sm:w-auto">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-            Tambah Permintaan
-        </button>
+        <div>
+            <h3 class="font-bold text-base sm:text-lg">Form Input Pangan Strategis</h3>
+            <p class="text-xs sm:text-sm opacity-90 mt-0.5">Input harga dan ketersediaan komoditas pangan per kecamatan secara langsung.</p>
+        </div>
     </div>
 
+    <!-- Flash Notifications -->
     @if(session('success'))
-        <div class="mx-4 sm:mx-5 mt-4 sm:mt-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium" role="status">{{ session('success') }}</div>
+        <div class="mx-4 sm:mx-6 mt-4 sm:mt-6 p-3.5 sm:p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium flex items-center gap-2">
+            <svg class="w-5 h-5 shrink-0 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+            <span>{{ session('success') }}</span>
+        </div>
     @endif
 
-    <div class="p-3.5 sm:p-5">
-        <div class="overflow-x-auto -mx-3.5 sm:mx-0 px-3.5 sm:px-0 border border-slate-200 rounded-xl">
-            <table class="min-w-[1250px] w-full border-collapse text-left text-xs">
-                <thead class="bg-amber-50 text-slate-600">
-                    <tr class="border-b border-amber-200">
-                        <th class="px-3 py-3 font-bold">Periode Sebelumnya</th>
-                        <th class="px-3 py-3 font-bold">Periode Saat Ini</th>
-                        <th class="px-3 py-3 font-bold">Kecamatan</th>
-                        <th class="px-3 py-3 font-bold">Komoditas</th>
-                        <th class="px-3 py-3 font-bold text-right">Harga Hari Ini</th>
-                        <th class="px-3 py-3 font-bold text-right">Harga Sebelumnya</th>
-                        <th class="px-3 py-3 font-bold text-right">Perubahan</th>
-                        <th class="px-3 py-3 font-bold">Ketersediaan</th>
-                        <th class="px-3 py-3 font-bold text-right">Stok</th>
-                        <th class="px-3 py-3 font-bold">Distribusi</th>
-                        <th class="px-3 py-3 font-bold text-center">Aksi</th>
+    @if($errors->any())
+        <div class="mx-4 sm:mx-6 mt-4 sm:mt-6 p-3.5 sm:p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
+            <ul class="list-disc list-inside space-y-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <!-- Form Input Pangan Langsung (Bukan Popup) -->
+    <form id="pangan-form" method="POST" action="{{ route('input.pangan.store') }}" class="p-4 sm:p-6 space-y-5 text-slate-700">
+        @csrf
+
+        <!-- Parameter Utama: Tanggal Input & Kecamatan -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+            <div>
+                <label for="pangan-tanggal-input" class="block text-xs font-semibold text-slate-600 mb-1.5">
+                    Tanggal Input *
+                </label>
+                <input type="date" id="pangan-tanggal-input" name="tanggal_input" value="{{ old('tanggal_input', old('periode_saat_ini', date('Y-m-d'))) }}" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-amber-500 shadow-xs transition">
+            </div>
+
+            <div>
+                <label for="pangan-global-kecamatan" class="block text-xs font-semibold text-slate-600 mb-1.5">
+                    Kecamatan *
+                </label>
+                <select id="pangan-global-kecamatan" name="kecamatan_id" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-amber-500 shadow-xs transition">
+                    <option value="">Pilih Kecamatan...</option>
+                    @foreach($kecamatan as $kec)
+                        <option value="{{ $kec->id }}" {{ (string) old('kecamatan_id') === (string) $kec->id ? 'selected' : '' }}>
+                            {{ $kec->nama_kecamatan }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
+        <!-- Filter Pencarian Komoditas Cepat -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
+            <div class="text-xs text-slate-500 font-medium">
+                Silakan isi komoditas yang dilaporkan. Baris yang tidak diisi akan otomatis dilewati.
+            </div>
+            <div class="w-full sm:w-64">
+                <div class="relative">
+                    <input type="text" id="filter-komoditas" placeholder="Cari nama komoditas..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-700 outline-none focus:bg-white focus:border-amber-500 shadow-2xs transition">
+                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabel Komoditas Pangan -->
+        <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-2xs">
+            <table class="min-w-[900px] w-full border-collapse text-left text-xs">
+                <thead class="bg-amber-50 text-slate-700">
+                    <tr class="border-b border-amber-200/80">
+                        <th class="px-3.5 py-3 font-bold w-48 sm:w-56">Nama Komoditas</th>
+                        <th class="px-3 py-3 font-bold w-40 sm:w-44">Harga Sebelumnya</th>
+                        <th class="px-3 py-3 font-bold w-36">Harga Hari Ini *</th>
+                        <th class="px-3 py-3 font-bold w-44">Stok Tersedia</th>
+                        <th class="px-3 py-3 font-bold w-44">Distribusi Dari Luar</th>
+                        <th class="px-3 py-3 font-bold w-36">Status Ketersediaan *</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 text-slate-700">
-                    @forelse($dataPangan as $record)
-                        <tr class="odd:bg-white even:bg-slate-50/60 hover:bg-amber-50/70 transition-colors">
-                            <td class="px-3 py-3 whitespace-nowrap">{{ $record->tanggal_input_sebelumnya?->format('d/m/Y') ?? '-' }}</td>
-                            <td class="px-3 py-3 whitespace-nowrap">{{ $record->tanggal_input?->format('d/m/Y') }}</td>
-                            <td class="px-3 py-3 whitespace-nowrap">{{ $record->kecamatan?->nama_kecamatan ?? '-' }}</td>
-                            <td class="px-3 py-3 font-semibold whitespace-nowrap">{{ $record->komoditas?->nama_komoditas ?? '-' }}</td>
-                            <td class="px-3 py-3 text-right whitespace-nowrap">Rp {{ number_format((float) $record->harga_hari_ini, 0, ',', '.') }}</td>
-                            <td class="px-3 py-3 text-right whitespace-nowrap">Rp {{ number_format((float) $record->harga_hari_sebelumnya, 0, ',', '.') }}</td>
-                            <td class="px-3 py-3 text-right whitespace-nowrap {{ $record->perubahan_harga_persen > 0 ? 'text-rose-600' : ($record->perubahan_harga_persen < 0 ? 'text-emerald-600' : 'text-slate-500') }}">{{ $record->perubahan_harga_persen > 0 ? '+' : '' }}{{ number_format((float) $record->perubahan_harga_persen, 2, ',', '.') }}%</td>
-                            <td class="px-3 py-3 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 rounded-md font-semibold {{ $record->status_ketersediaan === 'aman' ? 'bg-emerald-100 text-emerald-700' : ($record->status_ketersediaan === 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700') }}">{{ ucfirst($record->status_ketersediaan) }}</span>
+                <tbody id="komoditas-tbody" class="divide-y divide-slate-100 text-slate-700">
+                    @forelse($komoditas as $item)
+                        <tr data-entry-row data-komoditas-id="{{ $item->id }}" data-nama-komoditas="{{ strtolower($item->nama_komoditas) }}" class="odd:bg-white even:bg-slate-50/60 hover:bg-amber-50/40 transition-colors">
+                            <!-- Komoditas -->
+                            <td class="px-3.5 py-3 font-semibold text-slate-800 whitespace-nowrap">
+                                <div class="text-sm font-bold text-slate-800">{{ $item->nama_komoditas }}</div>
+                                <div class="text-[11px] text-slate-400 font-normal">Satuan: {{ $item->satuan }}</div>
+                                <input type="hidden" name="entries[{{ $item->id }}][komoditas_id]" value="{{ $item->id }}">
+                                <input type="hidden" name="entries[{{ $item->id }}][kecamatan_id]" class="row-kecamatan-id" value="{{ old('entries.'.$item->id.'.kecamatan_id', old('kecamatan_id')) }}">
                             </td>
-                            <td class="px-3 py-3 text-right whitespace-nowrap">{{ $record->stok_tersedia !== null ? number_format((float) $record->stok_tersedia, 0, ',', '.') : '-' }} {{ $record->satuan_stok }}</td>
-                            <td class="px-3 py-3 max-w-48 truncate" title="{{ $record->sumber_distribusi_masuk }}">{{ $record->sumber_distribusi_masuk ?: '-' }}</td>
-                            <td class="px-3 py-2 text-center">
-                                <button type="button" data-edit-pangan
-                                    data-record-id="{{ $record->id }}" data-periode-sebelumnya="{{ $record->tanggal_input_sebelumnya?->format('Y-m-d') }}"
-                                    data-periode-saat-ini="{{ $record->tanggal_input?->format('Y-m-d') }}"
-                                    data-kecamatan="{{ $record->kecamatan_id }}" data-komoditas="{{ $record->komoditas_id }}"
-                                    data-harga="{{ $record->harga_hari_ini }}" data-harga-sebelumnya="{{ $record->harga_hari_sebelumnya }}"
-                                    data-status="{{ $record->status_ketersediaan }}" data-stok="{{ $record->stok_tersedia }}"
-                                    data-satuan="{{ $record->satuan_stok }}" data-distribusi="{{ $record->sumber_distribusi_masuk }}"
-                                    aria-label="Edit data {{ $record->komoditas?->nama_komoditas ?? 'pangan' }}" title="Edit data"
-                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-amber-700 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.67a4.5 4.5 0 01-1.897 1.13L6 18.5l.7-2.685a4.5 4.5 0 011.13-1.897L16.862 4.487zM19.5 7.5l-3-3M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
-                                </button>
+
+                            <!-- Harga Sebelumnya (Otomatis dengan Tanggal Opacity) -->
+                            <td class="px-3 py-3 whitespace-nowrap">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-slate-800 text-xs" data-prev-price="{{ $item->id }}">
+                                        Rp {{ number_format((float) old('entries.'.$item->id.'.harga_hari_sebelumnya', 0), 0, ',', '.') }}
+                                    </span>
+                                    <span class="text-[11px] text-slate-400 opacity-60 font-medium" data-prev-date="{{ $item->id }}">
+                                        Belum ada data
+                                    </span>
+                                </div>
+                                <input type="hidden" name="entries[{{ $item->id }}][harga_hari_sebelumnya]" data-prev-input="{{ $item->id }}" value="{{ old('entries.'.$item->id.'.harga_hari_sebelumnya', 0) }}">
+                            </td>
+
+                            <!-- Harga Hari Ini -->
+                            <td class="px-3 py-3">
+                                <input data-entry-value type="number" min="0" step="0.01" name="entries[{{ $item->id }}][harga_hari_ini]" value="{{ old('entries.'.$item->id.'.harga_hari_ini') }}" placeholder="Rp" class="w-32 bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500 shadow-2xs">
+                            </td>
+
+                            <!-- Stok Tersedia -->
+                            <td class="px-3 py-3">
+                                <div class="flex">
+                                    <input data-entry-value type="number" min="0" step="0.01" name="entries[{{ $item->id }}][stok_tersedia]" value="{{ old('entries.'.$item->id.'.stok_tersedia') }}" placeholder="Jumlah" class="w-24 bg-white border border-slate-200 rounded-l-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500">
+                                    <input type="text" name="entries[{{ $item->id }}][satuan_stok]" value="{{ old('entries.'.$item->id.'.satuan_stok', $item->satuan) }}" maxlength="30" class="w-16 bg-slate-50 border border-l-0 border-slate-200 rounded-r-lg px-2 py-2 text-xs text-center outline-none focus:border-amber-500 text-slate-600 font-medium">
+                                </div>
+                            </td>
+
+                            <!-- Distribusi Dari Luar -->
+                            <td class="px-3 py-3">
+                                <input data-entry-value type="text" name="entries[{{ $item->id }}][sumber_distribusi_masuk]" value="{{ old('entries.'.$item->id.'.sumber_distribusi_masuk') }}" maxlength="255" placeholder="Asal pasokan / luar daerah" class="w-40 bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500 shadow-2xs">
+                            </td>
+
+                            <!-- Status Ketersediaan -->
+                            <td class="px-3 py-3">
+                                <select data-entry-value name="entries[{{ $item->id }}][status_ketersediaan]" class="w-32 bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs outline-none focus:border-amber-500 shadow-2xs">
+                                    <option value="">Pilih...</option>
+                                    <option value="aman" @selected(old('entries.'.$item->id.'.status_ketersediaan', 'aman') === 'aman')>Aman</option>
+                                    <option value="waspada" @selected(old('entries.'.$item->id.'.status_ketersediaan') === 'waspada')>Waspada</option>
+                                    <option value="kritis" @selected(old('entries.'.$item->id.'.status_ketersediaan') === 'kritis')>Kritis</option>
+                                </select>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="11" class="px-4 py-12 text-center text-sm text-slate-400">Belum ada data pangan strategis.</td></tr>
+                        <tr>
+                            <td colspan="6" class="px-4 py-8 text-center text-slate-400">Belum ada komoditas pangan aktif.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        @if($dataPangan->hasPages())
-            <div class="mt-4">{{ $dataPangan->links() }}</div>
-        @endif
-    </div>
-</div>
 
-<div id="pangan-modal" data-open="{{ $errors->any() ? 'true' : 'false' }}" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 backdrop-blur-xs p-2 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="pangan-modal-title">
-    <div class="w-full max-w-4xl 2xl:max-w-5xl max-h-[94vh] sm:max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-slate-200">
-        <div class="bg-gradient-to-r from-amber-400 to-amber-500 px-4 sm:px-6 py-4 sm:py-5 text-white flex items-start justify-between gap-4 sticky top-0 z-10">
-            <div><h2 id="pangan-modal-title" class="text-base sm:text-lg font-bold">Tambah Permintaan</h2><p class="text-xs sm:text-sm opacity-90 mt-0.5">Input harga dan ketersediaan pangan strategis.</p></div>
-            <button type="button" data-close-pangan-modal class="p-1.5 text-white/90 hover:text-white rounded-lg hover:bg-white/10 transition" aria-label="Tutup formulir">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+        <!-- Tombol Aksi -->
+        <div class="flex flex-col sm:flex-row justify-end items-center gap-3 pt-4 border-t border-slate-100">
+            <button type="reset" id="pangan-reset-btn" class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition text-center cursor-pointer">
+                Reset Form
+            </button>
+            <button type="submit" id="pangan-submit" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-md shadow-amber-500/20 transition text-center cursor-pointer">
+                Simpan Data Pangan
             </button>
         </div>
-
-        <form id="pangan-form" method="POST" action="{{ route('input.pangan.store') }}" data-update-url="{{ route('input.pangan.update', ['dataPangan' => '__ID__']) }}" class="p-4 sm:p-6 space-y-4">
-            @csrf
-            @if(old('_method') === 'PUT') <input type="hidden" name="_method" value="PUT"> @endif
-            <input type="hidden" name="record_id" id="pangan-record-id" value="{{ old('record_id') }}">
-            <input type="hidden" name="record_commodity_id" id="pangan-record-commodity-id" value="{{ old('record_commodity_id') }}">
-            @if($errors->any())
-                <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm" role="alert">
-                    <ul class="list-disc list-inside space-y-1">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
-                </div>
-            @endif
-            <p class="text-xs text-slate-500">Isi satu atau beberapa baris komoditas. Baris yang kosong akan dilewati.</p>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label for="pangan-periode-sebelumnya" class="block text-xs font-semibold text-slate-600">
-                    Periode Sebelumnya *
-                    <input id="pangan-periode-sebelumnya" type="date" name="periode_sebelumnya" value="{{ old('periode_sebelumnya', now()->subDay()->toDateString()) }}" required class="mt-1.5 w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-amber-500 shadow-sm transition">
-                </label>
-                <label for="pangan-periode-saat-ini" class="block text-xs font-semibold text-slate-600">
-                    Periode Saat Ini *
-                    <input id="pangan-periode-saat-ini" type="date" name="periode_saat_ini" value="{{ old('periode_saat_ini', now()->toDateString()) }}" required class="mt-1.5 w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-amber-500 shadow-sm transition">
-                </label>
-            </div>
-
-            <div class="overflow-x-auto border border-slate-200 rounded-xl">
-                <table class="min-w-[1400px] w-full border-collapse text-left text-xs">
-                    <thead class="bg-amber-50 text-slate-600">
-                        <tr class="border-b border-amber-200">
-                            <th class="px-3 py-3 font-bold">Nama Komoditas</th>
-                            <th class="px-3 py-3 font-bold">Harga Sebelumnya</th>
-                            <th class="px-3 py-3 font-bold">Harga Hari Ini</th>
-                            <th class="px-3 py-3 font-bold">Stok Lokal Tersedia</th>
-                            <th class="px-3 py-3 font-bold">Distribusi Dari Luar</th>
-                            <th class="px-3 py-3 font-bold">Status Ketersediaan</th>
-                            <th class="px-3 py-3 font-bold">Kecamatan</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse($komoditas as $item)
-                            <tr data-entry-row data-komoditas-id="{{ $item->id }}" class="odd:bg-white even:bg-slate-50/60">
-                                <td class="px-3 py-2.5 font-semibold text-slate-800 whitespace-nowrap">
-                                    {{ $item->nama_komoditas }} <span class="text-slate-400 font-normal">({{ $item->satuan }})</span>
-                                    <input type="hidden" name="entries[{{ $item->id }}][komoditas_id]" value="{{ $item->id }}">
-                                </td>
-                                <td class="px-2 py-2"><input data-entry-control data-entry-value type="number" min="0" step="0.01" name="entries[{{ $item->id }}][harga_hari_sebelumnya]" value="{{ old('entries.'.$item->id.'.harga_hari_sebelumnya') }}" placeholder="Rp" class="w-32 bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500"></td>
-                                <td class="px-2 py-2"><input data-entry-control data-entry-value type="number" min="0" step="0.01" name="entries[{{ $item->id }}][harga_hari_ini]" value="{{ old('entries.'.$item->id.'.harga_hari_ini') }}" placeholder="Rp" class="w-32 bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500"></td>
-                                <td class="px-2 py-2">
-                                    <div class="flex">
-                                        <input data-entry-control data-entry-value type="number" min="0" step="0.01" name="entries[{{ $item->id }}][stok_tersedia]" value="{{ old('entries.'.$item->id.'.stok_tersedia') }}" placeholder="Jumlah" class="w-24 bg-white border border-slate-200 rounded-l-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500">
-                                        <input data-entry-control type="text" name="entries[{{ $item->id }}][satuan_stok]" value="{{ old('entries.'.$item->id.'.satuan_stok', $item->satuan) }}" maxlength="30" aria-label="Satuan stok {{ $item->nama_komoditas }}" class="w-16 bg-slate-50 border border-l-0 border-slate-200 rounded-r-lg px-2 py-2 text-xs text-center outline-none focus:border-amber-500">
-                                    </div>
-                                </td>
-                                <td class="px-2 py-2"><input data-entry-control data-entry-value type="text" name="entries[{{ $item->id }}][sumber_distribusi_masuk]" value="{{ old('entries.'.$item->id.'.sumber_distribusi_masuk') }}" maxlength="255" placeholder="Asal distribusi" class="w-40 bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500"></td>
-                                <td class="px-2 py-2">
-                                    <select data-entry-control data-entry-value name="entries[{{ $item->id }}][status_ketersediaan]" class="w-32 bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs outline-none focus:border-amber-500">
-                                        <option value="">Pilih status</option>
-                                        <option value="aman" @selected(old('entries.'.$item->id.'.status_ketersediaan') === 'aman')>Aman</option>
-                                        <option value="waspada" @selected(old('entries.'.$item->id.'.status_ketersediaan') === 'waspada')>Waspada</option>
-                                        <option value="kritis" @selected(old('entries.'.$item->id.'.status_ketersediaan') === 'kritis')>Kritis</option>
-                                    </select>
-                                </td>
-                                <td class="px-2 py-2">
-                                    <select data-entry-control data-entry-value name="entries[{{ $item->id }}][kecamatan_id]" class="w-36 bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs outline-none focus:border-amber-500">
-                                        <option value="">Pilih kecamatan</option>
-                                        @foreach($kecamatan as $kec)
-                                            <option value="{{ $kec->id }}" @selected((string) old('entries.'.$item->id.'.kecamatan_id') === (string) $kec->id)>{{ $kec->nama_kecamatan }}</option>
-                                        @endforeach
-                                    </select>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="7" class="px-4 py-8 text-center text-slate-400">Belum ada komoditas strategis aktif.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                <button type="button" data-close-pangan-modal class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition">Batal</button>
-                <button id="pangan-submit" type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm shadow-md shadow-amber-500/20 transition">Simpan Data Komoditas</button>
-            </div>
-        </form>
-    </div>
+    </form>
 </div>
 @endsection
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const modal = document.getElementById('pangan-modal');
         const form = document.getElementById('pangan-form');
-        const recordIdInput = document.getElementById('pangan-record-id');
-        const recordCommodityIdInput = document.getElementById('pangan-record-commodity-id');
-        const previousPeriodInput = document.getElementById('pangan-periode-sebelumnya');
-        const currentPeriodInput = document.getElementById('pangan-periode-saat-ini');
-        const modalTitle = document.getElementById('pangan-modal-title');
-        const submitButton = document.getElementById('pangan-submit');
-        const storeUrl = form.action;
+        const tanggalInput = document.getElementById('pangan-tanggal-input');
+        const kecamatanSelect = document.getElementById('pangan-global-kecamatan');
+        const filterInput = document.getElementById('filter-komoditas');
         const rows = [...form.querySelectorAll('[data-entry-row]')];
+        const previousPricesUrl = '{{ route("input.pangan.previous-prices") }}';
 
-        const openModal = () => {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            document.body.classList.add('overflow-hidden');
-        };
-        const closeModal = () => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            document.body.classList.remove('overflow-hidden');
-        };
-
-        const setEditRow = (commodityId) => {
-            rows.forEach((row) => {
-                const isSelected = row.dataset.komoditasId === String(commodityId);
-                row.hidden = !isSelected;
-                row.querySelectorAll('input, select').forEach((control) => {
-                    control.disabled = !isSelected;
-                });
+        // 1. Sinkronisasi Kecamatan ke seluruh baris
+        const syncKecamatanToRows = () => {
+            const selectedKecamatanId = kecamatanSelect.value;
+            form.querySelectorAll('.row-kecamatan-id').forEach(input => {
+                input.value = selectedKecamatanId;
             });
         };
 
-        document.getElementById('open-pangan-modal').addEventListener('click', () => {
-            form.querySelector('input[name="_method"]')?.remove();
-            form.reset();
-            form.action = storeUrl;
-            recordIdInput.value = '';
-            recordCommodityIdInput.value = '';
-            rows.forEach((row) => {
-                row.hidden = false;
-                row.querySelectorAll('input, select').forEach((control) => {
-                    control.disabled = false;
-                    if (control.name.endsWith('[tanggal_input]')) {
-                        control.value = '{{ date('Y-m-d') }}';
-                    } else if (control.name.endsWith('[satuan_stok]')) {
-                        return;
-                    } else if (control.type !== 'hidden') {
-                        control.value = '';
+        // 2. Fetch harga sebelumnya dan tanggalnya secara otomatis
+        const fetchPreviousPrices = async () => {
+            const kecamatanId = kecamatanSelect.value;
+            const tanggal = tanggalInput.value;
+
+            if (!kecamatanId || !tanggal) {
+                // Reset tampilan harga sebelumnya
+                rows.forEach(row => {
+                    const komoditasId = row.dataset.komoditasId;
+                    const priceLabel = row.querySelector(`[data-prev-price="${komoditasId}"]`);
+                    const dateLabel = row.querySelector(`[data-prev-date="${komoditasId}"]`);
+                    const hiddenInput = row.querySelector(`[data-prev-input="${komoditasId}"]`);
+
+                    if (priceLabel) priceLabel.textContent = 'Rp 0';
+                    if (dateLabel) {
+                        dateLabel.textContent = 'Pilih kecamatan';
+                        dateLabel.className = 'text-[11px] text-slate-400 opacity-60 font-medium';
+                    }
+                    if (hiddenInput) hiddenInput.value = '0';
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch(`${previousPricesUrl}?kecamatan_id=${encodeURIComponent(kecamatanId)}&tanggal_input=${encodeURIComponent(tanggal)}`);
+                if (!response.ok) return;
+
+                const data = await response.json();
+
+                rows.forEach(row => {
+                    const komoditasId = row.dataset.komoditasId;
+                    const priceLabel = row.querySelector(`[data-prev-price="${komoditasId}"]`);
+                    const dateLabel = row.querySelector(`[data-prev-date="${komoditasId}"]`);
+                    const hiddenInput = row.querySelector(`[data-prev-input="${komoditasId}"]`);
+
+                    if (data[komoditasId]) {
+                        const price = parseFloat(data[komoditasId].harga || 0);
+                        const formattedPrice = new Intl.NumberFormat('id-ID').format(price);
+                        if (priceLabel) priceLabel.textContent = `Rp ${formattedPrice}`;
+                        if (dateLabel) {
+                            dateLabel.textContent = `(${data[komoditasId].tanggal})`;
+                            dateLabel.className = 'text-[11px] text-slate-500 opacity-60 font-medium';
+                        }
+                        if (hiddenInput) hiddenInput.value = price;
+                    } else {
+                        // Belum ada data sebelumnya
+                        if (priceLabel) priceLabel.textContent = 'Rp 0';
+                        if (dateLabel) {
+                            dateLabel.textContent = 'Belum ada data';
+                            dateLabel.className = 'text-[11px] text-slate-400 opacity-60 font-medium';
+                        }
+                        if (hiddenInput) hiddenInput.value = '0';
+                    }
+                });
+            } catch (err) {
+                console.error('Gagal mengambil riwayat harga:', err);
+            }
+        };
+
+        kecamatanSelect.addEventListener('change', () => {
+            syncKecamatanToRows();
+            fetchPreviousPrices();
+        });
+
+        tanggalInput.addEventListener('change', () => {
+            fetchPreviousPrices();
+        });
+
+        // Jalankan saat pertama kali halaman dimuat jika kecamatan sudah terpilih
+        syncKecamatanToRows();
+        if (kecamatanSelect.value) {
+            fetchPreviousPrices();
+        }
+
+        // 3. Filter Komoditas Cepat
+        if (filterInput) {
+            filterInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                rows.forEach(row => {
+                    const name = row.dataset.namaKomoditas || '';
+                    if (name.includes(query)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
                     }
                 });
             });
-            previousPeriodInput.value = '{{ now()->subDay()->toDateString() }}';
-            currentPeriodInput.value = '{{ now()->toDateString() }}';
-            modalTitle.textContent = 'Tambah Permintaan';
-            submitButton.textContent = 'Simpan Data Komoditas';
-            openModal();
-        });
-
-        document.querySelectorAll('[data-edit-pangan]').forEach((button) => {
-            button.addEventListener('click', () => {
-                form.action = form.dataset.updateUrl.replace('__ID__', button.dataset.recordId);
-                setEditRow(button.dataset.komoditas);
-                let methodInput = form.querySelector('input[name="_method"]');
-                if (!methodInput) {
-                    methodInput = document.createElement('input');
-                    methodInput.type = 'hidden';
-                    methodInput.name = '_method';
-                    form.append(methodInput);
-                }
-                methodInput.value = 'PUT';
-                recordIdInput.value = button.dataset.recordId;
-                recordCommodityIdInput.value = button.dataset.komoditas;
-                previousPeriodInput.value = button.dataset.periodeSebelumnya || button.dataset.periodeSaatIni;
-                currentPeriodInput.value = button.dataset.periodeSaatIni;
-                const row = rows.find((item) => item.dataset.komoditasId === button.dataset.komoditas);
-                row.querySelector('[name$="[kecamatan_id]"]').value = button.dataset.kecamatan;
-                row.querySelector('[name$="[harga_hari_ini]"]').value = button.dataset.harga;
-                row.querySelector('[name$="[harga_hari_sebelumnya]"]').value = button.dataset.hargaSebelumnya;
-                row.querySelector('[name$="[status_ketersediaan]"]').value = button.dataset.status;
-                row.querySelector('[name$="[stok_tersedia]"]').value = button.dataset.stok;
-                row.querySelector('[name$="[satuan_stok]"]').value = button.dataset.satuan || 'Kg';
-                row.querySelector('[name$="[sumber_distribusi_masuk]"]').value = button.dataset.distribusi;
-                modalTitle.textContent = 'Edit Permintaan Pangan';
-                submitButton.textContent = 'Simpan Perubahan';
-                openModal();
-            });
-        });
-
-        document.querySelectorAll('[data-close-pangan-modal]').forEach((button) => button.addEventListener('click', closeModal));
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) closeModal();
-        });
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
-        });
-
-        if (modal.dataset.open === 'true') {
-            const methodInput = form.querySelector('input[name="_method"]');
-            if (methodInput?.value === 'PUT' && recordIdInput.value) {
-                form.action = form.dataset.updateUrl.replace('__ID__', recordIdInput.value);
-                setEditRow(recordCommodityIdInput.value);
-                modalTitle.textContent = 'Edit Permintaan Pangan';
-                submitButton.textContent = 'Simpan Perubahan';
-            }
-            openModal();
         }
 
-        form.addEventListener('submit', () => {
-            if (form.querySelector('input[name="_method"]')?.value === 'PUT') return;
+        // 4. Sebelum submit: Hanya submit baris yang diisi nilainya
+        form.addEventListener('submit', (e) => {
+            if (!kecamatanSelect.value) {
+                alert('Silakan pilih kecamatan terlebih dahulu.');
+                kecamatanSelect.focus();
+                e.preventDefault();
+                return;
+            }
 
+            syncKecamatanToRows();
+
+            let filledCount = 0;
             rows.forEach((row) => {
                 const hasInput = [...row.querySelectorAll('[data-entry-value]')]
                     .some((control) => control.value.trim() !== '');
-                if (!hasInput) {
+
+                if (hasInput) {
+                    filledCount++;
+                    row.querySelectorAll('input, select').forEach((control) => {
+                        control.disabled = false;
+                    });
+                } else {
                     row.querySelectorAll('input, select').forEach((control) => {
                         control.disabled = true;
                     });
                 }
             });
+
+            if (filledCount === 0) {
+                alert('Silakan isi minimal satu komoditas sebelum menyimpan.');
+                rows.forEach(row => {
+                    row.querySelectorAll('input, select').forEach(c => c.disabled = false);
+                });
+                e.preventDefault();
+            }
+        });
+
+        // 5. Reset form: Kembalikan semua disabled state
+        document.getElementById('pangan-reset-btn')?.addEventListener('click', () => {
+            setTimeout(() => {
+                rows.forEach(row => {
+                    row.style.display = '';
+                    row.querySelectorAll('input, select').forEach(c => c.disabled = false);
+                });
+                if (filterInput) filterInput.value = '';
+                fetchPreviousPrices();
+            }, 50);
         });
     });
 </script>

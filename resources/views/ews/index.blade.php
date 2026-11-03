@@ -234,6 +234,7 @@
             <div class="space-y-1.5">
                 <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Bukti Foto Penanganan *</label>
                 <input type="file" name="bukti_penanganan" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[11px] file:font-black file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 border border-slate-200 rounded-2xl p-2 bg-slate-50 shadow-sm transition cursor-pointer">
+                <p class="text-[10px] text-slate-400 font-medium italic">Format: JPG, PNG, WEBP. Ukuran maks 5MB.</p>
             </div>
 
             <div class="flex items-center gap-4 pt-4">

@@ -45,7 +45,7 @@ class EwsControllerTest extends TestCase
 
         $this->assertSame('kritis', $alert->status_ketersediaan);
         $this->assertCount(1, $alert->foto_laporan_path);
-        Storage::disk('public')->assertExists($alert->foto_laporan_path[0]);
+        $this->assertTrue(Storage::disk('public')->exists($alert->foto_laporan_path[0]));
     }
 
     public function test_manual_alert_can_be_resolved_with_proof(): void
@@ -82,7 +82,7 @@ class EwsControllerTest extends TestCase
         $this->assertSame('Sudah dilakukan sidak pasar dan distribusi lancar.', $alert->tindak_lanjut);
         $this->assertNotNull($alert->bukti_penanganan_path);
         $this->assertSame($user->id, $alert->ditangani_oleh);
-        Storage::disk('public')->assertExists($alert->bukti_penanganan_path);
+        $this->assertTrue(Storage::disk('public')->exists($alert->bukti_penanganan_path));
     }
 
     public function test_ews_center_shows_saved_alert_and_photo_as_a_link(): void

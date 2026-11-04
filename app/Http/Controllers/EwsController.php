@@ -10,8 +10,10 @@ use Illuminate\Validation\ValidationException;
 
 class EwsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->query('search');
+
         $manualAlerts = EwsAlert::with(['kecamatan'])
             ->whereIn('status', ['terbuka', 'diproses'])
             ->orderBy('waktu_terdeteksi', 'desc')
@@ -57,12 +59,30 @@ class EwsController extends Controller
                 ];
             });
 
+        if ($search) {
+            $searchLower = strtolower(trim($search));
+            $filterFn = function ($item) use ($searchLower) {
+                $haystack = strtolower(implode(' ', [
+                    $item->judul_alert ?? '',
+                    $item->wilayah ?? '',
+                    $item->kategori ?? '',
+                    $item->status_ketersediaan ?? '',
+                    $item->tindak_lanjut ?? '',
+                    $item->handler_name ?? '',
+                ]));
+                return str_contains($haystack, $searchLower);
+            };
+
+            $alerts = $alerts->filter($filterFn)->values();
+            $resolvedAlerts = $resolvedAlerts->filter($filterFn)->values();
+        }
+
         $kecamatanOptions = Kecamatan::where('is_active', true)
             ->select('id', 'nama_kecamatan')
             ->orderBy('nama_kecamatan')
             ->get();
 
-        return view('ews.index', compact('alerts', 'resolvedAlerts', 'kecamatanOptions'));
+        return view('ews.index', compact('alerts', 'resolvedAlerts', 'kecamatanOptions', 'search'));
     }
 
     private function getAutomaticAlerts()

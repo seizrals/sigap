@@ -324,7 +324,7 @@ class InputDataController extends Controller
             'tanggal_input' => 'required|date',
             'kecamatan_id' => 'required|exists:kecamatan,id',
             'desa_id' => 'nullable|exists:desa,id',
-            'jenis_lpg' => 'required|in:LPG 3 Kg (Subsidi),LPG 5.5 Kg (Non Subsidi),LPG 12 Kg,LPG 50 Kg,Bright Gas',
+            'jenis_lpg' => 'nullable|string',
             'stok_tersedia_tabung' => 'required|integer|min:0',
             'distribusi_masuk_tabung' => 'required|integer|min:0',
             'distribusi_keluar_tabung' => 'required|integer|min:0',
@@ -355,7 +355,7 @@ class InputDataController extends Controller
             'pangkalan_lpg_id' => null,
             'desa_id' => $validated['desa_id'] ?? null,
             'user_id' => Auth::id() ?? 1,
-            'jenis_lpg' => $validated['jenis_lpg'],
+            'jenis_lpg' => $validated['jenis_lpg'] ?? 'LPG 3 Kg (Subsidi)',
             'stok_tersedia_tabung' => $validated['stok_tersedia_tabung'],
             'distribusi_masuk_tabung' => $validated['distribusi_masuk_tabung'],
             'distribusi_keluar_tabung' => $validated['distribusi_keluar_tabung'],
@@ -368,11 +368,11 @@ class InputDataController extends Controller
             'status_harga' => $statusHarga,
             'status_ketersediaan' => $validated['status_ketersediaan'],
             'status_distribusi' => $validated['status_distribusi'],
-            'status_verifikasi' => 'pending',
+            'status_verifikasi' => 'disetujui',
             'keterangan_kendala' => null,
         ]);
 
-        return redirect()->route('input.lpg')->with('success', 'Data LPG berhasil disimpan dan menunggu validasi.');
+        return redirect()->route('input.lpg')->with('success', 'Data LPG berhasil disimpan dan langsung masuk ke monitoring.');
     }
 
     public function bbm()
@@ -448,11 +448,11 @@ class InputDataController extends Controller
             'estimasi_waktu_tunggu_menit' => $validated['estimasi_waktu_tunggu_menit'] ?? null,
             'status_ketersediaan' => $validated['status_ketersediaan'],
             'harga_jual_per_liter' => $validated['harga_jual_per_liter'] ?? null,
-            'status_verifikasi' => 'pending',
+            'status_verifikasi' => 'disetujui',
             'keterangan_kendala' => null,
         ]);
 
-        return redirect()->route('input.bbm')->with('success', 'Data BBM berhasil disimpan dan menunggu validasi.');
+        return redirect()->route('input.bbm')->with('success', 'Data BBM berhasil disimpan dan langsung masuk ke monitoring.');
     }
 
     public static function parseBulan(string|int $bulan): array

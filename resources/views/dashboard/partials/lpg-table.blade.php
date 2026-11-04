@@ -4,7 +4,6 @@
             <tr class="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
                 <th class="pb-4 pr-4">Tanggal</th>
                 <th class="pb-4 pr-4">Kecamatan</th>
-                <th class="pb-4 pr-4">Jenis LPG</th>
                 <th class="pb-4 px-3 text-right">Stok</th>
                 <th class="pb-4 px-3 text-right">Masuk</th>
                 <th class="pb-4 px-3 text-right">Keluar</th>
@@ -19,7 +18,6 @@
             <tr class="hover:bg-slate-50/50 transition">
                 <td class="py-4 pr-4 whitespace-nowrap">{{ $d->tanggal_input?->format('d/m/Y') }}</td>
                 <td class="py-4 pr-4 whitespace-nowrap">{{ $d->kecamatan?->nama_kecamatan ?? '-' }}</td>
-                <td class="py-4 pr-4 whitespace-nowrap">{{ $d->jenis_lpg }}</td>
                 <td class="py-4 px-3 text-right whitespace-nowrap">{{ number_format($d->stok_tersedia_tabung, 0, ',', '.') }}</td>
                 <td class="py-4 px-3 text-right whitespace-nowrap">{{ number_format($d->distribusi_masuk_tabung, 0, ',', '.') }}</td>
                 <td class="py-4 px-3 text-right text-rose-600 whitespace-nowrap">{{ number_format($d->distribusi_keluar_tabung, 0, ',', '.') }}</td>
@@ -32,7 +30,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="10" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data LPG untuk filter ini.</td>
+                <td colspan="9" class="py-8 text-center text-slate-400 text-sm font-normal">Belum ada data LPG untuk filter ini.</td>
             </tr>
             @endforelse
         </tbody>

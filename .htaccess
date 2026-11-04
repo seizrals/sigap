@@ -1,0 +1,14 @@
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Izinkan verifikasi SSL
+    RewriteRule ^\.well-known/ - [L]
+
+    # Lindungi file tersembunyi
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+
+    # Arahkan request ke direktori public Laravel
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

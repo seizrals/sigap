@@ -83,6 +83,16 @@ class EwsAlert extends Model
         return $this->belongsTo(Spbu::class);
     }
 
+    public function handler(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'ditangani_oleh');
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'dibuat_oleh');
+    }
+
     public function rekomendasi(): HasMany
     {
         return $this->hasMany(EwsRekomendasi::class);

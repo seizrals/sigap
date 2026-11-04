@@ -3,119 +3,238 @@
 @section('title', 'Early Warning System')
 @section('page-title', 'Early Warning System (EWS)')
 
+@push('styles')
+<style>
+    [x-cloak] { display: none !important; }
+</style>
+@endpush
+
 @section('content')
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 2xl:gap-8">
 
-    {{-- Kolom Kiri: Alert Cards --}}
+    {{-- Kolom Kiri: Alert Cards & Tabs --}}
     <div class="lg:col-span-7 2xl:col-span-8 space-y-5 sm:space-y-6">
 
-        {{-- Card Header EWS --}}
-        <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm p-4 sm:p-6">
-            <div class="flex items-start justify-between mb-5">
-                <div>
-                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
-                        Pusat Peringatan Dini (EWS)
-                    </h3>
-                    <p class="text-sm text-slate-500">Analisis otomatis & laporan lapangan terintegrasi</p>
+        {{-- Card Header EWS & Tab Navigation --}}
+        <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden" x-data="{ activeTab: 'belum' }">
+            <div class="p-4 sm:p-6 pb-2">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                            Pusat Peringatan Dini (EWS)
+                        </h3>
+                        <p class="text-sm text-slate-500">Analisis otomatis & laporan lapangan terintegrasi</p>
+                    </div>
                 </div>
+
+                @if(session('success'))
+                    <div class="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium">
+                        {{ session('success') }}
+                    </div>
+                @endif
             </div>
 
-            @if(session('success'))
-                <div class="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            {{-- Notifikasi Deteksi --}}
-            <div class="border-2 border-slate-100 rounded-2xl p-5 bg-slate-50/30 mb-4">
-                <div class="flex items-center justify-between mb-4">
-                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Notifikasi Deteksi Anomali</p>
-                    <span class="text-[10px] font-semibold bg-white border border-slate-200 text-slate-600 px-2.5 py-0.5 rounded-full shadow-sm">
-                        {{ isset($alerts) ? count($alerts) : 0 }} Peringatan Aktif
+            {{-- Tab Navigation (Model seperti Monitoring TPID) --}}
+            <div class="flex items-center gap-1 sm:gap-2 border-b border-slate-100 px-4 sm:px-6 overflow-x-auto scrollbar-none bg-white">
+                <button type="button" @click="activeTab = 'belum'"
+                    :class="activeTab === 'belum' ? 'border-blue-600 text-blue-600 font-bold' : 'border-transparent text-slate-400 hover:text-slate-600 font-semibold'"
+                    class="whitespace-nowrap px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm border-b-2 transition-all flex items-center gap-2">
+                    <span>BELUM DITINDAKLANJUTI</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                        :class="activeTab === 'belum' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'">
+                        {{ isset($alerts) ? count($alerts) : 0 }}
                     </span>
-                </div>
+                </button>
+                <button type="button" @click="activeTab = 'sudah'"
+                    :class="activeTab === 'sudah' ? 'border-blue-600 text-blue-600 font-bold' : 'border-transparent text-slate-400 hover:text-slate-600 font-semibold'"
+                    class="whitespace-nowrap px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm border-b-2 transition-all flex items-center gap-2">
+                    <span>SUDAH DITINDAKLANJUTI</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                        :class="activeTab === 'sudah' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'">
+                        {{ isset($resolvedAlerts) ? count($resolvedAlerts) : 0 }}
+                    </span>
+                </button>
+            </div>
 
-                <!-- Container dengan Fungsi Scroll -->
-                <div class="max-h-[600px] overflow-y-auto pr-1 space-y-4 custom-scrollbar">
-                    @forelse($alerts as $alert)
-                        <div class="relative bg-white rounded-2xl border border-slate-200 p-5 shadow-xs transition hover:shadow-md">
-                            {{-- Indikator Warna Kiri --}}
-                            <div class="absolute left-0 top-0 bottom-0 w-1.5 {{ $alert->status_ketersediaan == 'kritis' ? 'bg-red-500' : ($alert->status_ketersediaan == 'waspada' ? 'bg-amber-500' : 'bg-emerald-500') }}"></div>
-                            
-                            <div class="pl-2">
-                                <div class="flex items-start justify-between gap-4 mb-3">
-                                    <div class="flex items-start gap-3">
-                                        <div class="w-10 h-10 rounded-xl {{ $alert->status_ketersediaan == 'kritis' ? 'bg-red-50 text-red-600' : ($alert->status_ketersediaan == 'waspada' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600') }} flex items-center justify-center shrink-0 border border-current/10">
-                                            @if($alert->is_manual)
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
-                                            @else
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 005.814-5.519l2.74-1.22m0 0l-5.94-2.28 2.28 5.941"/></svg>
-                                            @endif
+            <div class="p-4 sm:p-6">
+                {{-- TAB 1: BELUM DITINDAKLANJUTI --}}
+                <div x-show="activeTab === 'belum'" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                    <div class="border-2 border-slate-100 rounded-2xl p-5 bg-slate-50/30">
+                        <div class="flex items-center justify-between mb-4">
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Notifikasi Deteksi Anomali</p>
+                            <span class="text-[10px] font-semibold bg-white border border-slate-200 text-slate-600 px-2.5 py-0.5 rounded-full shadow-sm">
+                                {{ isset($alerts) ? count($alerts) : 0 }} Peringatan Aktif
+                            </span>
+                        </div>
+
+                        <!-- Container dengan Fungsi Scroll -->
+                        <div class="max-h-[600px] overflow-y-auto pr-1 space-y-4 custom-scrollbar">
+                            @forelse($alerts as $alert)
+                                <div class="relative bg-white rounded-2xl border border-slate-200 p-5 shadow-xs transition hover:shadow-md">
+                                    {{-- Indikator Warna Kiri --}}
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 {{ $alert->status_ketersediaan == 'kritis' ? 'bg-red-500' : ($alert->status_ketersediaan == 'waspada' ? 'bg-amber-500' : 'bg-emerald-500') }}"></div>
+                                    
+                                    <div class="pl-2">
+                                        <div class="flex items-start justify-between gap-4 mb-3">
+                                            <div class="flex items-start gap-3">
+                                                <div class="w-10 h-10 rounded-xl {{ $alert->status_ketersediaan == 'kritis' ? 'bg-red-500/10 text-red-600' : ($alert->status_ketersediaan == 'waspada' ? 'bg-amber-500/10 text-amber-600' : 'bg-emerald-500/10 text-emerald-600') }} flex items-center justify-center shrink-0 border border-current/10">
+                                                    @if($alert->is_manual)
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                                                    @else
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 005.814-5.519l2.74-1.22m0 0l-5.94-2.28 2.28 5.941"/></svg>
+                                                    @endif
+                                                </div>
+                                                <div>
+                                                    <div class="flex items-center gap-2 mb-0.5">
+                                                        <h3 class="text-base font-bold text-slate-900 leading-snug">{{ $alert->judul_alert }}</h3>
+                                                        @if(!$alert->is_manual)
+                                                            <span class="text-[9px] font-black uppercase tracking-tighter bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded border border-blue-200">Auto-Detect</span>
+                                                        @else
+                                                            <span class="text-[9px] font-black uppercase tracking-tighter bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">Manual</span>
+                                                        @endif
+                                                    </div>
+                                                    <p class="text-xs font-semibold text-slate-600">Wilayah: {{ $alert->wilayah }}</p>
+                                                    <div class="flex items-center gap-2 mt-1">
+                                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">{{ $alert->kategori }}</span>
+                                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded {{ $alert->status_ketersediaan == 'kritis' ? 'bg-red-100 text-red-700' : ($alert->status_ketersediaan == 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700') }}">
+                                                            Status {{ ucfirst($alert->status_ketersediaan) }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span class="px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-100 text-[10px] font-bold text-slate-400 whitespace-nowrap">
+                                                {{ \Carbon\Carbon::parse($alert->waktu_terdeteksi)->diffForHumans() }}
+                                            </span>
                                         </div>
-                                        <div>
-                                            <div class="flex items-center gap-2 mb-0.5">
-                                                <h3 class="text-base font-bold text-slate-900 leading-snug">{{ $alert->judul_alert }}</h3>
-                                                @if(!$alert->is_manual)
-                                                    <span class="text-[9px] font-black uppercase tracking-tighter bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded border border-blue-200">Auto-Detect</span>
-                                                @else
-                                                    <span class="text-[9px] font-black uppercase tracking-tighter bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">Manual</span>
+                                        
+                                        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-dashed border-slate-100">
+                                            <div class="flex flex-wrap gap-2">
+                                                @if($alert->foto_laporan_path)
+                                                    @foreach($alert->foto_laporan_path as $index => $fotoPath)
+                                                        <button type="button" x-data @click="$dispatch('open-alert-photo', { src: @js(asset('storage/' . $fotoPath)), title: @js('Lampiran foto ' . ($index + 1) . ' - ' . $alert->judul_alert) })" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-[11px] font-bold border border-blue-100 hover:bg-blue-100 transition">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+                                                            Lihat Foto {{ $index + 1 }}
+                                                        </button>
+                                                    @endforeach
                                                 @endif
                                             </div>
-                                            <p class="text-xs font-semibold text-slate-600">Wilayah: {{ $alert->wilayah }}</p>
-                                            <div class="flex items-center gap-2 mt-1">
-                                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">{{ $alert->kategori }}</span>
-                                                <span class="text-[10px] font-bold px-2 py-0.5 rounded {{ $alert->status_ketersediaan == 'kritis' ? 'bg-red-100 text-red-700' : ($alert->status_ketersediaan == 'waspada' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700') }}">
-                                                    Status {{ ucfirst($alert->status_ketersediaan) }}
+
+                                            @if(!$alert->is_manual || ($alert->is_manual && (!isset($alert->status) || $alert->status != 'selesai')))
+                                                <button type="button" x-data @click="$dispatch('open-resolve-modal', { id: @js($alert->id), title: @js($alert->judul_alert) })" class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-[14px] bg-emerald-600 text-white text-[11px] font-black hover:bg-emerald-700 transition shadow-sm shadow-emerald-500/20 active:scale-95">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.746 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
+                                                    Selesai Ditindaklanjuti
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="bg-white border border-dashed border-slate-200 rounded-2xl p-12 text-center">
+                                    <div class="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.746 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
+                                    </div>
+                                    <h4 class="text-sm font-bold text-slate-900 mb-1">Seluruh Wilayah Aman</h4>
+                                    <p class="text-xs text-slate-500">Sistem belum mendeteksi adanya anomali stok atau harga saat ini.</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                {{-- TAB 2: SUDAH DITINDAKLANJUTI --}}
+                <div x-show="activeTab === 'sudah'" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                    <div class="border-2 border-slate-100 rounded-2xl p-5 bg-slate-50/30">
+                        <div class="flex items-center justify-between mb-4">
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Riwayat Penanganan Anomali</p>
+                            <span class="text-[10px] font-semibold bg-emerald-50 border border-emerald-200 text-emerald-700 px-2.5 py-0.5 rounded-full shadow-sm">
+                                {{ isset($resolvedAlerts) ? count($resolvedAlerts) : 0 }} Ditindaklanjuti
+                            </span>
+                        </div>
+
+                        <!-- Container dengan Fungsi Scroll -->
+                        <div class="max-h-[600px] overflow-y-auto pr-1 space-y-4 custom-scrollbar">
+                            @forelse($resolvedAlerts as $resolved)
+                                <div class="relative bg-white rounded-2xl border border-slate-200 p-5 shadow-xs transition hover:shadow-md">
+                                    {{-- Indikator Warna Kiri (Hijau untuk selesai) --}}
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-emerald-500"></div>
+                                    
+                                    <div class="pl-2">
+                                        <div class="flex items-start justify-between gap-4 mb-3">
+                                            <div class="flex items-start gap-3">
+                                                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-500/20">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.746 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
+                                                </div>
+                                                <div>
+                                                    <div class="flex items-center gap-2 mb-0.5">
+                                                        <h3 class="text-base font-bold text-slate-900 leading-snug">{{ $resolved->judul_alert }}</h3>
+                                                        @if(!$resolved->is_manual)
+                                                            <span class="text-[9px] font-black uppercase tracking-tighter bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded border border-blue-200">Auto-Detect</span>
+                                                        @else
+                                                            <span class="text-[9px] font-black uppercase tracking-tighter bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">Manual</span>
+                                                        @endif
+                                                        <span class="text-[9px] font-black uppercase tracking-tighter bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">Selesai</span>
+                                                    </div>
+                                                    <p class="text-xs font-semibold text-slate-600">Wilayah: {{ $resolved->wilayah }}</p>
+                                                    <div class="flex items-center gap-2 mt-1">
+                                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">{{ $resolved->kategori }}</span>
+                                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700">
+                                                            Kondisi: {{ ucfirst($resolved->status_ketersediaan) }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-100 text-[10px] font-bold text-emerald-700 whitespace-nowrap block">
+                                                    {{ $resolved->waktu_penanganan ? \Carbon\Carbon::parse($resolved->waktu_penanganan)->translatedFormat('d M Y, H:i') : '-' }}
+                                                </span>
+                                                <span class="text-[10px] text-slate-400 mt-1 block">
+                                                    Oleh: {{ $resolved->handler_name }}
                                                 </span>
                                             </div>
                                         </div>
-                                    </div>
-                                    <span class="px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-100 text-[10px] font-bold text-slate-400 whitespace-nowrap">
-                                        {{ \Carbon\Carbon::parse($alert->waktu_terdeteksi)->diffForHumans() }}
-                                    </span>
-                                </div>
-                                
-                                <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 text-xs leading-relaxed text-slate-700">
-                                    <div class="flex items-start gap-2">
-                                        <svg class="w-4 h-4 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v17.792m0-17.792l-6.25 6.25m6.25-6.25l6.25 6.25M9.75 3.104c0-1.104.896-2 2-2s2 .896 2 2v17.792c0 1.104-.896 2-2 2s-2-.896-2-2"/></svg>
-                                        <div>
-                                            <strong class="font-bold text-slate-900 block mb-1">Analisis Sistem & Rekomendasi :</strong>
-                                            {{ $alert->analisis_sistem }}
+                                        
+                                        {{-- Keterangan Tindak Lanjut --}}
+                                        <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3.5 text-xs leading-relaxed text-slate-700 mt-3">
+                                            <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-800 mb-1 flex items-center gap-1.5">
+                                                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                                Tindak Lanjut Lapangan:
+                                            </p>
+                                            <p class="text-slate-800 text-xs">{{ $resolved->tindak_lanjut }}</p>
+                                        </div>
+                                        
+                                        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-dashed border-slate-100">
+                                            <div class="flex flex-wrap gap-2">
+                                                @if($resolved->bukti_penanganan_path)
+                                                    <button type="button" x-data @click="$dispatch('open-alert-photo', { src: @js(asset('storage/' . $resolved->bukti_penanganan_path)), title: @js('Bukti Penanganan - ' . $resolved->judul_alert) })" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200 hover:bg-emerald-100 transition">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+                                                        Lihat Bukti Penanganan
+                                                    </button>
+                                                @endif
+
+                                                @if($resolved->foto_laporan_path)
+                                                    @foreach($resolved->foto_laporan_path as $index => $fotoPath)
+                                                        <button type="button" x-data @click="$dispatch('open-alert-photo', { src: @js(asset('storage/' . $fotoPath)), title: @js('Foto Laporan ' . ($index + 1) . ' - ' . $resolved->judul_alert) })" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 text-slate-700 text-[11px] font-bold border border-slate-200 hover:bg-slate-100 transition">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+                                                            Foto Laporan {{ $index + 1 }}
+                                                        </button>
+                                                    @endforeach
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div class="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-dashed border-slate-100">
-                                    <div class="flex flex-wrap gap-2">
-                                        @if($alert->foto_laporan_path)
-                                            @foreach($alert->foto_laporan_path as $index => $fotoPath)
-                                                <button type="button" x-data @click="$dispatch('open-alert-photo', { src: @js(asset('storage/' . $fotoPath)), title: @js('Lampiran foto ' . ($index + 1) . ' - ' . $alert->judul_alert) })" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-[11px] font-bold border border-blue-100 hover:bg-blue-100 transition">
-                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
-                                                    Lihat Foto {{ $index + 1 }}
-                                                </button>
-                                            @endforeach
-                                        @endif
+                            @empty
+                                <div class="bg-white border border-dashed border-slate-200 rounded-2xl p-12 text-center">
+                                    <div class="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.746 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
                                     </div>
-
-                                    @if(!$alert->is_manual || ($alert->is_manual && !isset($alert->status) || $alert->status != 'selesai'))
-                                        <button type="button" x-data @click="$dispatch('open-resolve-modal', { id: @js($alert->id), title: @js($alert->judul_alert) })" class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-[14px] bg-emerald-600 text-white text-[11px] font-black hover:bg-emerald-700 transition shadow-sm shadow-emerald-500/20 active:scale-95">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.746 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
-                                            Selesai Ditindaklanjuti
-                                        </button>
-                                    @endif
+                                    <h4 class="text-sm font-bold text-slate-900 mb-1">Belum Ada Peringatan Ditindaklanjuti</h4>
+                                    <p class="text-xs text-slate-500">Peringatan yang telah diselesaikan akan tercatat di sini beserta bukti penanganannya.</p>
                                 </div>
-                            </div>
+                            @endforelse
                         </div>
-                    @empty
-                        <div class="bg-white border border-dashed border-slate-200 rounded-2xl p-12 text-center">
-                            <div class="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.746 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
-                            </div>
-                            <h4 class="text-sm font-bold text-slate-900 mb-1">Seluruh Wilayah Aman</h4>
-                            <p class="text-xs text-slate-500">Sistem belum mendeteksi adanya anomali stok atau harga saat ini.</p>
-                        </div>
-                    @endforelse
+                    </div>
                 </div>
             </div>
         </div>
@@ -324,11 +443,6 @@
             <div class="space-y-1.5">
                 <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Judul Peringatan *</label>
                 <input type="text" name="judul_alert" value="{{ old('judul_alert') }}" required placeholder="Contoh: Kelangkaan LPG 3KG di Wilayah X" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 shadow-sm transition">
-            </div>
-
-            <div class="space-y-1.5">
-                <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Analisis & Keterangan Lapangan *</label>
-                <textarea name="analisis_sistem" rows="4" required placeholder="Jelaskan detail anomali, perkiraan penyebab, dan rekomendasi tindakan awal..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm font-medium placeholder:text-slate-300 text-slate-800 outline-none focus:border-blue-500 shadow-sm transition resize-none">{{ old('analisis_sistem') }}</textarea>
             </div>
 
             <div class="space-y-1.5">

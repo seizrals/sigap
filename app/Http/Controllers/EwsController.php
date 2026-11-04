@@ -32,14 +32,37 @@ class EwsController extends Controller
 
         $automaticAlerts = $this->getAutomaticAlerts();
         
-        $alerts = $manualAlerts->concat($automaticAlerts)->sortByDesc('waktu_terdeteksi');
+        $alerts = $manualAlerts->concat($automaticAlerts)->sortByDesc('waktu_terdeteksi')->values();
+
+        $resolvedAlerts = EwsAlert::with(['kecamatan', 'handler'])
+            ->where('status', 'selesai')
+            ->orderByDesc('waktu_penanganan')
+            ->get()
+            ->map(function ($alert) {
+                return (object) [
+                    'id' => $alert->id,
+                    'kode_alert' => $alert->kode_alert,
+                    'is_manual' => $alert->sumber_deteksi !== 'otomatis_sistem',
+                    'judul_alert' => $alert->judul_alert,
+                    'wilayah' => $alert->kecamatan?->nama_kecamatan ?? 'Gorontalo Utara',
+                    'kategori' => ucfirst($alert->kategori),
+                    'status_ketersediaan' => $alert->status_ketersediaan,
+                    'waktu_terdeteksi' => $alert->waktu_terdeteksi,
+                    'waktu_penanganan' => $alert->waktu_penanganan,
+                    'analisis_sistem' => $alert->analisis_sistem,
+                    'tindak_lanjut' => $alert->tindak_lanjut,
+                    'bukti_penanganan_path' => $alert->bukti_penanganan_path,
+                    'foto_laporan_path' => $alert->foto_laporan_path,
+                    'handler_name' => $alert->handler?->name ?? 'Petugas Lapangan',
+                ];
+            });
 
         $kecamatanOptions = Kecamatan::where('is_active', true)
             ->select('id', 'nama_kecamatan')
             ->orderBy('nama_kecamatan')
             ->get();
 
-        return view('ews.index', compact('alerts', 'kecamatanOptions'));
+        return view('ews.index', compact('alerts', 'resolvedAlerts', 'kecamatanOptions'));
     }
 
     private function getAutomaticAlerts()
@@ -137,7 +160,7 @@ class EwsController extends Controller
             'status_ketersediaan' => 'required|in:aman,waspada,kritis',
             'kecamatan_id' => 'required|exists:kecamatan,id',
             'judul_alert' => 'required|string|max:200',
-            'analisis_sistem' => 'required|string',
+            'analisis_sistem' => 'nullable|string',
             'fotos' => 'nullable|array|max:3',
             'fotos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
@@ -154,7 +177,7 @@ class EwsController extends Controller
             'status' => 'terbuka',
             'kecamatan_id' => $validated['kecamatan_id'],
             'judul_alert' => $validated['judul_alert'],
-            'analisis_sistem' => $validated['analisis_sistem'],
+            'analisis_sistem' => $validated['analisis_sistem'] ?? '-',
             'foto_laporan_path' => $fotoPaths,
             'dibuat_oleh' => Auth::id(),
             'waktu_terdeteksi' => now(),

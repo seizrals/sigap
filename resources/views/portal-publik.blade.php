@@ -66,20 +66,20 @@
                     </div>
                 </div>
                 {{-- Foto Pimpinan Daerah (Bupati & Wakil Bupati) Tanpa Border dengan Gradien Fade Menyamarkan Potongan --}}
-                <div class="flex justify-center items-end mt-6 lg:mt-0">
-                    <div class="relative w-full max-w-md sm:max-w-lg lg:max-w-xl xl:max-w-2xl">
+                <div class="flex justify-center items-center self-center my-auto mt-6 lg:mt-0">
+                    <div class="relative w-full max-w-md sm:max-w-lg lg:max-w-xl xl:max-w-2xl my-auto">
                         {{-- Ambient Backlight Glow --}}
                         <div class="absolute -inset-6 bg-gradient-to-tr from-amber-400/20 via-blue-500/20 to-emerald-400/15 blur-3xl rounded-full pointer-events-none"></div>
                         <div class="absolute inset-x-8 bottom-4 h-44 bg-sigap-accent/35 blur-2xl rounded-full pointer-events-none"></div>
 
                         {{-- Area Foto & Nameplate --}}
-                        <div class="relative w-full flex flex-col items-center">
+                        <div class="relative w-full flex flex-col items-center justify-center">
                             {{-- Wadah Foto Bupati & Wakil Bupati --}}
-                            <div class="relative w-full h-[380px] sm:h-[440px] lg:h-[480px] xl:h-[530px] flex items-end justify-center overflow-hidden">
+                            <div class="relative w-full h-[360px] sm:h-[420px] lg:h-[460px] xl:h-[500px] flex items-end justify-center overflow-hidden">
                                 
                                 {{-- Figur Berdampingan dengan Mask Gradient Fade di Bawah --}}
-                                <div class="relative z-10 flex items-end justify-center w-full h-full px-2 gap-2 sm:gap-4"
-                                     style="-webkit-mask-image: linear-gradient(to bottom, black 65%, rgba(0,0,0,0.85) 80%, transparent 98%); mask-image: linear-gradient(to bottom, black 65%, rgba(0,0,0,0.85) 80%, transparent 98%);">
+                                <div class="relative z-10 flex items-end justify-center w-full h-full px-2 gap-2 sm:gap-4 pb-1 sm:pb-2"
+                                     style="-webkit-mask-image: linear-gradient(to bottom, black 68%, rgba(0,0,0,0.85) 82%, transparent 98%); mask-image: linear-gradient(to bottom, black 68%, rgba(0,0,0,0.85) 82%, transparent 98%);">
                                     
                                     {{-- Bupati (Kiri) --}}
                                     <div class="relative flex-1 h-full flex items-end justify-center group/bupati transition-transform duration-300 hover:scale-[1.02]">

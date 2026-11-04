@@ -33,6 +33,8 @@
 
     <form method="POST" action="{{ route('input.lpg.store') }}" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm max-w-8xl mx-auto space-y-4 sm:space-y-5 text-slate-700">
         @csrf
+        <input type="hidden" name="jenis_lpg" value="LPG 3 Kg (Subsidi)">
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Input</label>
@@ -44,14 +46,6 @@
                     <option value="">Pilih Kecamatan...</option>
                     @foreach($kecamatan as $kec)
                         <option value="{{ $kec->id }}" {{ old('kecamatan_id') == $kec->id ? 'selected' : '' }}>{{ $kec->nama_kecamatan }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Jenis LPG *</label>
-                <select name="jenis_lpg" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-orange-500 shadow-sm transition">
-                    @foreach(['LPG 3 Kg (Subsidi)', 'LPG 5.5 Kg (Non Subsidi)', 'LPG 12 Kg', 'LPG 50 Kg', 'Bright Gas'] as $jenisLpg)
-                        <option value="{{ $jenisLpg }}" {{ old('jenis_lpg', 'LPG 3 Kg (Subsidi)') === $jenisLpg ? 'selected' : '' }}>{{ $jenisLpg }}</option>
                     @endforeach
                 </select>
             </div>

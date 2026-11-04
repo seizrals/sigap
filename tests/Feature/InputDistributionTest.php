@@ -38,7 +38,7 @@ class InputDistributionTest extends TestCase
             'stok_tersedia_tabung' => 80,
             'distribusi_masuk_tabung' => 100,
             'distribusi_keluar_tabung' => 20,
-            'status_verifikasi' => 'pending',
+            'status_verifikasi' => 'disetujui',
             'keterangan_kendala' => null,
         ]);
 
@@ -48,7 +48,7 @@ class InputDistributionTest extends TestCase
             'kecamatan_id' => $kecamatanLain->id,
             'user_id' => $user->id,
             'jenis_lpg' => 'LPG 3 Kg (Subsidi)',
-            'status_verifikasi' => 'pending',
+            'status_verifikasi' => 'disetujui',
         ]);
 
         $record = DataLpg::firstOrFail();
@@ -59,8 +59,9 @@ class InputDistributionTest extends TestCase
         ]));
         $dashboard->assertViewHas('dataLpg', fn ($rows): bool => $rows->contains('id', $record->id));
         $dashboard->assertViewHas('dataLpg', fn ($rows): bool => $rows->count() === 1);
-        $dashboard->assertSee('LPG 3 Kg (Subsidi)');
+        $dashboard->assertSee('LPG 3 KG');
         $inputPage = $this->get(route('input.lpg'));
+        $inputPage->assertDontSee('name="jenis_lpg" required', false);
         $inputPage->assertDontSee('Keterangan / Kendala');
         $inputPage->assertDontSee('Nama Pangkalan');
     }
@@ -109,7 +110,7 @@ class InputDistributionTest extends TestCase
             'stok_tersedia_kl' => 15.5,
             'distribusi_nelayan' => true,
             'distribusi_pertanian' => false,
-            'status_verifikasi' => 'pending',
+            'status_verifikasi' => 'disetujui',
             'keterangan_kendala' => null,
         ]);
 
@@ -402,5 +403,55 @@ class InputDistributionTest extends TestCase
                 && $records->contains('jenis_bbm', 'Pertalite (JBKP)')
                 && $records->contains('jenis_bbm', 'Bio Solar');
         });
+    }
+
+    public function test_lpg_and_bbm_inputs_are_directly_approved_without_validation_queue(): void
+    {
+        $user = User::factory()->create(['role' => 'admin_kabupaten']);
+        $kecamatan = Kecamatan::create(['kode_kecamatan' => '7505050', 'nama_kecamatan' => 'Tomilito']);
+        $spbu = Spbu::create([
+            'kode_spbu' => 'SPBU-TML-01',
+            'nama_spbu' => 'SPBU Tomilito',
+            'kecamatan_id' => $kecamatan->id,
+            'is_active' => true,
+        ]);
+
+        // Input LPG without passing jenis_lpg explicitly
+        $responseLpg = $this->actingAs($user)->post(route('input.lpg.store'), [
+            'tanggal_input' => '2026-11-04',
+            'kecamatan_id' => $kecamatan->id,
+            'stok_tersedia_tabung' => 150,
+            'distribusi_masuk_tabung' => 200,
+            'distribusi_keluar_tabung' => 50,
+            'status_ketersediaan' => 'aman',
+            'status_distribusi' => 'lancar',
+        ]);
+
+        $responseLpg->assertRedirect(route('input.lpg'));
+        $responseLpg->assertSessionHas('success', 'Data LPG berhasil disimpan dan langsung masuk ke monitoring.');
+        $this->assertDatabaseHas('data_lpg', [
+            'kecamatan_id' => $kecamatan->id,
+            'jenis_lpg' => 'LPG 3 Kg (Subsidi)',
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        // Input BBM
+        $responseBbm = $this->actingAs($user)->post(route('input.bbm.store'), [
+            'tanggal_input' => '2026-11-04',
+            'kecamatan_id' => $kecamatan->id,
+            'spbu_id' => $spbu->id,
+            'jenis_bbm' => 'Pertalite (JBKP)',
+            'stok_tersedia_kl' => 20,
+            'status_antrean' => 'tidak_ada',
+            'status_ketersediaan' => 'aman',
+            'harga_jual_per_liter' => 10000,
+        ]);
+
+        $responseBbm->assertRedirect(route('input.bbm'));
+        $responseBbm->assertSessionHas('success', 'Data BBM berhasil disimpan dan langsung masuk ke monitoring.');
+        $this->assertDatabaseHas('data_bbm', [
+            'spbu_id' => $spbu->id,
+            'status_verifikasi' => 'disetujui',
+        ]);
     }
 }

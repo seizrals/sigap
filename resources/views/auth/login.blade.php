@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <title>Masuk - SIGAP+ Gorontalo Utara</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_gorut.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_gorut.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_gorut.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen min-h-[100dvh] bg-gradient-to-br from-[#FFE9A8] via-[#FFD971] to-[#F59E0B] text-slate-800 antialiased flex flex-col justify-between py-4 xs:py-5 sm:py-6 px-4 xs:px-6 sm:px-8 lg:px-12 select-none overflow-x-hidden selection:bg-amber-600 selection:text-white">

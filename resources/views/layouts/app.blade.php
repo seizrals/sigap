@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <title>@yield('title', 'SIGAP+ Gorontalo Utara')</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_gorut.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_gorut.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_gorut.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>

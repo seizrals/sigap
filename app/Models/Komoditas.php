@@ -11,7 +11,6 @@ class Komoditas extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'kode_komoditas',
         'nama_komoditas',
         'kategori',
         'satuan',

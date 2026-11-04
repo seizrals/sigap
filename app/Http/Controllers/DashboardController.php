@@ -105,6 +105,41 @@ class DashboardController extends Controller
             ->sortBy(fn (array $row): string => $row['kecamatan'].'-'.$row['komoditas'])
             ->values();
 
+        $totalStokDaerah = $this->getStokPanganDaerah($komoditasPangan, $kecamatan);
+        $totalKomoditas = $totalStokDaerah->count();
+        $totalKomoditasTerdata = $totalStokDaerah->where('kecamatan_melaporkan', '>', 0)->count();
+        $komoditasAmanCount = $totalStokDaerah->where('status_ketersediaan', 'aman')->count();
+        $komoditasWaspadaCount = $totalStokDaerah->where('status_ketersediaan', 'waspada')->count();
+        $komoditasKritisCount = $totalStokDaerah->where('status_ketersediaan', 'kritis')->count();
+
+        $selectedKomoditasId = $filters['pangan_komoditas_id'] ?? null;
+        $selectedKomoditasStok = $selectedKomoditasId ? $totalStokDaerah->firstWhere('komoditas_id', (int) $selectedKomoditasId) : null;
+
+        $selectedKecamatanId = $filters['pangan_kecamatan_id'] ?? null;
+        $stokKecamatanTerpilih = null;
+        $namaKecamatanTerpilih = null;
+        if ($selectedKecamatanId) {
+            $kecObj = $kecamatan->firstWhere('id', (int) $selectedKecamatanId);
+            $namaKecamatanTerpilih = $kecObj?->nama_kecamatan;
+            if ($selectedKomoditasStok) {
+                $recKec = collect($selectedKomoditasStok['rincian'])->firstWhere('kecamatan_id', (int) $selectedKecamatanId);
+                $stokKecamatanTerpilih = $recKec['stok'] ?? null;
+            }
+        }
+
+        $stokPanganRingkasan = [
+            'totalKomoditas' => $totalKomoditas,
+            'totalKomoditasTerdata' => $totalKomoditasTerdata,
+            'komoditasAmanCount' => $komoditasAmanCount,
+            'komoditasWaspadaCount' => $komoditasWaspadaCount,
+            'komoditasKritisCount' => $komoditasKritisCount,
+            'komoditasWaspadaKritisCount' => $komoditasWaspadaCount + $komoditasKritisCount,
+            'selectedKomoditasStok' => $selectedKomoditasStok,
+            'selectedKecamatanId' => $selectedKecamatanId,
+            'namaKecamatanTerpilih' => $namaKecamatanTerpilih,
+            'stokKecamatanTerpilih' => $stokKecamatanTerpilih,
+        ];
+
         $lpgTanggal = $filters['lpg_tanggal'] ?? null;
         $lpgKecamatanId = $filters['lpg_kecamatan_id'] ?? null;
         $dataLpg = DataLpg::with('kecamatan')
@@ -393,6 +428,7 @@ class DashboardController extends Controller
                     'periode' => $iphBulananTerbaru ? ($iphBulananTerbaru->nama_bulan . ' ' . $iphBulananTerbaru->tahun) : 'Mei 2026',
                 ],
                 'htmlPanganTable' => view('dashboard.partials.pangan-table', compact('dataPangan', 'periodeSebelumnya', 'periodeSaatIni'))->render(),
+                'htmlPanganStokCards' => view('dashboard.partials.pangan-stok-cards', compact('totalStokDaerah', 'stokPanganRingkasan', 'filters'))->render(),
                 'htmlLpgTable' => view('dashboard.partials.lpg-table', compact('dataLpg'))->render(),
                 'htmlBbmTable' => view('dashboard.partials.bbm-table', compact('dataBbm'))->render(),
             ]);
@@ -403,6 +439,8 @@ class DashboardController extends Controller
             'komoditasDefisit',
             'kecamatanZonaMerah',
             'dataPangan',
+            'totalStokDaerah',
+            'stokPanganRingkasan',
             'dataLpg',
             'dataBbm',
             'lpgTanggal',
@@ -444,6 +482,63 @@ class DashboardController extends Controller
             'periodeSaatIni',
             'filters'
         ));
+    }
+
+    private function getStokPanganDaerah(Collection $komoditasPangan, Collection $kecamatan): Collection
+    {
+        $allKecamatan = $kecamatan->sortBy('nama_kecamatan')->values();
+
+        $latestPanganRecords = DataPangan::with([
+            'kecamatan:id,nama_kecamatan',
+            'komoditas:id,nama_komoditas,satuan',
+        ])
+            ->whereNotNull('stok_tersedia')
+            ->orderByDesc('tanggal_input')
+            ->orderByDesc('id')
+            ->get()
+            ->unique(fn (DataPangan $row): string => $row->komoditas_id . '-' . $row->kecamatan_id);
+
+        return $komoditasPangan->map(function ($komoditas) use ($latestPanganRecords, $allKecamatan): array {
+            $recordsForKomoditas = $latestPanganRecords->where('komoditas_id', $komoditas->id);
+
+            $totalStok = (float) $recordsForKomoditas->sum(fn ($r) => (float) $r->stok_tersedia);
+            $kecamatanMelaporkan = $recordsForKomoditas->count();
+            $totalKecamatan = $allKecamatan->count();
+
+            $hasKritis = $recordsForKomoditas->contains(fn ($r) => strtolower((string) $r->status_ketersediaan) === 'kritis');
+            $hasWaspada = $recordsForKomoditas->contains(fn ($r) => strtolower((string) $r->status_ketersediaan) === 'waspada');
+            $hasAman = $recordsForKomoditas->contains(fn ($r) => strtolower((string) $r->status_ketersediaan) === 'aman');
+
+            $statusKetersediaan = $recordsForKomoditas->isEmpty()
+                ? 'belum_ada'
+                : ($hasKritis ? 'kritis' : ($hasWaspada ? 'waspada' : ($hasAman ? 'aman' : 'belum_ada')));
+
+            $rincianKecamatan = $allKecamatan->map(function ($kec) use ($recordsForKomoditas): array {
+                $rec = $recordsForKomoditas->firstWhere('kecamatan_id', $kec->id);
+
+                return [
+                    'kecamatan_id' => $kec->id,
+                    'nama_kecamatan' => $kec->nama_kecamatan,
+                    'stok' => $rec !== null && $rec->stok_tersedia !== null ? (float) $rec->stok_tersedia : null,
+                    'tanggal_update' => $rec?->tanggal_input?->format('d/m/Y'),
+                    'status_ketersediaan' => $rec?->status_ketersediaan ? strtolower((string) $rec->status_ketersediaan) : 'belum_ada',
+                    'harga_terakhir' => $rec?->harga_hari_ini,
+                ];
+            });
+
+            return [
+                'komoditas_id' => $komoditas->id,
+                'nama_komoditas' => $komoditas->nama_komoditas,
+                'satuan' => $komoditas->satuan ?? 'Kg',
+                'total_stok' => $totalStok,
+                'kecamatan_melaporkan' => $kecamatanMelaporkan,
+                'total_kecamatan' => $totalKecamatan,
+                'persentase_pelaporan' => $totalKecamatan > 0 ? round(($kecamatanMelaporkan / $totalKecamatan) * 100) : 0,
+                'status_ketersediaan' => $statusKetersediaan,
+                'tanggal_terakhir' => $recordsForKomoditas->max('tanggal_input')?->format('d/m/Y') ?? '-',
+                'rincian' => $rincianKecamatan,
+            ];
+        });
     }
 
     private function buildPanganMapPoints(?int $komoditasId = null): Collection

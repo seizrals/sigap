@@ -232,18 +232,13 @@ class InputDataController extends Controller
 
         $topKecamatanId = $request->input('kecamatan_id');
 
+        // Komoditas hanya diproses jika harga_hari_ini diisi
         $entries = array_filter($entries, function (mixed $entry): bool {
             if (! is_array($entry)) {
                 return false;
             }
 
-            foreach (['kecamatan_id', 'harga_hari_sebelumnya', 'harga_hari_ini', 'stok_tersedia', 'sumber_distribusi_masuk', 'status_ketersediaan'] as $field) {
-                if (filled($entry[$field] ?? null)) {
-                    return true;
-                }
-            }
-
-            return false;
+            return filled($entry['harga_hari_ini'] ?? null);
         });
 
         if ($entries === []) {
@@ -252,12 +247,13 @@ class InputDataController extends Controller
             ]);
         }
 
-        // Jika row belum terisi kecamatan_id tapi ada pilihan kecamatan di atas
-        if ($topKecamatanId) {
-            foreach ($entries as $k => $e) {
-                if (empty($e['kecamatan_id'])) {
-                    $entries[$k]['kecamatan_id'] = $topKecamatanId;
-                }
+        // Jika row belum terisi kecamatan_id atau status_ketersediaan kosong
+        foreach ($entries as $k => $e) {
+            if ($topKecamatanId && empty($e['kecamatan_id'])) {
+                $entries[$k]['kecamatan_id'] = $topKecamatanId;
+            }
+            if (empty($e['status_ketersediaan'])) {
+                $entries[$k]['status_ketersediaan'] = 'aman';
             }
         }
 

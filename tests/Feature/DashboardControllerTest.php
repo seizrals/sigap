@@ -29,7 +29,6 @@ class DashboardControllerTest extends TestCase
             'longitude' => 123.05,
         ]);
         $komoditasTerpilih = Komoditas::create([
-            'kode_komoditas' => 'CBI-RWT',
             'nama_komoditas' => 'Cabai Rawit',
             'kategori' => 'pangan',
             'satuan' => 'Kg',
@@ -37,7 +36,6 @@ class DashboardControllerTest extends TestCase
             'is_active' => true,
         ]);
         $komoditasLain = Komoditas::create([
-            'kode_komoditas' => 'BRS-PRM',
             'nama_komoditas' => 'Beras Premium',
             'kategori' => 'pangan',
             'satuan' => 'Kg',
@@ -174,7 +172,6 @@ class DashboardControllerTest extends TestCase
             'nama_kecamatan' => 'Atinggola',
         ]);
         $cabai = Komoditas::create([
-            'kode_komoditas' => 'CBI-RWT',
             'nama_komoditas' => 'Cabai Rawit',
             'kategori' => 'pangan',
             'satuan' => 'Kg',
@@ -182,7 +179,6 @@ class DashboardControllerTest extends TestCase
             'is_active' => true,
         ]);
         $beras = Komoditas::create([
-            'kode_komoditas' => 'BRG-MDY',
             'nama_komoditas' => 'Beras Medium',
             'kategori' => 'pangan',
             'satuan' => 'Kg',
@@ -344,10 +340,143 @@ class DashboardControllerTest extends TestCase
                 'periode',
             ],
             'htmlPanganTable',
+            'htmlPanganStokCards',
             'htmlLpgTable',
             'htmlBbmTable',
         ]);
         $this->assertEquals('success', $response->json('status'));
         $this->assertEquals('pangan', $response->json('mapFilterType'));
+    }
+
+    public function test_dashboard_calculates_total_stok_daerah_from_latest_condition_across_all_kecamatan(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'admin_kabupaten',
+        ]);
+
+        $kecKwandang = Kecamatan::where('nama_kecamatan', 'Kwandang')->first()
+            ?? Kecamatan::create([
+                'kode_kecamatan' => 'TEST01',
+                'nama_kecamatan' => 'Kwandang',
+                'latitude' => 0.72,
+                'longitude' => 123.05,
+                'is_active' => true,
+            ]);
+
+        $kecAtinggola = Kecamatan::where('nama_kecamatan', 'Atinggola')->first()
+            ?? Kecamatan::create([
+                'kode_kecamatan' => 'TEST02',
+                'nama_kecamatan' => 'Atinggola',
+                'latitude' => 0.74,
+                'longitude' => 123.12,
+                'is_active' => true,
+            ]);
+
+        $komoditas = Komoditas::create([
+            'nama_komoditas' => 'Beras Premium Daerah',
+            'kategori' => 'pangan',
+            'satuan' => 'Kg',
+            'is_strategis' => true,
+            'is_active' => true,
+        ]);
+
+        // Kwandang: Data lama (50 Kg) yang harus di-supersede oleh data baru
+        DataPangan::create([
+            'tanggal_input' => '2026-10-20',
+            'kecamatan_id' => $kecKwandang->id,
+            'komoditas_id' => $komoditas->id,
+            'user_id' => $user->id,
+            'harga_hari_ini' => 14000,
+            'stok_tersedia' => 50,
+            'status_ketersediaan' => 'waspada',
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        // Kwandang: Kondisi terakhir (120 Kg)
+        DataPangan::create([
+            'tanggal_input' => '2026-11-01',
+            'kecamatan_id' => $kecKwandang->id,
+            'komoditas_id' => $komoditas->id,
+            'user_id' => $user->id,
+            'harga_hari_ini' => 15000,
+            'stok_tersedia' => 120,
+            'status_ketersediaan' => 'aman',
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        // Atinggola: Kondisi terakhir (80 Kg)
+        DataPangan::create([
+            'tanggal_input' => '2026-10-28',
+            'kecamatan_id' => $kecAtinggola->id,
+            'komoditas_id' => $komoditas->id,
+            'user_id' => $user->id,
+            'harga_hari_ini' => 14500,
+            'stok_tersedia' => 80,
+            'status_ketersediaan' => 'aman',
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('dashboard', [
+            'tab' => 'pangan',
+            'pangan_komoditas_id' => $komoditas->id,
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('Total Stok Pangan Daerah');
+        $response->assertSee('id="modalTotalStokDaerah"', false);
+        $response->assertSee('id="pangan-stok-cards-wrapper"', false);
+
+        // Pastikan total stok yang dihitung adalah 120 + 80 = 200 Kg (bukan 50 + 120 + 80 = 250)
+        $response->assertViewHas('totalStokDaerah', function ($collection) use ($komoditas): bool {
+            $row = $collection->firstWhere('komoditas_id', $komoditas->id);
+            return $row !== null
+                && (float) $row['total_stok'] === 200.0
+                && $row['kecamatan_melaporkan'] === 2;
+        });
+
+        // Pastikan angka 200 Kg muncul pada kartu di bawah peta
+        $response->assertSee('200');
+        $response->assertSee('Beras Premium Daerah');
+    }
+
+    public function test_dashboard_ajax_filter_returns_updated_stok_cards_for_filtered_commodity(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'admin_kabupaten',
+        ]);
+
+        $kecKwandang = Kecamatan::where('nama_kecamatan', 'Kwandang')->first()
+            ?? Kecamatan::first();
+
+        $komoditas = Komoditas::create([
+            'nama_komoditas' => 'Gula Pasir Lokal',
+            'kategori' => 'pangan',
+            'satuan' => 'Kg',
+            'is_strategis' => true,
+            'is_active' => true,
+        ]);
+
+        DataPangan::create([
+            'tanggal_input' => '2026-11-02',
+            'kecamatan_id' => $kecKwandang->id,
+            'komoditas_id' => $komoditas->id,
+            'user_id' => $user->id,
+            'harga_hari_ini' => 17500,
+            'stok_tersedia' => 450,
+            'status_ketersediaan' => 'aman',
+            'status_verifikasi' => 'disetujui',
+        ]);
+
+        $response = $this->actingAs($user)->getJson(route('dashboard', [
+            'tab' => 'pangan',
+            'pangan_komoditas_id' => $komoditas->id,
+        ]));
+
+        $response->assertOk();
+        $this->assertEquals('success', $response->json('status'));
+        $this->assertNotNull($response->json('htmlPanganStokCards'));
+        $this->assertStringContainsString('Gula Pasir Lokal', $response->json('htmlPanganStokCards'));
+        $this->assertStringContainsString('450', $response->json('htmlPanganStokCards'));
+        $this->assertStringContainsString('Total Stok Daerah', $response->json('htmlPanganStokCards'));
     }
 }

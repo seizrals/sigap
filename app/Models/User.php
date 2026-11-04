@@ -63,7 +63,7 @@ class User extends Authenticatable
     public static function roleOptions(): array
     {
         return [
-            self::ROLE_OPD => 'Pejabat OPD',
+            self::ROLE_OPD => 'Pejabat OPD/Instansi',
             self::ROLE_ADMIN => 'Admin',
             self::ROLE_KECAMATAN => 'User per Wilayah Kecamatan',
             self::ROLE_BPS => 'BPS',

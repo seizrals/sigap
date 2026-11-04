@@ -271,7 +271,7 @@
             });
         }
 
-        // 4. Sebelum submit: Hanya submit baris yang diisi nilainya
+        // 4. Sebelum submit: Hanya submit baris yang diisi harga hari ini
         form.addEventListener('submit', (e) => {
             if (!kecamatanSelect.value) {
                 alert('Silakan pilih kecamatan terlebih dahulu.');
@@ -284,10 +284,10 @@
 
             let filledCount = 0;
             rows.forEach((row) => {
-                const hasInput = [...row.querySelectorAll('[data-entry-value]')]
-                    .some((control) => control.value.trim() !== '');
+                const hargaInput = row.querySelector('input[name*="[harga_hari_ini]"]');
+                const hasValue = hargaInput && hargaInput.value.trim() !== '';
 
-                if (hasInput) {
+                if (hasValue) {
                     filledCount++;
                     row.querySelectorAll('input, select').forEach((control) => {
                         control.disabled = false;
@@ -306,6 +306,13 @@
                 });
                 e.preventDefault();
             }
+        });
+
+        // Pastikan semua input aktif kembali jika user kembali ke halaman (bfcache)
+        window.addEventListener('pageshow', () => {
+            rows.forEach(row => {
+                row.querySelectorAll('input, select').forEach(c => c.disabled = false);
+            });
         });
 
         // 5. Reset form: Kembalikan semua disabled state

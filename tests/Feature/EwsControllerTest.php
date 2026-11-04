@@ -111,10 +111,71 @@ class EwsControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Alert tampil di EWS');
-        $response->assertSee('Detail laporan lapangan.');
+        $response->assertSee('BELUM DITINDAKLANJUTI');
+        $response->assertSee('SUDAH DITINDAKLANJUTI');
+        $response->assertDontSee('Analisis Sistem & Rekomendasi');
         $response->assertSee('Lihat Foto 1');
         $response->assertSee('open-alert-photo');
         $response->assertSee('Selesai Ditindaklanjuti');
+    }
+
+    public function test_manual_alert_can_be_stored_without_analisis_sistem(): void
+    {
+        $user = User::factory()->create([
+            'username' => 'ews-operator-no-analisis',
+            'role' => 'admin_kabupaten',
+        ]);
+        $kecamatan = Kecamatan::create([
+            'kode_kecamatan' => '7505030',
+            'nama_kecamatan' => 'Atinggola',
+        ]);
+
+        $response = $this->actingAs($user)->post(route('ews.store'), [
+            'kategori' => 'pangan',
+            'status_ketersediaan' => 'waspada',
+            'kecamatan_id' => $kecamatan->id,
+            'judul_alert' => 'Stok Beras Menipis di Pasar',
+        ]);
+
+        $response->assertRedirect(route('ews.index'));
+        $alert = EwsAlert::where('judul_alert', 'Stok Beras Menipis di Pasar')->firstOrFail();
+        $this->assertSame('waspada', $alert->status_ketersediaan);
+        $this->assertSame('-', $alert->analisis_sistem);
+    }
+
+    public function test_ews_center_shows_resolved_alerts(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Petugas EWS',
+            'username' => 'petugas-ews',
+            'role' => 'admin_kabupaten',
+        ]);
+        $kecamatan = Kecamatan::create([
+            'kode_kecamatan' => '7505040',
+            'nama_kecamatan' => 'Tolinggula',
+        ]);
+        EwsAlert::create([
+            'kode_alert' => 'EWS-20261103-0003',
+            'sumber_deteksi' => 'manual_admin',
+            'kategori' => 'pangan',
+            'status_ketersediaan' => 'kritis',
+            'status' => 'selesai',
+            'kecamatan_id' => $kecamatan->id,
+            'judul_alert' => 'Alert Telah Selesai',
+            'analisis_sistem' => '-',
+            'tindak_lanjut' => 'Operasi pasar murah telah dilaksanakan bersama Bulog.',
+            'ditangani_oleh' => $user->id,
+            'waktu_penanganan' => now(),
+            'bukti_penanganan_path' => 'ews-resolutions/sidak.jpg',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('ews.index'));
+
+        $response->assertOk();
+        $response->assertSee('Alert Telah Selesai');
+        $response->assertSee('Operasi pasar murah telah dilaksanakan bersama Bulog.');
+        $response->assertSee('Lihat Bukti Penanganan');
+        $response->assertSee('Petugas EWS');
     }
 
     public function test_ews_center_shows_automatic_alerts_from_pangan_lpg_and_bbm(): void
@@ -128,7 +189,6 @@ class EwsControllerTest extends TestCase
             'nama_kecamatan' => 'Kwandang',
         ]);
         $komoditas = Komoditas::create([
-            'kode_komoditas' => 'CBI-RWT',
             'nama_komoditas' => 'Cabai Rawit',
             'kategori' => 'pangan',
             'satuan' => 'Kg',

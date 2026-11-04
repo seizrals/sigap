@@ -34,7 +34,6 @@ class SystemStatusServiceTest extends TestCase
         $user = User::factory()->create(['username' => 'user_pangan']);
         $kecamatan = Kecamatan::create(['kode_kecamatan' => '750501', 'nama_kecamatan' => 'Kwandang']);
         $komoditas = Komoditas::create([
-            'kode_komoditas' => 'P01',
             'nama_komoditas' => 'Cabai Rawit',
             'satuan' => 'kg',
             'kategori' => 'Bumbu-bumbuan',

@@ -27,6 +27,7 @@ class UserManagementControllerTest extends TestCase
         $indexResponse->assertOk();
         $indexResponse->assertSee('Daftar Pengguna');
         $indexResponse->assertSee('Tambah Pengguna');
+        $indexResponse->assertSee('Pejabat OPD/Instansi');
     }
 
     public function test_admin_can_create_kecamatan_user(): void
@@ -168,6 +169,7 @@ class UserManagementControllerTest extends TestCase
 
         $response = $this->actingAs($admin)->get(route('users.edit', $user));
         $response->assertOk();
+        $response->assertSee('Pejabat OPD/Instansi');
         $response->assertSee('Perbarui Data Pengguna');
         $response->assertSee('Operator Kwandang');
         $response->assertSee('operator-kwandang');

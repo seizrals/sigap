@@ -339,11 +339,6 @@
                     </button>
                 </div>
 
-                {{-- Card Total Stok Pangan di Bawah Peta --}}
-                <div id="pangan-stok-cards-wrapper">
-                    @include('dashboard.partials.pangan-stok-cards')
-                </div>
-
                 <form id="pangan-filter-form" method="GET" action="{{ route('dashboard') }}" class="bg-slate-50/60 p-3.5 sm:p-4 rounded-2xl mb-5 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-3 sm:gap-4 text-xs font-semibold text-slate-500">
                     <input type="hidden" name="tab" value="pangan">
                     <label class="flex flex-col gap-1.5 w-full sm:w-auto">
@@ -732,11 +727,7 @@
                 }
             }
 
-            // 4. Update Tables & Cards
-            const panganStokCardsWrapper = document.getElementById('pangan-stok-cards-wrapper');
-            if (panganStokCardsWrapper && data.htmlPanganStokCards) {
-                panganStokCardsWrapper.innerHTML = data.htmlPanganStokCards;
-            }
+            // 4. Update Tables
             const panganTableWrapper = document.getElementById('pangan-table-wrapper');
             if (panganTableWrapper && data.htmlPanganTable) {
                 panganTableWrapper.innerHTML = data.htmlPanganTable;

@@ -340,7 +340,6 @@ class DashboardControllerTest extends TestCase
                 'periode',
             ],
             'htmlPanganTable',
-            'htmlPanganStokCards',
             'htmlLpgTable',
             'htmlBbmTable',
         ]);
@@ -424,7 +423,7 @@ class DashboardControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('Total Stok Pangan Daerah');
         $response->assertSee('id="modalTotalStokDaerah"', false);
-        $response->assertSee('id="pangan-stok-cards-wrapper"', false);
+        $response->assertDontSee('id="pangan-stok-cards-wrapper"', false);
 
         // Pastikan total stok yang dihitung adalah 120 + 80 = 200 Kg (bukan 50 + 120 + 80 = 250)
         $response->assertViewHas('totalStokDaerah', function ($collection) use ($komoditas): bool {
@@ -434,12 +433,12 @@ class DashboardControllerTest extends TestCase
                 && $row['kecamatan_melaporkan'] === 2;
         });
 
-        // Pastikan angka 200 Kg muncul pada kartu di bawah peta
+        // Pastikan angka 200 Kg muncul pada popup modal
         $response->assertSee('200');
         $response->assertSee('Beras Premium Daerah');
     }
 
-    public function test_dashboard_ajax_filter_returns_updated_stok_cards_for_filtered_commodity(): void
+    public function test_dashboard_ajax_filter_updates_table_and_commodity_filter_syncs_with_master_data(): void
     {
         $user = User::factory()->create([
             'role' => 'admin_kabupaten',
@@ -448,13 +447,13 @@ class DashboardControllerTest extends TestCase
         $kecKwandang = Kecamatan::where('nama_kecamatan', 'Kwandang')->first()
             ?? Kecamatan::first();
 
-        $komoditas = Komoditas::create([
+        // Tambah komoditas melalui master data controller
+        $this->actingAs($user)->post(route('master-data.komoditas.store'), [
             'nama_komoditas' => 'Gula Pasir Lokal',
-            'kategori' => 'pangan',
             'satuan' => 'Kg',
-            'is_strategis' => true,
-            'is_active' => true,
         ]);
+
+        $komoditas = Komoditas::where('nama_komoditas', 'Gula Pasir Lokal')->firstOrFail();
 
         DataPangan::create([
             'tanggal_input' => '2026-11-02',
@@ -467,16 +466,24 @@ class DashboardControllerTest extends TestCase
             'status_verifikasi' => 'disetujui',
         ]);
 
+        // Pastikan komoditas dari master data tersinkron di dropdown filter dan modal
+        $viewResponse = $this->actingAs($user)->get(route('dashboard', ['tab' => 'pangan']));
+        $viewResponse->assertOk();
+        $viewResponse->assertSee($komoditas->nama_komoditas);
+        $viewResponse->assertDontSee('id="pangan-stok-cards-wrapper"', false);
+
+        // Filter via AJAX
         $response = $this->actingAs($user)->getJson(route('dashboard', [
             'tab' => 'pangan',
             'pangan_komoditas_id' => $komoditas->id,
+            'periode_saat_ini' => '2026-11-02',
+            'periode_sebelumnya' => '2026-11-01',
         ]));
 
         $response->assertOk();
         $this->assertEquals('success', $response->json('status'));
-        $this->assertNotNull($response->json('htmlPanganStokCards'));
-        $this->assertStringContainsString('Gula Pasir Lokal', $response->json('htmlPanganStokCards'));
-        $this->assertStringContainsString('450', $response->json('htmlPanganStokCards'));
-        $this->assertStringContainsString('Total Stok Daerah', $response->json('htmlPanganStokCards'));
+        $this->assertNotNull($response->json('htmlPanganTable'));
+        $this->assertStringContainsString('Gula Pasir Lokal', $response->json('htmlPanganTable'));
+        $this->assertStringContainsString('450', $response->json('htmlPanganTable'));
     }
 }

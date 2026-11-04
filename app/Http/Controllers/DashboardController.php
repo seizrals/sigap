@@ -428,7 +428,6 @@ class DashboardController extends Controller
                     'periode' => $iphBulananTerbaru ? ($iphBulananTerbaru->nama_bulan . ' ' . $iphBulananTerbaru->tahun) : 'Mei 2026',
                 ],
                 'htmlPanganTable' => view('dashboard.partials.pangan-table', compact('dataPangan', 'periodeSebelumnya', 'periodeSaatIni'))->render(),
-                'htmlPanganStokCards' => view('dashboard.partials.pangan-stok-cards', compact('totalStokDaerah', 'stokPanganRingkasan', 'filters'))->render(),
                 'htmlLpgTable' => view('dashboard.partials.lpg-table', compact('dataLpg'))->render(),
                 'htmlBbmTable' => view('dashboard.partials.bbm-table', compact('dataBbm'))->render(),
             ]);

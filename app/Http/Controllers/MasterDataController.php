@@ -32,6 +32,8 @@ class MasterDataController extends Controller
         ]);
 
         $validated['kategori'] = $validated['kategori'] ?? 'pangan';
+        $validated['is_active'] = true;
+        $validated['is_strategis'] = true;
 
         Komoditas::create($validated);
 
@@ -48,6 +50,8 @@ class MasterDataController extends Controller
         ]);
 
         $validated['kategori'] = $validated['kategori'] ?? $komoditas->kategori ?? 'pangan';
+        $validated['is_active'] = true;
+        $validated['is_strategis'] = true;
 
         $komoditas->update($validated);
 

@@ -22,7 +22,7 @@ class MasterDataTest extends TestCase
         $response->assertOk();
         $response->assertSee('id="deleteModal"', false);
         $response->assertSee('Konfirmasi Hapus');
-        $response->assertSee('Pangan Strategis');
+        $response->assertDontSee('<select name="kategori"', false);
         $response->assertDontSee('<option value="lpg">LPG</option>', false);
         $response->assertDontSee('<option value="bbm">BBM</option>', false);
     }
@@ -33,7 +33,6 @@ class MasterDataTest extends TestCase
 
         $payload = [
             'nama_komoditas' => 'Bawang Goreng Krispi',
-            'kategori' => 'pangan',
             'satuan' => 'Toples',
         ];
 

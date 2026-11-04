@@ -27,9 +27,11 @@ class MasterDataController extends Controller
     {
         $validated = $request->validate([
             'nama_komoditas' => 'required|string',
-            'kategori' => 'required|string',
+            'kategori' => 'nullable|string',
             'satuan' => 'required|string',
         ]);
+
+        $validated['kategori'] = $validated['kategori'] ?? 'pangan';
 
         Komoditas::create($validated);
 
@@ -41,9 +43,11 @@ class MasterDataController extends Controller
     {
         $validated = $request->validate([
             'nama_komoditas' => 'required|string',
-            'kategori' => 'required|string',
+            'kategori' => 'nullable|string',
             'satuan' => 'required|string',
         ]);
+
+        $validated['kategori'] = $validated['kategori'] ?? $komoditas->kategori ?? 'pangan';
 
         $komoditas->update($validated);
 

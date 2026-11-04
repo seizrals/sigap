@@ -114,9 +114,50 @@ class EwsControllerTest extends TestCase
         $response->assertSee('BELUM DITINDAKLANJUTI');
         $response->assertSee('SUDAH DITINDAKLANJUTI');
         $response->assertDontSee('Analisis Sistem & Rekomendasi');
+        $response->assertDontSee('Informasi Sistem');
+        $response->assertSee('Cari peringatan...');
+        $response->assertSee('Buat Peringatan Baru');
         $response->assertSee('Lihat Foto 1');
         $response->assertSee('open-alert-photo');
         $response->assertSee('Selesai Ditindaklanjuti');
+    }
+
+    public function test_ews_center_search_filters_alerts(): void
+    {
+        $user = User::factory()->create([
+            'username' => 'ews-search-operator',
+            'role' => 'admin_kabupaten',
+        ]);
+        $kecamatan = Kecamatan::create([
+            'kode_kecamatan' => '7505020',
+            'nama_kecamatan' => 'Kwandang',
+        ]);
+        EwsAlert::create([
+            'kode_alert' => 'EWS-20261103-0005',
+            'sumber_deteksi' => 'manual_admin',
+            'kategori' => 'pangan',
+            'status_ketersediaan' => 'kritis',
+            'status' => 'terbuka',
+            'kecamatan_id' => $kecamatan->id,
+            'judul_alert' => 'Kenaikan Ekstrem Cabai Rawit',
+            'analisis_sistem' => '-',
+        ]);
+        EwsAlert::create([
+            'kode_alert' => 'EWS-20261103-0006',
+            'sumber_deteksi' => 'manual_admin',
+            'kategori' => 'lpg',
+            'status_ketersediaan' => 'waspada',
+            'status' => 'terbuka',
+            'kecamatan_id' => $kecamatan->id,
+            'judul_alert' => 'Kelangkaan Gas Tabung Hijau',
+            'analisis_sistem' => '-',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('ews.index', ['search' => 'Cabai']));
+
+        $response->assertOk();
+        $response->assertSee('Kenaikan Ekstrem Cabai Rawit');
+        $response->assertDontSee('Kelangkaan Gas Tabung Hijau');
     }
 
     public function test_manual_alert_can_be_stored_without_analisis_sistem(): void

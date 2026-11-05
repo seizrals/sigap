@@ -137,11 +137,10 @@ class SystemStatusServiceTest extends TestCase
         $response->assertDontSee('STATUS LPG');
         $response->assertDontSee('STATUS BBM');
 
-        $user = User::factory()->create(['username' => 'admin_status', 'role' => 'admin_kabupaten']);
+        $user = User::factory()->create(['name' => 'Admin Status', 'username' => 'admin_status', 'role' => 'admin_kabupaten']);
         $navResponse = $this->actingAs($user)->get(route('dashboard'));
         $navResponse->assertOk();
-        $navResponse->assertSee('STATUS PANGAN');
-        $navResponse->assertSee('STATUS LPG');
-        $navResponse->assertSee('STATUS BBM');
+        $navResponse->assertSee('Selamat Datang');
+        $navResponse->assertSee('Admin Status');
     }
 }

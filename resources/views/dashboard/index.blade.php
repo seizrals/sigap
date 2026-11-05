@@ -528,11 +528,24 @@
 
     window.filterModalKomoditas = function(keyword) {
         const q = (keyword || '').toLowerCase().trim();
+        const clearBtn = document.getElementById('modalStokSearchClear');
+        if (clearBtn) {
+            clearBtn.classList.toggle('hidden', !q);
+        }
         const rows = document.querySelectorAll('.modal-komoditas-row');
         rows.forEach(row => {
             const name = (row.getAttribute('data-nama') || '').toLowerCase();
             row.style.display = (!q || name.includes(q)) ? '' : 'none';
         });
+    };
+
+    window.clearModalSearch = function() {
+        const input = document.getElementById('modalStokSearch');
+        if (input) {
+            input.value = '';
+            filterModalKomoditas('');
+            input.focus();
+        }
     };
 
     window.addEventListener('keydown', function(e) {

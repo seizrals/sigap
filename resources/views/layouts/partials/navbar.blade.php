@@ -48,74 +48,18 @@
             </div>
 
         @else
-            <!-- Badge Status Pangan, LPG, BBM (Sinkron Otomatis dengan Data Real-Time) -->
-            @php
-                $statuses = $headerStatuses ?? \App\Services\SystemStatusService::getHeaderStatuses();
-            @endphp
-            
-            <!-- Desktop XL+: Full Status Badges -->
-            <div class="hidden xl:flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs">
-                <!-- Status Pangan -->
-                <div class="flex items-center gap-2 px-2 py-1" title="Status Pangan: {{ $statuses['pangan']['status'] }}">
-                    <span class="inline-block w-2 h-2 rounded-full {{ $statuses['pangan']['dot_class'] }} animate-pulse"></span>
-                    <span class="text-[11px] font-semibold text-slate-700">STATUS PANGAN</span>
-                    <span class="text-[11px] font-bold {{ $statuses['pangan']['text_class'] }}">{{ $statuses['pangan']['status'] }}</span>
+            {{-- Selamat Datang User --}}
+            <div class="flex items-center gap-3 px-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs">
+                <div class="flex flex-col items-end">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">Selamat Datang</span>
+                    <span class="text-xs sm:text-sm font-bold text-slate-900 mt-1">{{ Auth::user()->name }}</span>
                 </div>
-
-                <div class="w-px h-4 bg-slate-200"></div>
-
-                <!-- Status LPG -->
-                <div class="flex items-center gap-2 px-2 py-1" title="Status LPG: {{ $statuses['lpg']['status'] }}">
-                    <span class="inline-block w-2 h-2 rounded-full {{ $statuses['lpg']['dot_class'] }} animate-pulse"></span>
-                    <span class="text-[11px] font-semibold text-slate-700">STATUS LPG</span>
-                    <span class="text-[11px] font-bold {{ $statuses['lpg']['text_class'] }}">{{ $statuses['lpg']['status'] }}</span>
-                </div>
-
-                <div class="w-px h-4 bg-slate-200"></div>
-
-                <!-- Status BBM -->
-                <div class="flex items-center gap-2 px-2 py-1" title="Status BBM: {{ $statuses['bbm']['status'] }}">
-                    <span class="inline-block w-2 h-2 rounded-full {{ $statuses['bbm']['dot_class'] }} animate-pulse"></span>
-                    <span class="text-[11px] font-semibold text-slate-700">STATUS BBM</span>
-                    <span class="text-[11px] font-bold {{ $statuses['bbm']['text_class'] }}">{{ $statuses['bbm']['status'] }}</span>
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm shrink-0">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+                    </svg>
                 </div>
             </div>
-
-            <!-- Tablet / Medium Screens (SM to LG): Compact Badges -->
-            <div class="hidden sm:flex xl:hidden items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] font-bold shadow-xs">
-                <span class="flex items-center gap-1" title="Pangan: {{ $statuses['pangan']['status'] }}">
-                    <span class="w-2 h-2 rounded-full {{ $statuses['pangan']['dot_class'] }}"></span>
-                    <span class="text-slate-600">Pangan:</span>
-                    <span class="{{ $statuses['pangan']['text_class'] }}">{{ $statuses['pangan']['status'] }}</span>
-                </span>
-                <span class="text-slate-300">|</span>
-                <span class="flex items-center gap-1" title="LPG: {{ $statuses['lpg']['status'] }}">
-                    <span class="w-2 h-2 rounded-full {{ $statuses['lpg']['dot_class'] }}"></span>
-                    <span class="text-slate-600">LPG:</span>
-                    <span class="{{ $statuses['lpg']['text_class'] }}">{{ $statuses['lpg']['status'] }}</span>
-                </span>
-                <span class="text-slate-300">|</span>
-                <span class="flex items-center gap-1" title="BBM: {{ $statuses['bbm']['status'] }}">
-                    <span class="w-2 h-2 rounded-full {{ $statuses['bbm']['dot_class'] }}"></span>
-                    <span class="text-slate-600">BBM:</span>
-                    <span class="{{ $statuses['bbm']['text_class'] }}">{{ $statuses['bbm']['status'] }}</span>
-                </span>
-            </div>
-
-            <!-- Mobile & Foldable (< SM): Compact 3-dot indicator -->
-            <div class="flex sm:hidden items-center gap-1.5 px-2 py-1.5 rounded-xl bg-slate-50 border border-slate-200 shadow-2xs" title="Status Komoditas: Pangan ({{ $statuses['pangan']['status'] }}), LPG ({{ $statuses['lpg']['status'] }}), BBM ({{ $statuses['bbm']['status'] }})">
-                <span class="w-2.5 h-2.5 rounded-full {{ $statuses['pangan']['dot_class'] }} animate-pulse"></span>
-                <span class="w-2.5 h-2.5 rounded-full {{ $statuses['lpg']['dot_class'] }} animate-pulse"></span>
-                <span class="w-2.5 h-2.5 rounded-full {{ $statuses['bbm']['dot_class'] }} animate-pulse"></span>
-            </div>
-
-            <!-- Tombol Notifikasi (Lonceng) -->
-            <button class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-600 transition-colors shrink-0">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
-                </svg>
-                <span class="absolute top-1 sm:top-1.5 right-1 sm:right-1.5 w-2 h-2 rounded-full bg-status-bahaya ring-2 ring-white"></span>
-            </button>
         @endif
 
         <!-- FOTO KANAN: Foto Wakil Bupati Gorontalo Utara (Muncul di layar MD ke atas) -->
